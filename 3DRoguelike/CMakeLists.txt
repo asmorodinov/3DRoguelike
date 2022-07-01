@@ -5,5 +5,7 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("3DRoguelike")
 
+find_package(spdlog CONFIG REQUIRED)
+
 # Include sub-projects.
 add_subdirectory ("3DRoguelike")
