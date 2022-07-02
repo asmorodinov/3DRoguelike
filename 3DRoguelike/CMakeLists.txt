@@ -5,7 +5,10 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("3DRoguelike")
 
+find_path(STB_INCLUDE_DIRS "stb_c_lexer.h")
+
 find_package(spdlog CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 
