@@ -74,7 +74,7 @@ int main() {
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
     auto dimensions = Dimensions{20, 5, 20};
     auto dungeon = Dungeon(dimensions);
