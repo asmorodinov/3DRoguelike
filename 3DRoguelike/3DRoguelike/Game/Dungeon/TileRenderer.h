@@ -7,6 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <vector>
+
 #include "Tile.h"
 #include "../Assets.h"
 #include "../Renderer.h"
@@ -18,6 +20,9 @@ class TileRenderer {
     TileRenderer();
     ~TileRenderer();
 
+    void InitInstancedRendering(const std::vector<glm::vec3>& offsets);
+    void RenderTilesInstanced();
+
     void InitRendering();
 
     void RenderTile(const Coordinates& coordinates, const Tile& tile);
@@ -27,4 +32,7 @@ class TileRenderer {
     Model cubeModel;
     Shader& shader;
     Texture texture1;
+
+    size_t cnt = 0;
+    BufferId buf = 0;
 };

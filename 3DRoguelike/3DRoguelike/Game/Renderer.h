@@ -2,6 +2,7 @@
 
 using VAO = unsigned int;
 using VBO = unsigned int;
+using BufferId = unsigned int;
 
 struct Model {
     VAO vao;
