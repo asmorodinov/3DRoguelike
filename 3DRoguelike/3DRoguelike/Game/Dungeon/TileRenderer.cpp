@@ -1,7 +1,7 @@
 #include "TileRenderer.h"
 
 TileRenderer::TileRenderer()
-    : cubeModel(GetCubeModel()), shader(Assets::GetShader("textureMapping.vs", "textureMapping.fs")), texture1(Assets::GetTexture("texture.png")) {
+    : cubeModel(GetCubeModel()), shader(Assets::GetShader("cubeShader.vs", "cubeShader.fs")), texture1(Assets::GetTexture("texture.png")) {
 }
 
 TileRenderer::~TileRenderer() {
@@ -29,8 +29,7 @@ void TileRenderer::RenderTile(const Coordinates& coordinates, const Tile& tile) 
         return;
     }
 
-    auto model = glm::translate(glm::mat4(1.0f), glm::vec3(coordinates.x, coordinates.y, coordinates.z));
-    shader.setMat4("model", model);
+    shader.setVec3("offset", glm::vec3(coordinates.x, coordinates.y, coordinates.z));
     RenderModel(cubeModel);
 }
 
