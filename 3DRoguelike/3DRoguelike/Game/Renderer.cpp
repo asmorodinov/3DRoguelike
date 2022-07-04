@@ -44,8 +44,11 @@ Model GetCubeModel() {
     return {vao, vbo, 12};
 }
 
-void RenderModel(const Model& model) {
+void BindModel(const Model& model) {
     glBindVertexArray(model.vao);
+}
+
+void RenderModel(const Model& model) {
     glDrawArrays(GL_TRIANGLES, 0, model.triangleCount * 3);
 }
 

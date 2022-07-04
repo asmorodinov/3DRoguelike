@@ -6,11 +6,12 @@ using VBO = unsigned int;
 struct Model {
     VAO vao;
     VBO vbo;
-    size_t triangleCount;
+    unsigned int triangleCount;
 };
 
 Model GetCubeModel();
 
+void BindModel(const Model& model);
 void RenderModel(const Model& model);
 
 void DeleteModel(Model& model);
