@@ -30,8 +30,8 @@ class TileRenderer {
 
  private:
     Model cubeModel;
-    Shader& shader;
-    Texture texture1;
+    Shader shader;
+    Texture texture1 = Texture();
 
     size_t cnt = 0;
     BufferId buf = 0;

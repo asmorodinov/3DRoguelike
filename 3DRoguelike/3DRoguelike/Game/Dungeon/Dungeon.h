@@ -3,6 +3,7 @@
 #include "Tile.h"
 #include "WorldGrid.h"
 #include "TileRenderer.h"
+#include "Room.h"
 #include "../Utility/Random.h"
 
 class Dungeon {
@@ -16,8 +17,13 @@ class Dungeon {
     void Render();
 
  private:
+    void reset();
+
+ private:
     Dimensions dimensions;
     Seed seed;
-    WorldGrid world;
+    RNG rng;
+    TilesVec tiles;
+    std::vector<Room> rooms;
     TileRenderer renderer;
 };

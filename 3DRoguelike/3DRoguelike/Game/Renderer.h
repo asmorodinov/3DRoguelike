@@ -5,9 +5,9 @@ using VBO = unsigned int;
 using BufferId = unsigned int;
 
 struct Model {
-    VAO vao;
-    VBO vbo;
-    unsigned int triangleCount;
+    VAO vao = 0;
+    VBO vbo = 0;
+    unsigned int triangleCount = 0;
 };
 
 Model GetCubeModel();

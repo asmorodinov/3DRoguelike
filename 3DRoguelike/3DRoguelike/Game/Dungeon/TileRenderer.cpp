@@ -3,7 +3,7 @@
 #include "../Utility/GLError.h"
 
 TileRenderer::TileRenderer()
-    : cubeModel(GetCubeModel()), shader(Assets::GetShader("cubeShader.vs", "cubeShader.fs")), texture1(Assets::GetTexture("texture.png")) {
+    : cubeModel(GetCubeModel()), shader(Assets::GetShader("cubeShader.vs", "cubeShader.fs")), texture1(Assets::GetTexture("texture3.png")) {
 }
 
 TileRenderer::~TileRenderer() {
@@ -30,6 +30,9 @@ void TileRenderer::InitInstancedRendering(const std::vector<glm::vec3>& offsets)
 
     glBindVertexArray(0);
 
+    if (cnt != 0) {
+        glDeleteBuffers(1, &buf);
+    }
     cnt = offsets.size();
     buf = buffer;
 }

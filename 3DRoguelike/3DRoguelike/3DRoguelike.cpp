@@ -35,6 +35,9 @@ bool firstMouse = true;
 float deltaTime = 0.0f;  // time between current frame and last frame
 float lastFrame = 0.0f;
 
+bool generate = false;
+auto spacePressed = false;
+
 int main() {
     // glfw: initialize and configure
     // ------------------------------
@@ -76,7 +79,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    auto dimensions = Dimensions{20, 5, 20};
+    auto dimensions = Dimensions{60, 30, 60};
     auto dungeon = Dungeon(dimensions);
     dungeon.Generate();
 
@@ -105,6 +108,11 @@ int main() {
         Assets::Get().projection = projection;
         Assets::Get().view = view;
 
+        if (generate) {
+            generate = false;
+            dungeon.Generate();
+        }
+
         dungeon.Render();
 
         glfwSwapBuffers(window);
@@ -119,6 +127,14 @@ int main() {
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
+
+    if (!spacePressed && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        generate = true;
+        spacePressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+        spacePressed = false;
+    }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.ProcessKeyboard(BACKWARD, deltaTime);

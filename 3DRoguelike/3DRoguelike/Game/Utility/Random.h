@@ -19,7 +19,7 @@ class RNG {
         return std::uniform_int_distribution<T>(a, b)(rng);
     }
     template <typename T>
-    void RealUniform(T a, T b) {
+    T RealUniform(T a, T b) {
         return std::uniform_real_distribution<T>(a, b)(rng);
     }
 

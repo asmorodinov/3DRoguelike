@@ -3,15 +3,15 @@
 #include <vector>
 
 struct Coordinates {
-    size_t x;
-    size_t y;
-    size_t z;
+    size_t x = 0;
+    size_t y = 0;
+    size_t z = 0;
 };
 
 struct Dimensions {
-    size_t width;
-    size_t height;
-    size_t length;
+    size_t width = 0;
+    size_t height = 0;
+    size_t length = 0;
 };
 
 size_t Volume(const Dimensions& dimensions);
@@ -21,7 +21,7 @@ size_t CoordinatesToIndex(const Coordinates& coordinates, const Dimensions& dime
 template <typename T>
 class Vector3D {
  public:
-    Vector3D(const Dimensions& dimensions_, const T& init) : dimensions(dimensions_), data(Volume(dimensions), init) {
+    Vector3D(const Dimensions& dimensions_ = Dimensions(), const T& init = T()) : dimensions(dimensions_), data(Volume(dimensions), init) {
     }
 
     void Set(const Coordinates& coordinates, const T& elem) {
@@ -40,6 +40,10 @@ class Vector3D {
 
     T& Get(const Coordinates& coordinates) {
         return data[CoordinatesToIndex(coordinates, dimensions)];
+    }
+
+    const Dimensions& GetDimensions() const {
+        return dimensions;
     }
 
  private:

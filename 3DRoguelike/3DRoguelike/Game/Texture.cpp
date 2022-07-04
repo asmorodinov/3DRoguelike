@@ -33,7 +33,7 @@ Texture LoadTexture(const std::string& file) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         } else {
             // unsupported format
-            LOG_ASSERT(false)
+            LOG_ASSERT(false);
         }
 
         glGenerateMipmap(GL_TEXTURE_2D);
