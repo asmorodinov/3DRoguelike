@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 # Add source to this project's executable.
-add_executable (3DRoguelike "3DRoguelike.cpp" "3DRoguelike.h" "Game/Camera.h" "Game/Shader.h" "Game/Camera.cpp" "Game/Shader.cpp" "Game/Assets.h" "Game/Assets.cpp")
+add_executable (3DRoguelike "3DRoguelike.cpp" "3DRoguelike.h" "Game/Camera.h" "Game/Shader.h" "Game/Camera.cpp" "Game/Shader.cpp" "Game/Assets.h" "Game/Assets.cpp" "Game/Texture.h" "Game/Texture.cpp" "Game/Assert.h")
 
 target_include_directories(3DRoguelike PRIVATE ${STB_INCLUDE_DIRS})
 target_link_libraries(3DRoguelike PRIVATE glm::glm)

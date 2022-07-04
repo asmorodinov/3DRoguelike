@@ -15,3 +15,13 @@ Shader& Assets::GetShader(const std::string& vertexShader, const std::string& fr
 
     return shaders[index];
 }
+
+const Texture& Assets::GetTexture(const std::string& name) {
+    auto& textures = Assets::Get().textures;
+
+    if (!textures.contains(name)) {
+        textures[name] = LoadTexture(name);
+    }
+
+    return textures[name];
+}
