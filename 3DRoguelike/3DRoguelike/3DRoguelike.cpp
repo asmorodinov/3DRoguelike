@@ -10,6 +10,7 @@
 
 #include "Game/Shader.h"
 #include "Game/Camera.h"
+#include "Game/Assets.h"
 
 #include <iostream>
 
@@ -73,7 +74,7 @@ int main() {
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader ourShader("7.4.camera.vs", "7.4.camera.fs");
+    auto& ourShader = Assets::GetShader("7.4.camera.vs", "7.4.camera.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -273,4 +274,6 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) { camera.ProcessMouseScroll(static_cast<float>(yoffset)); }
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}

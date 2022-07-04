@@ -10,6 +10,7 @@ ColumnLimit: 150
 ---
 Language: Cpp
 
+AllowShortFunctionsOnASingleLine: None
 DisableFormat:   false
 Standard: c++20
 AccessModifierOffset: -3
