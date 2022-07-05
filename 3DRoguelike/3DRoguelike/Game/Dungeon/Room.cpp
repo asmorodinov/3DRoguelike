@@ -62,28 +62,30 @@ bool RoomsIntersect(const Room& r1, const Room& r2) {
 }
 
 void RectRoom::Generate(RNG& rng, Seed seed) {
-    auto width = rng.IntUniform<size_t>(11, 20);
-    auto height = rng.IntUniform<size_t>(7, 10);
-    auto length = rng.IntUniform<size_t>(11, 20);
+    auto width = rng.IntUniform<size_t>(13, 22);
+    auto height = rng.IntUniform<size_t>(9, 12);
+    auto length = rng.IntUniform<size_t>(13, 22);
     size = Dimensions{width, height, length};
     tiles = TilesVec(size, Tile{TileType::Air, TextureType::None, glm::vec3(1.0f)});
 
     auto wall = Tile{TileType::Block, TextureType::Texture1,
                      glm::vec3(rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f))};
 
-    for (size_t i = 0; i < width; ++i)
-        for (size_t k = 0; k < length; ++k) {
-            tiles.Set(i, 0, k, wall);
-            tiles.Set(i, height - 1, k, wall);
+    auto offset = Coordinates{1, 1, 1};
+
+    for (size_t i = offset.x; i < width - offset.x; ++i)
+        for (size_t k = offset.z; k < length - offset.z; ++k) {
+            tiles.Set(i, offset.y, k, wall);
+            tiles.Set(i, height - 1 - offset.y, k, wall);
         }
-    for (size_t j = 1; j < height - 1; ++j)
-        for (size_t k = 0; k < length; ++k) {
-            tiles.Set(0, j, k, wall);
-            tiles.Set(width - 1, j, k, wall);
+    for (size_t j = offset.y + 1; j < height - 1 - offset.y; ++j)
+        for (size_t k = offset.z; k < length - offset.z; ++k) {
+            tiles.Set(offset.x, j, k, wall);
+            tiles.Set(width - 1 - offset.x, j, k, wall);
         }
-    for (size_t i = 1; i < width - 1; ++i)
-        for (size_t j = 1; j < height - 1; ++j) {
-            tiles.Set(i, j, 0, wall);
-            tiles.Set(i, j, length - 1, wall);
+    for (size_t i = 1 + offset.x; i < width - 1 - offset.x; ++i)
+        for (size_t j = 1 + offset.y; j < height - 1 - offset.y; ++j) {
+            tiles.Set(i, j, offset.z, wall);
+            tiles.Set(i, j, length - 1 - offset.z, wall);
         }
 }

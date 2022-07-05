@@ -17,6 +17,7 @@ class Dungeon {
     void Render();
 
  private:
+    void placeRooms();
     void reset();
 
  private:

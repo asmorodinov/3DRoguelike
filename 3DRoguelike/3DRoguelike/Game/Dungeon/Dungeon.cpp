@@ -22,14 +22,7 @@ Room getRandomRoom(RNG& rng) {
     return std::make_shared<RectRoom>();
 }
 
-void Dungeon::reset() {
-    rooms.clear();
-    tiles = TilesVec(dimensions, Tile());
-}
-
-void Dungeon::Generate() {
-    reset();
-
+void Dungeon::placeRooms() {
     auto tries = 1000;
     auto roomCnt = 10;
 
@@ -64,6 +57,17 @@ void Dungeon::Generate() {
         newRoom->Place(tiles);
         rooms.push_back(newRoom);
     } while (--tries > 0 && roomCnt != 0);
+}
+
+void Dungeon::reset() {
+    rooms.clear();
+    tiles = TilesVec(dimensions, Tile());
+}
+
+void Dungeon::Generate() {
+    reset();
+
+    placeRooms();
 
     auto tilesData = std::vector<PositionColor>();
 
