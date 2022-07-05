@@ -18,6 +18,7 @@ class Dungeon {
 
  private:
     void placeRooms();
+    void placeCorridors();
     void reset();
 
  private:

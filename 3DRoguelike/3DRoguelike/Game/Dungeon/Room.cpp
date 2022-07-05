@@ -10,8 +10,11 @@ void IRoom::Place(TilesVec& dungeon) {
     for (size_t i = 0; i < size.width; ++i) {
         for (size_t j = 0; j < size.height; ++j) {
             for (size_t k = 0; k < size.length; ++k) {
-                if (tiles.Get(i, j, k).type != TileType::Void) {
-                    dungeon.Set(offset.x + i, offset.y + j, offset.z + k, tiles.Get(i, j, k));
+                const auto& tile = tiles.Get(i, j, k);
+
+                // do not set dungeon tiles to FakeAir
+                if (tile.type != TileType::Void && tile.type != TileType::FakeAir) {
+                    dungeon.Set(offset.x + i, offset.y + j, offset.z + k, tile);
                 }
             }
         }
@@ -50,6 +53,7 @@ bool RoomsIntersect(const Room& r1, const Room& r2) {
     for (size_t i = maxX; i <= minX; ++i) {
         for (size_t j = maxY; j <= minY; ++j) {
             for (size_t k = maxZ; k <= minZ; ++k) {
+                // FakeAir counts as intersection between rooms
                 if (r1->tiles.Get(i - r1->offset.x, j - r1->offset.y, k - r1->offset.z).type != TileType::Void ||
                     r2->tiles.Get(i - r2->offset.x, j - r2->offset.y, k - r2->offset.z).type != TileType::Void) {
                     return true;
@@ -66,12 +70,21 @@ void RectRoom::Generate(RNG& rng, Seed seed) {
     auto height = rng.IntUniform<size_t>(9, 12);
     auto length = rng.IntUniform<size_t>(13, 22);
     size = Dimensions{width, height, length};
-    tiles = TilesVec(size, Tile{TileType::Air, TextureType::None, glm::vec3(1.0f)});
+    tiles = TilesVec(size, Tile{TileType::FakeAir, TextureType::None, glm::vec3(1.0f)});
 
+    auto air = Tile{TileType::Air, TextureType::None, glm::vec3(1.0f)};
     auto wall = Tile{TileType::Block, TextureType::Texture1,
                      glm::vec3(rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f))};
 
     auto offset = Coordinates{1, 1, 1};
+
+    for (size_t i = offset.x + 1; i < width - 1 - offset.x; ++i) {
+        for (size_t j = offset.y + 1; j < height - 1 - offset.y; ++j) {
+            for (size_t k = offset.z + 1; k < length - 1 - offset.z; ++k) {
+                tiles.Set(i, j, k, air);
+            }
+        }
+    }
 
     for (size_t i = offset.x; i < width - offset.x; ++i)
         for (size_t k = offset.z; k < length - offset.z; ++k) {
@@ -88,4 +101,20 @@ void RectRoom::Generate(RNG& rng, Seed seed) {
             tiles.Set(i, j, offset.z, wall);
             tiles.Set(i, j, length - 1 - offset.z, wall);
         }
+
+    // set edge tiles
+    edgeTiles.clear();
+    for (size_t i = offset.x + 1; i < width - 1 - offset.x; ++i) {
+        edgeTiles.push_back(Coordinates{i, offset.y + 1, offset.z});
+        edgeTiles.push_back(Coordinates{i, offset.y + 1, length - 1 - offset.z});
+    }
+    for (size_t k = offset.z + 1; k < length - 1 - offset.z; ++k) {
+        edgeTiles.push_back(Coordinates{offset.x, offset.y + 1, k});
+        edgeTiles.push_back(Coordinates{width - 1 - offset.x, offset.y + 1, k});
+    }
+    LOG_ASSERT(!edgeTiles.empty());
+}
+
+std::vector<Coordinates> RectRoom::GetEdgeTiles() {
+    return edgeTiles;
 }

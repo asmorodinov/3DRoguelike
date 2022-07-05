@@ -3,9 +3,10 @@
 #include <glm/glm.hpp>
 
 enum struct TileType {
-    Air,    // empty tile inside of room
-    Block,  // solid tile
-    Void    // empty tile, initially all tiles are void
+    FakeAir,  // empty tile outside room, needed only for room intersection code, should not be part of the dungeon
+    Air,      // empty tile inside of room
+    Block,    // solid tile
+    Void      // empty tile, initially all tiles are void
 };
 
 enum struct TextureType { None, Texture1, Texture2 };

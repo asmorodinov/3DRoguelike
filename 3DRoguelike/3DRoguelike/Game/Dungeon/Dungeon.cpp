@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#include "../Algorithms/Pathfind.h"
+
 Dungeon::Dungeon(const Dimensions& dimensions_, Seed seed_)
     : dimensions(dimensions_), seed(seed_), rng(seed), tiles(dimensions, Tile()), rooms(), renderer() {
 }
@@ -59,6 +61,35 @@ void Dungeon::placeRooms() {
     } while (--tries > 0 && roomCnt != 0);
 }
 
+void Dungeon::placeCorridors() {
+    auto air = Tile{TileType::Air, TextureType::None, glm::vec3(1.0f)};
+
+    for (size_t i = 0; i < rooms.size(); ++i) {
+        const auto& r1 = rooms[i];
+        const auto& r2 = rooms[(i + 1) % rooms.size()];
+
+        auto wall = Tile{
+            TileType::Block, TextureType::Texture2,
+            glm::vec3(0.4f, 0.3f, 0.8f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
+
+        for (size_t j = 0; j < 50; ++j) {
+            auto startTiles = r1->GetEdgeTiles();
+            auto finishTiles = r2->GetEdgeTiles();
+            for (auto& tile : startTiles) {
+                tile = tile + r1->offset;
+            }
+            for (auto& tile : finishTiles) {
+                tile = tile + r2->offset;
+            }
+            auto path = RandomPath(startTiles, finishTiles, tiles, rng);
+            if (!path.empty()) {
+                PlacePath(path, tiles, wall, air);
+                break;
+            }
+        }
+    }
+}
+
 void Dungeon::reset() {
     rooms.clear();
     tiles = TilesVec(dimensions, Tile());
@@ -68,6 +99,7 @@ void Dungeon::Generate() {
     reset();
 
     placeRooms();
+    placeCorridors();
 
     auto tilesData = std::vector<PositionColor>();
 

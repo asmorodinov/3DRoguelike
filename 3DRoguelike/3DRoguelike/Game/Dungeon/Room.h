@@ -20,6 +20,7 @@ class IRoom {
     virtual ~IRoom() = default;
 
     virtual void Generate(RNG& rng, Seed seed) = 0;
+    virtual std::vector<Coordinates> GetEdgeTiles() = 0;
     virtual void Place(TilesVec& dungeon);
 
  public:
@@ -38,4 +39,8 @@ class RectRoom : public IRoom {
     ~RectRoom() override = default;
 
     void Generate(RNG& rng, Seed seed) override;
+    std::vector<Coordinates> GetEdgeTiles() override;
+
+ private:
+    std::vector<Coordinates> edgeTiles;
 };

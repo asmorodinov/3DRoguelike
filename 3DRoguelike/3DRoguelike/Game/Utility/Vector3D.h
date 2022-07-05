@@ -2,16 +2,25 @@
 
 #include <vector>
 
-struct Coordinates {
-    size_t x = 0;
-    size_t y = 0;
-    size_t z = 0;
-};
-
 struct Dimensions {
     size_t width = 0;
     size_t height = 0;
     size_t length = 0;
+};
+
+struct Coordinates {
+    size_t x = 0;
+    size_t y = 0;
+    size_t z = 0;
+
+    bool operator==(const Coordinates& other) const;
+    Coordinates operator+(const Coordinates& other) const;
+
+    struct HashFunction {
+        size_t operator()(const Coordinates& coords) const;
+    };
+
+    std::vector<Coordinates> GetNeighbours(const Dimensions& dimensions) const;
 };
 
 size_t Volume(const Dimensions& dimensions);
@@ -39,6 +48,9 @@ class Vector3D {
     }
 
     T& Get(const Coordinates& coordinates) {
+        return data[CoordinatesToIndex(coordinates, dimensions)];
+    }
+    T GetValue(const Coordinates& coordinates) const {
         return data[CoordinatesToIndex(coordinates, dimensions)];
     }
 
