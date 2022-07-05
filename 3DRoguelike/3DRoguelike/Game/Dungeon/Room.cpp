@@ -66,9 +66,10 @@ void RectRoom::Generate(RNG& rng, Seed seed) {
     auto height = rng.IntUniform<size_t>(7, 10);
     auto length = rng.IntUniform<size_t>(11, 20);
     size = Dimensions{width, height, length};
-    tiles = TilesVec(size, Tile{TileType::Air, TextureType::None});
+    tiles = TilesVec(size, Tile{TileType::Air, TextureType::None, glm::vec3(1.0f)});
 
-    auto wall = Tile{TileType::Block, TextureType::Texture1};
+    auto wall = Tile{TileType::Block, TextureType::Texture1,
+                     glm::vec3(rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f))};
 
     for (size_t i = 0; i < width; ++i)
         for (size_t k = 0; k < length; ++k) {

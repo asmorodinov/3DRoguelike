@@ -65,20 +65,20 @@ void Dungeon::Generate() {
         rooms.push_back(newRoom);
     } while (--tries > 0 && roomCnt != 0);
 
-    auto solidTiles = std::vector<glm::vec3>();
+    auto tilesData = std::vector<PositionColor>();
 
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.width; ++z) {
                 const auto& tile = tiles.Get(x, y, z);
                 if (tile.type == TileType::Block && tile.texture != TextureType::None) {
-                    solidTiles.push_back(glm::vec3(x, y, z));
+                    tilesData.push_back({glm::vec3(x, y, z), tile.color});
                 }
             }
         }
     }
 
-    renderer.InitInstancedRendering(solidTiles);
+    renderer.InitInstancedRendering(tilesData);
 }
 
 void Dungeon::Render() {

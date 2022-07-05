@@ -15,25 +15,29 @@ TileRenderer::~TileRenderer() {
     }
 }
 
-void TileRenderer::InitInstancedRendering(const std::vector<glm::vec3>& offsets) {
+void TileRenderer::InitInstancedRendering(const std::vector<PositionColor>& tiles) {
     // configure instanced array
     // -------------------------
     BufferId buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, offsets.size() * sizeof(glm::vec3), &offsets[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, tiles.size() * sizeof(PositionColor), &tiles[0], GL_STATIC_DRAW);
 
     glBindVertexArray(cubeModel.vao);
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(PositionColor), (void*)0);
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(PositionColor), (void*)(sizeof(glm::vec3)));
+
     glVertexAttribDivisor(2, 1);
+    glVertexAttribDivisor(3, 1);
 
     glBindVertexArray(0);
 
     if (cnt != 0) {
         glDeleteBuffers(1, &buf);
     }
-    cnt = offsets.size();
+    cnt = tiles.size();
     buf = buffer;
 }
 

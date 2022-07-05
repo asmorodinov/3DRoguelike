@@ -15,12 +15,17 @@
 #include "../Utility/Vector3D.h"
 #include "../Texture.h"
 
+struct PositionColor {
+    glm::vec3 position;
+    glm::vec3 color;
+};
+
 class TileRenderer {
  public:
     TileRenderer();
     ~TileRenderer();
 
-    void InitInstancedRendering(const std::vector<glm::vec3>& offsets);
+    void InitInstancedRendering(const std::vector<PositionColor>& tiles);
     void RenderTilesInstanced();
 
     void InitRendering();
