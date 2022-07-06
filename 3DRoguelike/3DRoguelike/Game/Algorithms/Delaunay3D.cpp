@@ -44,3 +44,13 @@ std::vector<Edge> Delaunay3D(const std::vector<glm::vec3>& pointsVec) {
 
     return edges;
 }
+
+bool Edge::operator==(const Edge& other) const {
+    return v1 == other.v1 && v2 == other.v2;
+}
+
+size_t Edge::HashFunction::operator()(const Edge& edge) const {
+    size_t v1Hash = std::hash<size_t>()(edge.v1);
+    size_t v2Hash = std::hash<size_t>()(edge.v2) << 1;
+    return v1Hash ^ v2Hash;
+}

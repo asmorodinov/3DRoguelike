@@ -23,6 +23,8 @@ class RNG {
         return std::uniform_real_distribution<T>(a, b)(rng);
     }
 
+    bool RandomBool(float chance = 0.5f);
+
  private:
     std::mt19937 rng;
 };

@@ -4,6 +4,7 @@
 #include <glm/gtx/norm.hpp>
 
 #include <vector>
+#include <unordered_set>
 
 #include "../Algorithms/Pathfind.h"
 #include "../Algorithms/Delaunay3D.h"
@@ -84,10 +85,21 @@ void Dungeon::placeCorridors() {
         diff.y *= 3.0f;  // make moving upwards more expensive
         weights.push_back(Weight(glm::length2(diff)));
     }
-    edges = MinimumSpanningTree(edges, points.size(), weights);
+    auto mstEdges = MinimumSpanningTree(edges, points.size(), weights);
+
+    // add some edges from triangulation to MST edges
+    auto finalEdges = std::unordered_set<Edge, Edge::HashFunction>(mstEdges.begin(), mstEdges.end());
+    for (const auto& edge : edges) {
+        if (rng.RandomBool(0.125f)) {
+            finalEdges.insert(edge);
+        }
+    }
 
     // connect rooms with corridors
-    for (const auto& [v1, v2] : edges) {
+    std::cout << "Connecting rooms..." << std::endl;
+    for (const auto& [v1, v2] : finalEdges) {
+        std::cout << v1 << " " << v2 << std::endl;
+
         const auto& r1 = rooms[v1];
         const auto& r2 = rooms[v2];
 
