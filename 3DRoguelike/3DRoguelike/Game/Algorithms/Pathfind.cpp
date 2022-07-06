@@ -31,9 +31,8 @@ std::vector<Coordinates> RandomPath(const std::vector<Coordinates>& start, const
                 }
                 // Can only make paths through void and fake air, or through target (finish) tiles.
                 // But dungeon does not contain fake air itself, so no need to check for it.
-                // UPD: Can also make paths through other corridors walls.
                 auto type = world.Get(neighbour).type;
-                if (type != TileType::Void && type != TileType::CorridorBlock && !finishSet.contains(neighbour)) {
+                if (type != TileType::Void && !finishSet.contains(neighbour)) {
                     continue;
                 }
 

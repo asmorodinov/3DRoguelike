@@ -104,7 +104,7 @@ void Dungeon::placeCorridors() {
         const auto& r2 = rooms[v2];
 
         auto wall = Tile{
-            TileType::CorridorBlock, TextureType::Texture2,
+            TileType::Block, TextureType::Texture2,
             glm::vec3(0.4f, 0.3f, 0.8f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
 
         for (size_t j = 0; j < 50; ++j) {
@@ -142,7 +142,7 @@ void Dungeon::Generate() {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.width; ++z) {
                 const auto& tile = tiles.Get(x, y, z);
-                if ((tile.type == TileType::Block || tile.type == TileType::CorridorBlock) && tile.texture != TextureType::None) {
+                if ((tile.type == TileType::Block) && tile.texture != TextureType::None) {
                     tilesData.push_back({glm::vec3(x, y, z), tile.color});
                 }
             }
