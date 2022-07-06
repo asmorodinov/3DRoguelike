@@ -1,11 +1,13 @@
 #include "Dungeon.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include <vector>
 
 #include "../Algorithms/Pathfind.h"
 #include "../Algorithms/Delaunay3D.h"
+#include "../Algorithms/MST.h"
 
 Dungeon::Dungeon(const Dimensions& dimensions_, Seed seed_)
     : dimensions(dimensions_), seed(seed_), rng(seed), tiles(dimensions, Tile()), rooms(), renderer() {
@@ -65,12 +67,26 @@ void Dungeon::placeRooms() {
 void Dungeon::placeCorridors() {
     auto air = Tile{TileType::Air, TextureType::None, glm::vec3(1.0f)};
 
+    // determine which rooms should be connected
+
     auto points = std::vector<glm::vec3>();
     for (const auto& room : rooms) {
         points.push_back(RoomCenter(room));
     }
+
+    // calculate triangulation
     auto edges = Delaunay3D(points);
 
+    // calculate MST
+    auto weights = std::vector<Weight>();
+    for (const auto& edge : edges) {
+        auto diff = points[edge.v1] - points[edge.v2];
+        diff.y *= 3.0f;  // make moving upwards more expensive
+        weights.push_back(Weight(glm::length2(diff)));
+    }
+    edges = MinimumSpanningTree(edges, points.size(), weights);
+
+    // connect rooms with corridors
     for (const auto& [v1, v2] : edges) {
         const auto& r1 = rooms[v1];
         const auto& r2 = rooms[v2];
