@@ -65,6 +65,10 @@ bool RoomsIntersect(const Room& r1, const Room& r2) {
     return false;
 }
 
+glm::vec3 RoomCenter(const Room& room) {
+    return glm::vec3(room->offset.x, room->offset.y, room->offset.z) + 0.5f * glm::vec3(room->size.width, room->size.height, room->size.length);
+}
+
 void RectRoom::Generate(RNG& rng, Seed seed) {
     auto width = rng.IntUniform<size_t>(13, 22);
     auto height = rng.IntUniform<size_t>(9, 12);

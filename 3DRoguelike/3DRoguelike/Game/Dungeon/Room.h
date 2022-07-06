@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "WorldGrid.h"
 #include "../Utility/Random.h"
 #include "../Assert.h"
@@ -32,6 +34,7 @@ class IRoom {
 using Room = std::shared_ptr<IRoom>;
 
 bool RoomsIntersect(const Room& r1, const Room& r2);
+glm::vec3 RoomCenter(const Room& room);
 
 class RectRoom : public IRoom {
  public:

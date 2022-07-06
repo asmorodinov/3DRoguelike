@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../Algorithms/Pathfind.h"
+#include "../Algorithms/Delaunay3D.h"
 
 Dungeon::Dungeon(const Dimensions& dimensions_, Seed seed_)
     : dimensions(dimensions_), seed(seed_), rng(seed), tiles(dimensions, Tile()), rooms(), renderer() {
@@ -64,9 +65,15 @@ void Dungeon::placeRooms() {
 void Dungeon::placeCorridors() {
     auto air = Tile{TileType::Air, TextureType::None, glm::vec3(1.0f)};
 
-    for (size_t i = 0; i < rooms.size(); ++i) {
-        const auto& r1 = rooms[i];
-        const auto& r2 = rooms[(i + 1) % rooms.size()];
+    auto points = std::vector<glm::vec3>();
+    for (const auto& room : rooms) {
+        points.push_back(RoomCenter(room));
+    }
+    auto edges = Delaunay3D(points);
+
+    for (const auto& [v1, v2] : edges) {
+        const auto& r1 = rooms[v1];
+        const auto& r2 = rooms[v2];
 
         auto wall = Tile{
             TileType::Block, TextureType::Texture2,
