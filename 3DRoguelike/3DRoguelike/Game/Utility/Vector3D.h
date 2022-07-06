@@ -1,6 +1,8 @@
 #pragma once
 
+#include <unordered_set>
 #include <vector>
+#include <glm/glm.hpp>
 
 struct Dimensions {
     size_t width = 0;
@@ -13,15 +15,22 @@ struct Coordinates {
     size_t y = 0;
     size_t z = 0;
 
+    bool operator<(const Coordinates& other) const;
     bool operator==(const Coordinates& other) const;
     Coordinates operator+(const Coordinates& other) const;
+    Coordinates operator-(const Coordinates& other) const;
 
     struct HashFunction {
         size_t operator()(const Coordinates& coords) const;
     };
 
     std::vector<Coordinates> GetNeighbours(const Dimensions& dimensions) const;
+    std::vector<Coordinates> GetNeighboursWithStairs(const Dimensions& dimensions) const;
+
+    glm::vec3 AsVec3() const;
 };
+
+using CoordinatesSet = std::unordered_set<Coordinates, Coordinates::HashFunction>;
 
 size_t Volume(const Dimensions& dimensions);
 
@@ -50,6 +59,10 @@ class Vector3D {
     T& Get(const Coordinates& coordinates) {
         return data[CoordinatesToIndex(coordinates, dimensions)];
     }
+    T& Get(size_t x, size_t y, size_t z) {
+        return Get(Coordinates{x, y, z});
+    }
+
     T GetValue(const Coordinates& coordinates) const {
         return data[CoordinatesToIndex(coordinates, dimensions)];
     }

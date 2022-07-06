@@ -6,6 +6,7 @@ enum struct TileType {
     FakeAir,  // empty tile outside room, needed only for room intersection code, should not be part of the dungeon
     Air,      // empty tile inside of room
     Block,    // solid tile
+    Stairs,   // stairs tile
     Void      // empty tile, initially all tiles are void
 };
 

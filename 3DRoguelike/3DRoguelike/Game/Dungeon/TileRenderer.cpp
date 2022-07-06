@@ -28,9 +28,12 @@ void TileRenderer::InitInstancedRendering(const std::vector<PositionColor>& tile
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(PositionColor), (void*)0);
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(PositionColor), (void*)(sizeof(glm::vec3)));
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(PositionColor), (void*)(2 * sizeof(glm::vec3)));
 
     glVertexAttribDivisor(2, 1);
     glVertexAttribDivisor(3, 1);
+    glVertexAttribDivisor(4, 1);
 
     glBindVertexArray(0);
 
@@ -60,7 +63,7 @@ void TileRenderer::InitRendering() {
 }
 
 void TileRenderer::RenderTile(const Coordinates& coordinates, const Tile& tile) {
-    if (tile.type == TileType::Air || tile.type == TileType::Void) {
+    if (tile.type != TileType::Block) {
         return;
     }
     if (tile.texture == TextureType::None) {

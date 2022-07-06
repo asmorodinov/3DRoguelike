@@ -1,11 +1,27 @@
 #include "Vector3D.h"
 
+bool Coordinates::operator<(const Coordinates& other) const {
+    if (x != other.x) {
+        return x < other.x;
+    }
+    if (y != other.y) {
+        return y < other.y;
+    }
+    if (z != other.z) {
+        return z < other.z;
+    }
+    return false;
+}
+
 bool Coordinates::operator==(const Coordinates& other) const {
     return x == other.x && y == other.y && z == other.z;
 }
 
 Coordinates Coordinates::operator+(const Coordinates& other) const {
     return Coordinates{x + other.x, y + other.y, z + other.z};
+}
+Coordinates Coordinates::operator-(const Coordinates& other) const {
+    return Coordinates{x - other.x, y - other.y, z - other.z};
 }
 
 std::vector<Coordinates> Coordinates::GetNeighbours(const Dimensions& dimensions) const {
@@ -18,6 +34,36 @@ std::vector<Coordinates> Coordinates::GetNeighbours(const Dimensions& dimensions
     if (z < dimensions.length - 1) neighbours.push_back(Coordinates{x, y, z + 1});
 
     return neighbours;
+}
+
+std::vector<Coordinates> Coordinates::GetNeighboursWithStairs(const Dimensions& dimensions) const {
+    auto neighbours = std::vector<Coordinates>();
+    auto w = dimensions.width;
+    auto h = dimensions.height;
+    auto l = dimensions.length;
+
+    // horizontal movement
+    if (x >= 1) neighbours.push_back(Coordinates{x - 1, y, z});
+    if (x < w - 1) neighbours.push_back(Coordinates{x + 1, y, z});
+    if (z >= 1) neighbours.push_back(Coordinates{x, y, z - 1});
+    if (z < l - 1) neighbours.push_back(Coordinates{x, y, z + 1});
+
+    // diagonal movement
+    if (y >= 1 && x >= 3) neighbours.push_back(Coordinates{x - 3, y - 1, z});
+    if (y >= 1 && x < w - 3) neighbours.push_back(Coordinates{x + 3, y - 1, z});
+    if (y >= 1 && z >= 3) neighbours.push_back(Coordinates{x, y - 1, z - 3});
+    if (y >= 1 && z < l - 3) neighbours.push_back(Coordinates{x, y - 1, z + 3});
+
+    if (y < h - 1 && x >= 3) neighbours.push_back(Coordinates{x - 3, y + 1, z});
+    if (y < h - 1 && x < w - 3) neighbours.push_back(Coordinates{x + 3, y + 1, z});
+    if (y < h - 1 && z >= 3) neighbours.push_back(Coordinates{x, y + 1, z - 3});
+    if (y < h - 1 && z < l - 3) neighbours.push_back(Coordinates{x, y + 1, z + 3});
+
+    return neighbours;
+}
+
+glm::vec3 Coordinates::AsVec3() const {
+    return glm::vec3(x, y, z);
 }
 
 size_t Coordinates::HashFunction::operator()(const Coordinates& coords) const {

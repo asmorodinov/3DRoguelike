@@ -96,6 +96,8 @@ void Dungeon::placeCorridors() {
     }
 
     // connect rooms with corridors
+    auto pathfinder = Pathfinder(dimensions);
+
     std::cout << "Connecting rooms..." << std::endl;
     for (const auto& [v1, v2] : finalEdges) {
         std::cout << v1 << " " << v2 << std::endl;
@@ -106,6 +108,9 @@ void Dungeon::placeCorridors() {
         auto wall = Tile{
             TileType::Block, TextureType::Texture2,
             glm::vec3(0.4f, 0.3f, 0.8f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
+        auto stairs = Tile{
+            TileType::Stairs, TextureType::Texture2,
+            glm::vec3(0.4f, 0.8f, 0.3f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
 
         for (size_t j = 0; j < 50; ++j) {
             auto startTiles = r1->GetEdgeTiles();
@@ -116,9 +121,11 @@ void Dungeon::placeCorridors() {
             for (auto& tile : finishTiles) {
                 tile = tile + r2->offset;
             }
-            auto path = RandomPath(startTiles, finishTiles, tiles, rng);
+            // auto path = RandomPath(startTiles, finishTiles, tiles, rng);
+            auto path = pathfinder.FindPath(startTiles, finishTiles, tiles);
             if (!path.empty()) {
-                PlacePath(path, tiles, wall, air);
+                // PlacePath(path, tiles, wall, air);
+                PlacePathWithStairs(path, tiles, wall, air, stairs);
                 break;
             }
         }
@@ -142,8 +149,10 @@ void Dungeon::Generate() {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.width; ++z) {
                 const auto& tile = tiles.Get(x, y, z);
-                if ((tile.type == TileType::Block) && tile.texture != TextureType::None) {
-                    tilesData.push_back({glm::vec3(x, y, z), tile.color});
+                if (tile.type == TileType::Block) {
+                    tilesData.push_back({glm::vec3(x, y, z), tile.color, 1.0f});
+                } else if (tile.type == TileType::Stairs) {
+                    tilesData.push_back({glm::vec3(x, y, z), tile.color, 0.2f});
                 }
             }
         }
