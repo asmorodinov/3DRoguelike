@@ -308,6 +308,8 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
 void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairs) {
     // place air and stairs tiles
 
+    auto stairsVec = std::vector<Coordinates>();
+
     for (size_t i = 0; i < path.size(); ++i) {
         const auto& coords = path[i];
 
@@ -332,12 +334,20 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
         world.Set(prev + horizontalOffset + horizontalOffset, stairs);
         world.Set(prev + verticalOffset + horizontalOffset, stairs);
         world.Set(prev + verticalOffset + horizontalOffset + horizontalOffset, stairs);
+        stairsVec.push_back(prev + horizontalOffset);
+        stairsVec.push_back(prev + horizontalOffset + horizontalOffset);
+        stairsVec.push_back(prev + verticalOffset + horizontalOffset);
+        stairsVec.push_back(prev + verticalOffset + horizontalOffset + horizontalOffset);
     }
+
+    // add stairs tiles to path as well
+    auto totalPath = path;
+    totalPath.insert(totalPath.end(), stairsVec.begin(), stairsVec.end());
 
     // place wall tiles
 
     const auto& dimensions = world.GetDimensions();
-    for (const auto& coords : path) {
+    for (const auto& coords : totalPath) {
         for (const auto& adjacent : coords.GetNeighbours(dimensions)) {
             // can only override Void tiles with walls
             // note: can also override FakeAir tiles, but they are not supposed to exist in the dungeon itself

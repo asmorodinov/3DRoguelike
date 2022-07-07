@@ -151,7 +151,7 @@ void Dungeon::Generate() {
                 if (tile.type == TileType::Block) {
                     tilesData.push_back({glm::vec3(x, y, z), tile.color, 1.0f});
                 } else if (tile.type == TileType::Stairs) {
-                    tilesData.push_back({glm::vec3(x, y, z), tile.color, 0.2f});
+                    tilesData.push_back({glm::vec3(x, y, z), tile.color, 0.1f});
                 }
             }
         }
