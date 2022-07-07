@@ -18,6 +18,7 @@ class Model {
 };
 
 Model GetCubeModel();
+Model GetStairsModel();
 
 void BindModel(const Model& model);
 void RenderModel(const Model& model);

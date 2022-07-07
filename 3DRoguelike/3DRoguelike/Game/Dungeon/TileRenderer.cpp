@@ -3,7 +3,7 @@
 #include "../Utility/GLError.h"
 
 TileRenderer::TileRenderer()
-    : cubeModel(GetCubeModel()), shader(Assets::GetShader("cubeShader.vs", "cubeShader.fs")), texture1(Assets::GetTexture("texture3.png")) {
+    : cubeModel(GetStairsModel()), shader(Assets::GetShader("cubeShader.vs", "cubeShader.fs")), texture1(Assets::GetTexture("texture3.png")) {
 }
 
 TileRenderer::~TileRenderer() {
