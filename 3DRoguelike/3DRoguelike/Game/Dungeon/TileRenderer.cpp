@@ -7,8 +7,6 @@ TileRenderer::TileRenderer()
 }
 
 TileRenderer::~TileRenderer() {
-    DeleteModel(cubeModel);
-
     // clean up instancing buffer
     if (cnt != 0) {
         glDeleteBuffers(1, &buf);

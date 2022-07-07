@@ -52,7 +52,10 @@ void RenderModel(const Model& model) {
     glDrawArrays(GL_TRIANGLES, 0, model.triangleCount * 3);
 }
 
-void DeleteModel(Model& model) {
-    glDeleteVertexArrays(1, &model.vao);
-    glDeleteBuffers(1, &model.vbo);
+Model::Model(VAO vao_, VBO vbo_, unsigned int tc) : vao(vao_), vbo(vbo_), triangleCount(tc) {
+}
+
+Model::~Model() {
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
 }
