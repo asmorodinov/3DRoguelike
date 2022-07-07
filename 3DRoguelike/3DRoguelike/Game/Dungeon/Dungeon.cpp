@@ -143,21 +143,25 @@ void Dungeon::Generate() {
     placeCorridors();
 
     auto tilesData = std::vector<PositionColor>();
+    auto stairsData = std::vector<PositionColor>();
 
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
-            for (size_t z = 0; z < dimensions.width; ++z) {
+            for (size_t z = 0; z < dimensions.length; ++z) {
                 const auto& tile = tiles.Get(x, y, z);
                 if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
                     tilesData.push_back({glm::vec3(x, y, z), tile.color, 1.0f});
                 } else if (tile.type == TileType::Stairs) {
-                    tilesData.push_back({glm::vec3(x, y, z), tile.color, 0.1f});
+                    if ((y + 1 < dimensions.height && z >= 1 && tiles.Get(x, y + 1, z - 1).type == TileType::CorridorAir) &&
+                        (z + 2 < dimensions.length && tiles.Get(x, y, z + 2).type == TileType::CorridorAir)) {
+                        stairsData.push_back({glm::vec3(x, y, z), tile.color, 1.0f});
+                    }
                 }
             }
         }
     }
 
-    renderer.InitInstancedRendering(tilesData);
+    renderer.InitInstancedRendering(tilesData, stairsData);
 }
 
 void Dungeon::Render() {

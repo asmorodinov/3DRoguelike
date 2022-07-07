@@ -3,17 +3,19 @@
 #include "../Utility/GLError.h"
 
 TileRenderer::TileRenderer()
-    : cubeModel(GetStairsModel()), shader(Assets::GetShader("cubeShader.vs", "cubeShader.fs")), texture1(Assets::GetTexture("texture3.png")) {
+    : cubeModel(GetCubeModel()),
+      cubeInstancedModel(0, 0),
+      stairsModel(GetStairsModel()),
+      stairsInstancedModel(0, 0),
+      shader(Assets::GetShader("cubeShader.vs", "cubeShader.fs")),
+      texture1(Assets::GetTexture("texture3.png")) {
 }
 
-TileRenderer::~TileRenderer() {
-    // clean up instancing buffer
-    if (cnt != 0) {
-        glDeleteBuffers(1, &buf);
+void initInstancedRendering(const Model& model, InstancedModel& instancedModel, const std::vector<PositionColor>& tiles) {
+    if (tiles.empty()) {
+        return;
     }
-}
 
-void TileRenderer::InitInstancedRendering(const std::vector<PositionColor>& tiles) {
     // configure instanced array
     // -------------------------
     BufferId buffer;
@@ -21,7 +23,7 @@ void TileRenderer::InitInstancedRendering(const std::vector<PositionColor>& tile
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, tiles.size() * sizeof(PositionColor), &tiles[0], GL_STATIC_DRAW);
 
-    glBindVertexArray(cubeModel.vao);
+    glBindVertexArray(model.vao);
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(PositionColor), (void*)0);
     glEnableVertexAttribArray(3);
@@ -35,16 +37,29 @@ void TileRenderer::InitInstancedRendering(const std::vector<PositionColor>& tile
 
     glBindVertexArray(0);
 
-    if (cnt != 0) {
-        glDeleteBuffers(1, &buf);
+    if (instancedModel.cnt != 0) {
+        glDeleteBuffers(1, &instancedModel.buf);
     }
-    cnt = tiles.size();
-    buf = buffer;
+    instancedModel.cnt = tiles.size();
+    instancedModel.buf = buffer;
+}
+
+void TileRenderer::InitInstancedRendering(const std::vector<PositionColor>& tiles, const std::vector<PositionColor>& stairs) {
+    initInstancedRendering(cubeModel, cubeInstancedModel, tiles);
+    initInstancedRendering(stairsModel, stairsInstancedModel, stairs);
 }
 
 void TileRenderer::RenderTilesInstanced() {
     InitRendering();
-    glDrawArraysInstanced(GL_TRIANGLES, 0, cubeModel.triangleCount * 3, cnt);
+
+    if (cubeInstancedModel.cnt != 0) {
+        BindModel(cubeModel);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, cubeModel.triangleCount * 3, cubeInstancedModel.cnt);
+    }
+    if (stairsInstancedModel.cnt != 0) {
+        BindModel(stairsModel);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, stairsModel.triangleCount * 3, stairsInstancedModel.cnt);
+    }
 }
 
 void TileRenderer::InitRendering() {
@@ -56,6 +71,13 @@ void TileRenderer::InitRendering() {
 
     shader.setMat4("projection", Assets::Get().projection);
     shader.setMat4("view", Assets::Get().view);
+}
 
-    BindModel(cubeModel);
+InstancedModel::InstancedModel(size_t cnt_, BufferId buf_) : cnt(cnt_), buf(buf_) {
+}
+
+InstancedModel::~InstancedModel() {
+    if (cnt != 0) {
+        glDeleteBuffers(1, &buf);
+    }
 }

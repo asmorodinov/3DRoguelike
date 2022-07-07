@@ -21,12 +21,23 @@ struct PositionColor {
     float scale;
 };
 
+class InstancedModel {
+ public:
+    InstancedModel(size_t cnt_, BufferId buf_);
+    ~InstancedModel();
+
+    InstancedModel(InstancedModel const&) = delete;
+    InstancedModel& operator=(InstancedModel const&) = delete;
+
+    size_t cnt = 0;
+    BufferId buf = 0;
+};
+
 class TileRenderer {
  public:
     TileRenderer();
-    ~TileRenderer();
 
-    void InitInstancedRendering(const std::vector<PositionColor>& tiles);
+    void InitInstancedRendering(const std::vector<PositionColor>& tiles, const std::vector<PositionColor>& stairs);
     void RenderTilesInstanced();
 
  private:
@@ -34,9 +45,10 @@ class TileRenderer {
 
  private:
     Model cubeModel;
+    InstancedModel cubeInstancedModel;
+    Model stairsModel;
+    InstancedModel stairsInstancedModel;
+
     Shader shader;
     Texture texture1 = Texture();
-
-    size_t cnt = 0;
-    BufferId buf = 0;
 };
