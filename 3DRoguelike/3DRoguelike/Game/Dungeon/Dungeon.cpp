@@ -66,7 +66,7 @@ void Dungeon::placeRooms() {
 }
 
 void Dungeon::placeCorridors() {
-    auto air = Tile{TileType::Air, TextureType::None, glm::vec3(1.0f)};
+    auto air = Tile{TileType::CorridorAir, TextureType::None, glm::vec3(1.0f)};
 
     // determine which rooms should be connected
 
@@ -148,7 +148,7 @@ void Dungeon::Generate() {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.width; ++z) {
                 const auto& tile = tiles.Get(x, y, z);
-                if (tile.type == TileType::Block) {
+                if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
                     tilesData.push_back({glm::vec3(x, y, z), tile.color, 1.0f});
                 } else if (tile.type == TileType::Stairs) {
                     tilesData.push_back({glm::vec3(x, y, z), tile.color, 0.1f});

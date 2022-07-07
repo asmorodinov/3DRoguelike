@@ -3,12 +3,19 @@
 #include <glm/glm.hpp>
 
 enum struct TileType {
-    FakeAir,  // empty tile outside room, needed only for room intersection code, should not be part of the dungeon
-    Air,      // empty tile inside of room
-    Block,    // solid tile
-    Stairs,   // stairs tile
-    Void      // empty tile, initially all tiles are void
+    FakeAir,        // empty tile outside room, needed only for room intersection code, should not be part of the dungeon
+    Air,            // empty tile inside of room
+    Block,          // solid tile
+    CorridorBlock,  // block that corridors are allowed to override with air
+    CorridorAir,    // corridors are allowed to pass through it
+    Stairs,         // stairs tile
+    Void            // empty tile, initially all tiles are void
 };
+
+bool CorridorCanPass(TileType type);
+int CorridorCost(TileType type);
+bool CanPlaceStairs(TileType type);
+int StairsCost(TileType type);
 
 enum struct TextureType { None, Texture1, Texture2 };
 

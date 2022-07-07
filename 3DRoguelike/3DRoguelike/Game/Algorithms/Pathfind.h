@@ -65,7 +65,3 @@ class Pathfinder {
 };
 
 void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairs);
-
-// BFS search algorithm with no staircases support
-std::vector<Coordinates> RandomPath(const std::vector<Coordinates>& start, const std::vector<Coordinates>& finish, const TilesVec& world, RNG& rng);
-void PlacePath(const std::vector<Coordinates>& path, TilesVec& world, const Tile& wall, const Tile& air);

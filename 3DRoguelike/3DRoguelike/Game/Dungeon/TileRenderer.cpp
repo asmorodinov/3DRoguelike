@@ -61,19 +61,3 @@ void TileRenderer::InitRendering() {
 
     BindModel(cubeModel);
 }
-
-void TileRenderer::RenderTile(const Coordinates& coordinates, const Tile& tile) {
-    if (tile.type != TileType::Block) {
-        return;
-    }
-    if (tile.texture == TextureType::None) {
-        return;
-    }
-
-    shader.setVec3("offset", glm::vec3(coordinates.x, coordinates.y, coordinates.z));
-    RenderModel(cubeModel);
-}
-
-void TileRenderer::RenderTile(size_t x, size_t y, size_t z, const Tile& tile) {
-    RenderTile(Coordinates{x, y, z}, tile);
-}

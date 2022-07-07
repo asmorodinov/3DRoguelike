@@ -6,98 +6,6 @@
 
 #include "../Assert.h"
 
-// BFS search path algorithm
-
-std::vector<Coordinates> RandomPath(const std::vector<Coordinates>& start, const std::vector<Coordinates>& finish, const TilesVec& world, RNG& rng) {
-    LOG_ASSERT(!start.empty() && !finish.empty());
-
-    auto startSet = std::unordered_set<Coordinates, Coordinates::HashFunction>(start.begin(), start.end());
-    auto finishSet = std::unordered_set<Coordinates, Coordinates::HashFunction>(finish.begin(), finish.end());
-
-    auto dimensions = world.GetDimensions();
-    auto visited = Vector3D<bool>(dimensions, false);
-    auto prev = Vector3D<Coordinates>(dimensions, Coordinates());
-
-    auto current = start;
-    auto foundPath = false;
-
-    while (!current.empty() && !foundPath) {
-        auto next = std::vector<Coordinates>();
-
-        for (const auto& coords : current) {
-            visited.Set(coords, true);
-
-            for (const auto& neighbour : coords.GetNeighbours(dimensions)) {
-                if (visited.GetValue(neighbour)) {
-                    continue;
-                }
-                // Can only make paths through void and fake air, or through target (finish) tiles.
-                // But dungeon does not contain fake air itself, so no need to check for it.
-                auto type = world.Get(neighbour).type;
-                if (type != TileType::Void && !finishSet.contains(neighbour)) {
-                    continue;
-                }
-
-                if (finishSet.contains(neighbour)) {
-                    foundPath = true;
-                }
-
-                visited.Set(neighbour, true);
-                prev.Set(neighbour, coords);
-                next.push_back(neighbour);
-            }
-        }
-
-        current = std::move(next);
-    }
-
-    if (!foundPath) {
-        return {};
-    }
-
-    auto finishCoords = std::vector<Coordinates>();
-    for (const auto& coords : current) {
-        if (finishSet.contains(coords)) {
-            finishCoords.push_back(coords);
-        }
-    }
-    LOG_ASSERT(!finishCoords.empty());
-
-    auto pathEnd = finishCoords[0];
-    if (finishCoords.size() > 1) {
-        pathEnd = finishCoords[rng.IntUniform(size_t(0), finishCoords.size() - 1)];
-    }
-    auto currentCoords = pathEnd;
-    auto path = std::vector<Coordinates>({pathEnd});
-    do {
-        currentCoords = prev.Get(currentCoords);
-        path.push_back(currentCoords);
-    } while (!startSet.contains(currentCoords));
-
-    std::reverse(path.begin(), path.end());
-
-    return path;
-}
-
-// place path (no stairs)
-
-void PlacePath(const std::vector<Coordinates>& path, TilesVec& world, const Tile& wall, const Tile& air) {
-    for (const auto& coords : path) {
-        world.Set(coords, air);
-    }
-
-    auto dimensions = world.GetDimensions();
-    for (const auto& coords : path) {
-        for (const auto& adjacent : coords.GetNeighbours(dimensions)) {
-            // can only override Void tiles with walls
-            // note: can also override FakeAir tiles, but they are not supposed to exist in the dungeon itself
-            if (world.Get(adjacent).type == TileType::Void) {
-                world.Set(adjacent, wall);
-            }
-        }
-    }
-}
-
 // A* with staircases placement support
 
 Pathfinder::Node::Node(const Coordinates& coords) : position(coords), previous(nullptr), previousSet(), cost(0.0f) {
@@ -263,12 +171,12 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
     if (delta.y == 0) {
         const auto& tile = world.Get(b->position);
 
-        // can only pass through void tiles and finish tiles
-        if (tile.type != TileType::Void && !finishSet.contains(b->position)) {
+        // can only pass through Void, CorridorBlock, CorridorAir, and finish tiles
+        if (!CorridorCanPass(tile.type) && !finishSet.contains(b->position)) {
             return pathCost;
         }
 
-        pathCost.cost = 1 + calculateHeuristic(b, target);
+        pathCost.cost = CorridorCost(tile.type) + calculateHeuristic(b, target);
         pathCost.passable = true;
         return pathCost;
     }
@@ -278,7 +186,7 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
     const auto& tile2 = world.Get(b->position);
 
     // tile a or b is not passable => can not place staircase
-    if ((tile1.type != TileType::Void && !finishSet.contains(a->position)) || (tile2.type != TileType::Void && !finishSet.contains(b->position))) {
+    if ((!CorridorCanPass(tile1.type) && !finishSet.contains(a->position)) || (!CorridorCanPass(tile2.type) && !finishSet.contains(b->position))) {
         return pathCost;
     }
 
@@ -295,11 +203,11 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
     const auto& t4 = world.Get(a->position + verticalOffset + horizontalOffset + horizontalOffset);
 
     // can not place all 4 blocks of the staircase => can not place staircase
-    if (t1.type != TileType::Void || t2.type != TileType::Void || t3.type != TileType::Void || t4.type != TileType::Void) {
+    if (!CanPlaceStairs(t1.type) || !CanPlaceStairs(t2.type) || !CanPlaceStairs(t3.type) || !CanPlaceStairs(t4.type)) {
         return pathCost;
     }
 
-    pathCost.cost = 100 + calculateHeuristic(b, target);
+    pathCost.cost = StairsCost(t1.type) + StairsCost(t2.type) + StairsCost(t3.type) + StairsCost(t4.type) + calculateHeuristic(b, target);
     pathCost.passable = true;
     pathCost.isStairs = true;
     return pathCost;
@@ -346,13 +254,24 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
 
     // place wall tiles
 
+    auto corridorWall = wall;
+    corridorWall.type = TileType::CorridorBlock;
+    std::swap(corridorWall.color.r, corridorWall.color.g);
+    corridorWall.color.b = 1.0f;
+
     const auto& dimensions = world.GetDimensions();
     for (const auto& coords : totalPath) {
         for (const auto& adjacent : coords.GetNeighbours(dimensions)) {
             // can only override Void tiles with walls
             // note: can also override FakeAir tiles, but they are not supposed to exist in the dungeon itself
             if (world.Get(adjacent).type == TileType::Void) {
-                world.Set(adjacent, wall);
+                if (adjacent.y == coords.y) {
+                    // it's ok for other corridors to pass through walls (side walls), so we set the tile to corridorBlock
+                    world.Set(adjacent, corridorWall);
+                } else {
+                    // other corridors should not be able to pass through floor or ceiling of the corridor
+                    world.Set(adjacent, wall);
+                }
             }
         }
     }

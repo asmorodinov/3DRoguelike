@@ -29,10 +29,8 @@ class TileRenderer {
     void InitInstancedRendering(const std::vector<PositionColor>& tiles);
     void RenderTilesInstanced();
 
+ private:
     void InitRendering();
-
-    void RenderTile(const Coordinates& coordinates, const Tile& tile);
-    void RenderTile(size_t x, size_t y, size_t z, const Tile& tile);
 
  private:
     Model cubeModel;
