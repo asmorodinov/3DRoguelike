@@ -9,6 +9,9 @@ class Model {
     Model(VAO vao_, VBO vbo_, unsigned int tc);
     ~Model();
 
+    Model(Model const&) = delete;
+    Model& operator=(Model const&) = delete;
+
     VAO vao = 0;
     VBO vbo = 0;
     unsigned int triangleCount = 0;
