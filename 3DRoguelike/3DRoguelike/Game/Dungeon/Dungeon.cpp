@@ -90,7 +90,7 @@ void Dungeon::placeCorridors() {
     // add some edges from triangulation to MST edges
     auto finalEdges = std::unordered_set<Edge, Edge::HashFunction>(mstEdges.begin(), mstEdges.end());
     for (const auto& edge : edges) {
-        if (rng.RandomBool(0.125f)) {
+        if (rng.RandomBool(0.2f)) {
             finalEdges.insert(edge);
         }
     }
