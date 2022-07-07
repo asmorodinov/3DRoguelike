@@ -35,7 +35,6 @@ class Pathfinder {
         bool operator()(const NodePtr lhs, const NodePtr rhs) const;
     };
 
-    // smallest cost should be on top of the queue => > operator for cost is used
     using Queue = std::set<NodePtr, NodePtrCmpFunction>;
 
     struct PathCost {
@@ -47,16 +46,17 @@ class Pathfinder {
  public:
     Pathfinder(const Dimensions& dimensions);
 
-    std::vector<Coordinates> FindPath(const std::vector<Coordinates>& start, const std::vector<Coordinates>& finish, const TilesVec& world);
+    std::vector<Coordinates> FindPath(const std::vector<Coordinates>& start, const std::vector<Coordinates>& finish, const Coordinates& target,
+                                      const TilesVec& world);
 
  private:
     void ResetNodes();
 
     std::vector<Coordinates> reconstructPath(NodePtr node);
 
-    float calculateHeuristic(const NodePtr b, const CoordinatesSet& finishSet);
+    float calculateHeuristic(const NodePtr b, const Coordinates& target);
 
-    PathCost costFunction(const NodePtr a, const NodePtr b, const TilesVec& world, const CoordinatesSet& finishSet);
+    PathCost costFunction(const NodePtr a, const NodePtr b, const TilesVec& world, const CoordinatesSet& finishSet, const Coordinates& target);
 
  private:
     Vector3D<Node> grid;

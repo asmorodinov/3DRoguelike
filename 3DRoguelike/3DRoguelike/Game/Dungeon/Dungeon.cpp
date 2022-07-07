@@ -112,22 +112,21 @@ void Dungeon::placeCorridors() {
             TileType::Stairs, TextureType::Texture2,
             glm::vec3(0.4f, 0.8f, 0.3f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
 
-        for (size_t j = 0; j < 50; ++j) {
-            auto startTiles = r1->GetEdgeTiles();
-            auto finishTiles = r2->GetEdgeTiles();
-            for (auto& tile : startTiles) {
-                tile = tile + r1->offset;
-            }
-            for (auto& tile : finishTiles) {
-                tile = tile + r2->offset;
-            }
-            // auto path = RandomPath(startTiles, finishTiles, tiles, rng);
-            auto path = pathfinder.FindPath(startTiles, finishTiles, tiles);
-            if (!path.empty()) {
-                // PlacePath(path, tiles, wall, air);
-                PlacePathWithStairs(path, tiles, wall, air, stairs);
-                break;
-            }
+        auto startTiles = r1->GetEdgeTiles();
+        auto finishTiles = r2->GetEdgeTiles();
+        for (auto& tile : startTiles) {
+            tile = tile + r1->offset;
+        }
+        for (auto& tile : finishTiles) {
+            tile = tile + r2->offset;
+        }
+
+        auto path = pathfinder.FindPath(startTiles, finishTiles, RoomCenterCoords(r2), tiles);
+        if (!path.empty()) {
+            PlacePathWithStairs(path, tiles, wall, air, stairs);
+            std::cout << "Path was found" << std::endl;
+        } else {
+            std::cout << "Path was not found" << std::endl;
         }
     }
 }

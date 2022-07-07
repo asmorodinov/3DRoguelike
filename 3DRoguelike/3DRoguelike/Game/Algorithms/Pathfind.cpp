@@ -111,7 +111,7 @@ bool Pathfinder::NodePtrEqFunction::operator()(const NodePtr lhs, const NodePtr 
 }
 bool Pathfinder::NodePtrCmpFunction::operator()(const NodePtr lhs, const NodePtr rhs) const {
     if (lhs->cost != rhs->cost) {
-        return lhs->cost > rhs->cost;
+        return lhs->cost < rhs->cost;
     }
     if (lhs->position != rhs->position) {
         return lhs->position < rhs->position;
@@ -130,7 +130,8 @@ Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()),
     }
 }
 
-std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& start, const std::vector<Coordinates>& finish, const TilesVec& world) {
+std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& start, const std::vector<Coordinates>& finish,
+                                              const Coordinates& target, const TilesVec& world) {
     ResetNodes();
     queue = Queue();
     closed.clear();
@@ -166,7 +167,7 @@ std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& st
                 continue;
             }
 
-            auto pathCost = costFunction(nodePtr, &neighbour, world, finishSet);
+            auto pathCost = costFunction(nodePtr, &neighbour, world, finishSet, target);
             if (!pathCost.passable) {
                 continue;
             }
@@ -247,15 +248,12 @@ std::vector<Coordinates> Pathfinder::reconstructPath(NodePtr node) {
     return res;
 }
 
-float Pathfinder::calculateHeuristic(const NodePtr b, const CoordinatesSet& finishSet) {
-    auto minLength = std::numeric_limits<float>::infinity();
-    for (const auto& coords : finishSet) {
-        minLength = std::min(minLength, glm::distance(b->position.AsVec3(), coords.AsVec3()));
-    }
-    return minLength;
+float Pathfinder::calculateHeuristic(const NodePtr b, const Coordinates& target) {
+    return glm::distance(b->position.AsVec3(), target.AsVec3());
 }
 
-Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, const TilesVec& world, const CoordinatesSet& finishSet) {
+Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, const TilesVec& world, const CoordinatesSet& finishSet,
+                                              const Coordinates& target) {
     auto pathCost = PathCost{false, 0.0f, false};
 
     auto vecDelta = b->position.AsVec3() - a->position.AsVec3();
@@ -270,7 +268,7 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
             return pathCost;
         }
 
-        pathCost.cost = 1 + calculateHeuristic(b, finishSet);
+        pathCost.cost = 1 + calculateHeuristic(b, target);
         pathCost.passable = true;
         return pathCost;
     }
@@ -301,7 +299,7 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
         return pathCost;
     }
 
-    pathCost.cost = 100 + calculateHeuristic(b, finishSet);
+    pathCost.cost = 100 + calculateHeuristic(b, target);
     pathCost.passable = true;
     pathCost.isStairs = true;
     return pathCost;
