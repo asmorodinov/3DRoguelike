@@ -25,6 +25,8 @@ class RNG {
 
     bool RandomBool(float chance = 0.5f);
 
+    SeedType RandomSeed();
+
  private:
     std::mt19937 rng;
     std::random_device rd;

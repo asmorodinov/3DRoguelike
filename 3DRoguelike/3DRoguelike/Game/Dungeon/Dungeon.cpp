@@ -124,9 +124,8 @@ void Dungeon::placeCorridors() {
         auto path = pathfinder.FindPath(startTiles, finishTiles, RoomCenterCoords(r2), tiles);
         if (!path.empty()) {
             PlacePathWithStairs(path, tiles, wall, air, stairs);
-            std::cout << "Path was found" << std::endl;
         } else {
-            std::cout << "Path was not found" << std::endl;
+            LOG_ASSERT(false);
         }
     }
 }
@@ -138,6 +137,8 @@ void Dungeon::reset() {
 
 void Dungeon::Generate() {
     reset();
+
+    std::cout << "Seed: " << seed << std::endl;
 
     placeRooms();
     placeCorridors();

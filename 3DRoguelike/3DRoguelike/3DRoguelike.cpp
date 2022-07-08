@@ -36,7 +36,10 @@ float deltaTime = 0.0f;  // time between current frame and last frame
 float lastFrame = 0.0f;
 
 bool generate = false;
-auto spacePressed = false;
+auto rightPressed = false;
+auto leftPressed = false;
+
+SeedType seed = 0;
 
 int main() {
     // glfw: initialize and configure
@@ -81,6 +84,8 @@ int main() {
 
     auto dimensions = Dimensions{60, 30, 60};
     auto dungeon = Dungeon(dimensions);
+    seed = RNG(SeedType()).RandomSeed();
+    dungeon.SetSeed(seed);
     dungeon.Generate();
 
     camera.Position = glm::vec3(dimensions.width, dimensions.height, dimensions.length) / 2.0f;
@@ -110,6 +115,7 @@ int main() {
 
         if (generate) {
             generate = false;
+            dungeon.SetSeed(seed);
             dungeon.Generate();
         }
 
@@ -128,12 +134,22 @@ int main() {
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
 
-    if (!spacePressed && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    if (!rightPressed && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        ++seed;
         generate = true;
-        spacePressed = true;
+        rightPressed = true;
     }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
-        spacePressed = false;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE) {
+        rightPressed = false;
+    }
+
+    if (!leftPressed && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        --seed;
+        generate = true;
+        leftPressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE) {
+        leftPressed = false;
     }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.ProcessKeyboard(FORWARD, deltaTime);
