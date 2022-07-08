@@ -9,6 +9,10 @@ enum struct TileType {
     CorridorBlock,  // block that corridors are allowed to override with air
     CorridorAir,    // corridors are allowed to pass through it
     Stairs,         // stairs tile
+    StairsNorth,    // stairs tile that goes north (dz = 1 , dx = 0)
+    StairsSouth,    // stairs tile that goes south (dz = -1, dx = 0)
+    StairsWest,     // stairs tile that goes west  (dz = 0, dx = -1)
+    StairsEast,     // stairs tile that goes east  (dz = 0, dx = 1)
     Void            // empty tile, initially all tiles are void
 };
 
@@ -16,6 +20,8 @@ bool CorridorCanPass(TileType type);
 int CorridorCost(TileType type);
 bool CanPlaceStairs(TileType type);
 int StairsCost(TileType type);
+
+TileType ReverseStairsDirection(TileType type);
 
 enum struct TextureType { None, Texture1, Texture2 };
 

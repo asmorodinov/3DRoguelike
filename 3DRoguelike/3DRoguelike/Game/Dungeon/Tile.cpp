@@ -1,21 +1,22 @@
 #include "Tile.h"
 
+#include "../Assert.h"
+
 bool CorridorCanPass(TileType type) {
     return type == TileType::Void || type == TileType::CorridorBlock || type == TileType::CorridorAir;
 }
 
 int CorridorCost(TileType type) {
-    if (type == TileType::Void) {
-        return 5;
-    } else if (type == TileType::CorridorAir) {
-        // incentivize corridors intersections
-        return 2;
-    } else if (type == TileType::CorridorBlock) {
-        // incentivize corridors intersections
-        return 3;
-    } else {
-        return 10;
+    switch (type) {
+        case TileType::Void:
+            return 5;
+        case TileType::CorridorAir:
+            return 2;
+        case TileType::CorridorBlock:
+            return 3;
     }
+
+    return 200;
 }
 
 bool CanPlaceStairs(TileType type) {
@@ -24,12 +25,28 @@ bool CanPlaceStairs(TileType type) {
 
 // called for every stairs tile and the final cost is the sum of all costs
 int StairsCost(TileType type) {
-    if (type == TileType::Void) {
-        return 25;
-    } else if (type == TileType::CorridorBlock) {
-        // incentivize corridors intersections
-        return 20;
-    } else {
-        return 40;
+    switch (type) {
+        case TileType::Void:
+            return 25;
+        case TileType::CorridorBlock:
+            return 20;
     }
+
+    return 200;
+}
+
+TileType ReverseStairsDirection(TileType type) {
+    switch (type) {
+        case TileType::StairsEast:
+            return TileType::StairsWest;
+        case TileType::StairsWest:
+            return TileType::StairsEast;
+        case TileType::StairsNorth:
+            return TileType::StairsSouth;
+        case TileType::StairsSouth:
+            return TileType::StairsNorth;
+    }
+
+    LOG_ASSERT(false);
+    return TileType::Void;
 }

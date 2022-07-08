@@ -218,6 +218,8 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
 
     auto stairsVec = std::vector<Coordinates>();
 
+    auto stairs2 = stairs;
+
     for (size_t i = 0; i < path.size(); ++i) {
         const auto& coords = path[i];
 
@@ -238,9 +240,32 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
         auto verticalOffset = Coordinates{0, size_t(dy), 0};
         auto horizontalOffset = Coordinates{size_t(xDir), 0, size_t(zDir)};
 
+        if (dz == 3 && dx == 0) {
+            stairs2.type = TileType::StairsNorth;
+        } else if (dx == -3 && dz == 0) {
+            stairs2.type = TileType::StairsWest;
+        } else if (dz == -3 && dx == 0) {
+            stairs2.type = TileType::StairsSouth;
+        } else if (dx == 3 && dz == 0) {
+            stairs2.type = TileType::StairsEast;
+        } else {
+            LOG_ASSERT(false);
+        }
+
+        auto specialTile = prev + verticalOffset + horizontalOffset;
+        auto normalTile = prev + horizontalOffset + horizontalOffset;
+        if (dy == 1) {
+            stairs2.type = ReverseStairsDirection(stairs2.type);
+            std::swap(specialTile, normalTile);
+        } else if (dy == -1) {
+            // do nothing
+        } else {
+            LOG_ASSERT(false);
+        }
+
         world.Set(prev + horizontalOffset, stairs);
-        world.Set(prev + horizontalOffset + horizontalOffset, stairs);
-        world.Set(prev + verticalOffset + horizontalOffset, stairs);
+        world.Set(normalTile, stairs);
+        world.Set(specialTile, stairs2);
         world.Set(prev + verticalOffset + horizontalOffset + horizontalOffset, stairs);
         stairsVec.push_back(prev + horizontalOffset);
         stairsVec.push_back(prev + horizontalOffset + horizontalOffset);

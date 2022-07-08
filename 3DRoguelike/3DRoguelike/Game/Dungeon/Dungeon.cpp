@@ -152,24 +152,14 @@ void Dungeon::Generate() {
                 const auto& tile = tiles.Get(x, y, z);
                 if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
                     tilesData.push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                } else if (tile.type == TileType::Stairs) {
-                    if (y >= dimensions.height || tiles.Get(x, y + 1, z).type != TileType::Stairs) {
-                        continue;
-                    }
-
-                    if ((y + 1 < dimensions.height && z >= 1 && tiles.Get(x, y + 1, z - 1).type == TileType::CorridorAir) &&
-                        (z + 2 < dimensions.length && tiles.Get(x, y, z + 2).type == TileType::CorridorAir)) {
-                        stairsData[0].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                    } else if ((y + 1 < dimensions.height && x + 1 < dimensions.width && tiles.Get(x + 1, y + 1, z).type == TileType::CorridorAir) &&
-                               (x >= 2 && tiles.Get(x - 2, y, z).type == TileType::CorridorAir)) {
-                        stairsData[1].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                    } else if ((y + 1 < dimensions.height && z + 1 < dimensions.length && tiles.Get(x, y + 1, z + 1).type == TileType::CorridorAir) &&
-                               (z >= 2 && tiles.Get(x, y, z - 2).type == TileType::CorridorAir)) {
-                        stairsData[2].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                    } else if ((y + 1 < dimensions.height && x >= 1 && tiles.Get(x - 1, y + 1, z).type == TileType::CorridorAir) &&
-                               (x + 2 < dimensions.width && tiles.Get(x + 2, y, z).type == TileType::CorridorAir)) {
-                        stairsData[3].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                    }
+                } else if (tile.type == TileType::StairsNorth) {
+                    stairsData[0].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
+                } else if (tile.type == TileType::StairsWest) {
+                    stairsData[1].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
+                } else if (tile.type == TileType::StairsSouth) {
+                    stairsData[2].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
+                } else if (tile.type == TileType::StairsEast) {
+                    stairsData[3].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
                 }
             }
         }
