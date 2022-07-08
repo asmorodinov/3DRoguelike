@@ -72,7 +72,7 @@ Coordinates RoomCenterCoords(const Room& room) {
     return room->offset + Coordinates{room->size.width / 2, room->size.height / 2, room->size.length / 2};
 }
 
-void RectRoom::Generate(RNG& rng, Seed seed) {
+void RectRoom::Generate(RNG& rng, SeedType seed) {
     auto width = rng.IntUniform<size_t>(13, 22);
     auto height = rng.IntUniform<size_t>(9, 12);
     auto length = rng.IntUniform<size_t>(13, 22);

@@ -8,10 +8,10 @@
 
 class Dungeon {
  public:
-    Dungeon(const Dimensions& dimensions_, Seed seed_ = Seed());
+    Dungeon(const Dimensions& dimensions_, SeedType seed_ = SeedType());
 
-    void SetSeed(Seed seed_);
-    Seed GetSeed() const;
+    void SetSeed(SeedType seed_);
+    SeedType GetSeed() const;
 
     void Generate();
     void Render();
@@ -23,7 +23,7 @@ class Dungeon {
 
  private:
     Dimensions dimensions;
-    Seed seed;
+    SeedType seed;
     RNG rng;
     TilesVec tiles;
     std::vector<Room> rooms;

@@ -10,16 +10,16 @@
 #include "../Algorithms/Delaunay3D.h"
 #include "../Algorithms/MST.h"
 
-Dungeon::Dungeon(const Dimensions& dimensions_, Seed seed_)
+Dungeon::Dungeon(const Dimensions& dimensions_, SeedType seed_)
     : dimensions(dimensions_), seed(seed_), rng(seed), tiles(dimensions, Tile()), rooms(), renderer() {
 }
 
-void Dungeon::SetSeed(Seed seed_) {
+void Dungeon::SetSeed(SeedType seed_) {
     seed = seed_;
     rng.Seed(seed);
 }
 
-Seed Dungeon::GetSeed() const {
+SeedType Dungeon::GetSeed() const {
     return seed;
 }
 
@@ -34,8 +34,8 @@ void Dungeon::placeRooms() {
 
     do {
         auto newRoom = getRandomRoom(rng);
-        auto roomSeed = rng.IntUniform<Seed>(Seed(0), Seed(-1));
-        auto newSeed = rng.IntUniform<Seed>(Seed(0), Seed(-1));
+        auto roomSeed = rng.IntUniform<SeedType>(SeedType(0), SeedType(-1));
+        auto newSeed = rng.IntUniform<SeedType>(SeedType(0), SeedType(-1));
 
         SetSeed(roomSeed);
         newRoom->Generate(rng, roomSeed);

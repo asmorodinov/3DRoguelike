@@ -2,12 +2,12 @@
 
 #include <random>
 
-using Seed = unsigned int;
+using SeedType = unsigned int;
 
 class RNG {
  public:
     template <typename T>
-    RNG(const T& seed) : rng(seed) {
+    RNG(const T& seed) : rng(seed), rd() {
     }
     template <typename T>
     void Seed(const T& seed) {
@@ -27,4 +27,5 @@ class RNG {
 
  private:
     std::mt19937 rng;
+    std::random_device rd;
 };
