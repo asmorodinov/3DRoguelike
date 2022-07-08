@@ -27,12 +27,12 @@ bool CanPlaceStairs(TileType type) {
 int StairsCost(TileType type) {
     switch (type) {
         case TileType::Void:
-            return 25;
+            return 50;
         case TileType::CorridorBlock:
-            return 20;
+            return 40;
     }
 
-    return 200;
+    return 1000;
 }
 
 TileType ReverseStairsDirection(TileType type) {
