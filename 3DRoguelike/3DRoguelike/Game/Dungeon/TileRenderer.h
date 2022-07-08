@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <array>
 #include <vector>
 
 #include "Tile.h"
@@ -37,7 +38,7 @@ class TileRenderer {
  public:
     TileRenderer();
 
-    void InitInstancedRendering(const std::vector<PositionColor>& tiles, const std::vector<PositionColor>& stairs);
+    void InitInstancedRendering(const std::vector<PositionColor>& tiles, const std::array<std::vector<PositionColor>, 4>& stairs);
     void RenderTilesInstanced();
 
  private:
@@ -46,8 +47,8 @@ class TileRenderer {
  private:
     Model cubeModel;
     InstancedModel cubeInstancedModel;
-    Model stairsModel;
-    InstancedModel stairsInstancedModel;
+    std::array<Model, 4> stairsModel;
+    std::array<InstancedModel, 4> stairsInstancedModel;
 
     Shader shader;
     Texture texture1 = Texture();

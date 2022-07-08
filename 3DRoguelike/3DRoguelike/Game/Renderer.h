@@ -18,7 +18,7 @@ class Model {
 };
 
 Model GetCubeModel();
-Model GetStairsModel();
+Model GetStairsModel(int rotation);
 
 void BindModel(const Model& model);
 void RenderModel(const Model& model);

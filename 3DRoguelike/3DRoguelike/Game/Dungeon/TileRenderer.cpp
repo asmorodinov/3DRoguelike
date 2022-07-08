@@ -5,8 +5,8 @@
 TileRenderer::TileRenderer()
     : cubeModel(GetCubeModel()),
       cubeInstancedModel(0, 0),
-      stairsModel(GetStairsModel()),
-      stairsInstancedModel(0, 0),
+      stairsModel{GetStairsModel(0), GetStairsModel(1), GetStairsModel(2), GetStairsModel(3)},
+      stairsInstancedModel{InstancedModel{0, 0}, InstancedModel{0, 0}, InstancedModel{0, 0}, InstancedModel{0, 0}},
       shader(Assets::GetShader("cubeShader.vs", "cubeShader.fs")),
       texture1(Assets::GetTexture("texture3.png")) {
 }
@@ -44,9 +44,11 @@ void initInstancedRendering(const Model& model, InstancedModel& instancedModel, 
     instancedModel.buf = buffer;
 }
 
-void TileRenderer::InitInstancedRendering(const std::vector<PositionColor>& tiles, const std::vector<PositionColor>& stairs) {
+void TileRenderer::InitInstancedRendering(const std::vector<PositionColor>& tiles, const std::array<std::vector<PositionColor>, 4>& stairs) {
     initInstancedRendering(cubeModel, cubeInstancedModel, tiles);
-    initInstancedRendering(stairsModel, stairsInstancedModel, stairs);
+    for (size_t i = 0; i < 4; ++i) {
+        initInstancedRendering(stairsModel[i], stairsInstancedModel[i], stairs[i]);
+    }
 }
 
 void TileRenderer::RenderTilesInstanced() {
@@ -56,9 +58,11 @@ void TileRenderer::RenderTilesInstanced() {
         BindModel(cubeModel);
         glDrawArraysInstanced(GL_TRIANGLES, 0, cubeModel.triangleCount * 3, cubeInstancedModel.cnt);
     }
-    if (stairsInstancedModel.cnt != 0) {
-        BindModel(stairsModel);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, stairsModel.triangleCount * 3, stairsInstancedModel.cnt);
+    for (size_t i = 0; i < 4; ++i) {
+        if (stairsInstancedModel[i].cnt != 0) {
+            BindModel(stairsModel[i]);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, stairsModel[i].triangleCount * 3, stairsInstancedModel[i].cnt);
+        }
     }
 }
 
