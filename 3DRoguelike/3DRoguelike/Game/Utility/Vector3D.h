@@ -32,6 +32,9 @@ struct Coordinates {
 
 using CoordinatesSet = std::unordered_set<Coordinates, Coordinates::HashFunction>;
 
+Coordinates GetVerticalOffset(const Coordinates& c1, const Coordinates& c2);
+Coordinates GetHorizontalOffset(const Coordinates& c1, const Coordinates& c2);
+
 size_t Volume(const Dimensions& dimensions);
 
 size_t CoordinatesToIndex(const Coordinates& coordinates, const Dimensions& dimensions);

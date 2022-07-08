@@ -80,14 +80,8 @@ std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& st
                 continue;
             }
             if (pathCost.isStairs) {
-                auto dx = static_cast<int>(neighbourCoords.x) - static_cast<int>(nodeCoords.x);
-                auto dy = static_cast<int>(neighbourCoords.y) - static_cast<int>(nodeCoords.y);
-                auto dz = static_cast<int>(neighbourCoords.z) - static_cast<int>(nodeCoords.z);
-
-                auto xDir = glm::clamp(dx, -1, 1);
-                auto zDir = glm::clamp(dz, -1, 1);
-                auto verticalOffset = Coordinates{0, size_t(dy), 0};
-                auto horizontalOffset = Coordinates{size_t(xDir), 0, size_t(zDir)};
+                auto verticalOffset = GetVerticalOffset(neighbourCoords, nodeCoords);
+                auto horizontalOffset = GetHorizontalOffset(neighbourCoords, nodeCoords);
 
                 const auto& set = nodePtr->previousSet;
                 if (set.contains(nodeCoords + horizontalOffset) || set.contains(nodeCoords + horizontalOffset + horizontalOffset) ||
@@ -110,13 +104,8 @@ std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& st
                 neighbour.previousSet.insert(nodeCoords);
 
                 if (pathCost.isStairs) {
-                    auto dx = static_cast<int>(neighbourCoords.x) - static_cast<int>(nodeCoords.x);
-                    auto dy = static_cast<int>(neighbourCoords.y) - static_cast<int>(nodeCoords.y);
-                    auto dz = static_cast<int>(neighbourCoords.z) - static_cast<int>(nodeCoords.z);
-                    auto xDir = glm::clamp(dx, -1, 1);
-                    auto zDir = glm::clamp(dz, -1, 1);
-                    auto verticalOffset = Coordinates{0, size_t(dy), 0};
-                    auto horizontalOffset = Coordinates{size_t(xDir), 0, size_t(zDir)};
+                    auto verticalOffset = GetVerticalOffset(neighbourCoords, nodeCoords);
+                    auto horizontalOffset = GetHorizontalOffset(neighbourCoords, nodeCoords);
                     neighbour.previousSet.insert(nodeCoords + horizontalOffset);
                     neighbour.previousSet.insert(nodeCoords + horizontalOffset + horizontalOffset);
                     neighbour.previousSet.insert(nodeCoords + verticalOffset + horizontalOffset);
@@ -164,7 +153,6 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
                                               const Coordinates& target) {
     auto pathCost = PathCost{false, 0.0f, false};
 
-    auto vecDelta = b->position.AsVec3() - a->position.AsVec3();
     auto delta = b->position - a->position;
 
     // no staircase needed for now
@@ -190,12 +178,8 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
         return pathCost;
     }
 
-    int xDir = glm::round(glm::clamp(vecDelta.x, -1.0f, 1.0f));
-    int zDir = glm::round(glm::clamp(vecDelta.z, -1.0f, 1.0f));
-    LOG_ASSERT(-1 <= xDir && xDir <= 1 && -1 <= zDir && zDir <= 1);
-
-    auto verticalOffset = Coordinates{0, delta.y, 0};
-    auto horizontalOffset = Coordinates{size_t(xDir), 0, size_t(zDir)};
+    auto verticalOffset = GetVerticalOffset(b->position, a->position);
+    auto horizontalOffset = GetHorizontalOffset(b->position, a->position);
 
     const auto& t1 = world.Get(a->position + horizontalOffset);
     const auto& t2 = world.Get(a->position + horizontalOffset + horizontalOffset);
@@ -232,21 +216,16 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
 
         if (delta.y == 0) continue;
 
-        auto dx = static_cast<int>(coords.x) - static_cast<int>(prev.x);
-        auto dy = static_cast<int>(coords.y) - static_cast<int>(prev.y);
-        auto dz = static_cast<int>(coords.z) - static_cast<int>(prev.z);
-        auto xDir = glm::clamp(dx, -1, 1);
-        auto zDir = glm::clamp(dz, -1, 1);
-        auto verticalOffset = Coordinates{0, size_t(dy), 0};
-        auto horizontalOffset = Coordinates{size_t(xDir), 0, size_t(zDir)};
+        auto verticalOffset = GetVerticalOffset(coords, prev);
+        auto horizontalOffset = GetHorizontalOffset(coords, prev);
 
-        if (dz == 3 && dx == 0) {
+        if (delta.z == 3 && delta.x == 0) {
             stairs2.type = TileType::StairsNorth;
-        } else if (dx == -3 && dz == 0) {
+        } else if (delta.x == -3 && delta.z == 0) {
             stairs2.type = TileType::StairsWest;
-        } else if (dz == -3 && dx == 0) {
+        } else if (delta.z == -3 && delta.x == 0) {
             stairs2.type = TileType::StairsSouth;
-        } else if (dx == 3 && dz == 0) {
+        } else if (delta.x == 3 && delta.z == 0) {
             stairs2.type = TileType::StairsEast;
         } else {
             LOG_ASSERT(false);
@@ -254,10 +233,10 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
 
         auto specialTile = prev + verticalOffset + horizontalOffset;
         auto normalTile = prev + horizontalOffset + horizontalOffset;
-        if (dy == 1) {
+        if (delta.y == 1) {
             stairs2.type = ReverseStairsDirection(stairs2.type);
             std::swap(specialTile, normalTile);
-        } else if (dy == -1) {
+        } else if (delta.y == -1) {
             // do nothing
         } else {
             LOG_ASSERT(false);

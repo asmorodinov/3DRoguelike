@@ -73,6 +73,19 @@ size_t Coordinates::HashFunction::operator()(const Coordinates& coords) const {
     return xHash ^ yHash ^ zHash;
 }
 
+Coordinates GetVerticalOffset(const Coordinates& c1, const Coordinates& c2) {
+    auto dy = static_cast<int>(c1.y) - static_cast<int>(c2.y);
+    return Coordinates{0, size_t(dy), 0};
+}
+
+Coordinates GetHorizontalOffset(const Coordinates& c1, const Coordinates& c2) {
+    auto dx = static_cast<int>(c1.x) - static_cast<int>(c2.x);
+    auto dz = static_cast<int>(c1.z) - static_cast<int>(c2.z);
+    auto xDir = glm::clamp(dx, -1, 1);
+    auto zDir = glm::clamp(dz, -1, 1);
+    return Coordinates{size_t(xDir), 0, size_t(zDir)};
+}
+
 size_t Volume(const Dimensions& dimensions) {
     return dimensions.width * dimensions.height * dimensions.length;
 }
