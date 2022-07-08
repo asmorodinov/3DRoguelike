@@ -15,7 +15,7 @@ size_t Pathfinder::NodePtrHashFunction::operator()(const NodePtr node) const {
     return Coordinates::HashFunction()(node->position);
 }
 bool Pathfinder::NodePtrEqFunction::operator()(const NodePtr lhs, const NodePtr rhs) const {
-    return lhs->position == rhs->position && lhs->cost == rhs->cost && lhs->previous == rhs->previous && lhs->previousSet == rhs->previousSet;
+    return lhs->position == rhs->position && lhs->cost == rhs->cost;
 }
 bool Pathfinder::NodePtrCmpFunction::operator()(const NodePtr lhs, const NodePtr rhs) const {
     if (lhs->cost != rhs->cost) {
