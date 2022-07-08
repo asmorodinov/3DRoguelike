@@ -21,6 +21,7 @@ class Assets {
     static const Texture& GetTexture(const std::string& name);
 
  public:
+    glm::mat4 orthogonalProjection;
     glm::mat4 projection;
     glm::mat4 view;
 

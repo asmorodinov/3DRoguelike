@@ -10,6 +10,7 @@
 #include "Game/Camera.h"
 #include "Game/Assets.h"
 #include "Game/Renderer.h"
+#include "Game/UI/RenderText.h"
 
 #include "Game/Dungeon/Dungeon.h"
 
@@ -34,6 +35,9 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;  // time between current frame and last frame
 float lastFrame = 0.0f;
+
+float fps = 0.0f;
+float fpsLastFrame = 0.0f;
 
 bool generate = false;
 auto rightPressed = false;
@@ -82,6 +86,8 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
+    Assets::Get().orthogonalProjection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+
     auto dimensions = Dimensions{60, 30, 60};
     auto dungeon = Dungeon(dimensions);
     seed = RNG(SeedType()).RandomSeed();
@@ -92,15 +98,19 @@ int main() {
 
     size_t frame = 0;
 
+    auto textRenderer = TextRenderer();
+    textRenderer.LoadFont("font.ttf");
+
     while (!glfwWindowShouldClose(window)) {
         ++frame;
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        if (0 && frame % 120 == 0) {
-            glfwSetWindowTitle(window, std::to_string(1.0f / deltaTime).c_str());
-            std::cout << 1.0f / deltaTime << "\n";
+        if (frame % 120 == 0) {
+            auto delta = currentFrame - fpsLastFrame;
+            fps = 120.0f / delta;
+            fpsLastFrame = currentFrame;
         }
 
         processInput(window);
@@ -120,6 +130,12 @@ int main() {
         }
 
         dungeon.Render();
+
+        // render text
+        glDisable(GL_DEPTH_TEST);
+        textRenderer.RenderText("fps: " + std::to_string(static_cast<int>(glm::round(fps))), glm::vec2(25.0f, 25.0f), 1.0f,
+                                glm::vec3(0.5, 0.8f, 0.2f));
+        glEnable(GL_DEPTH_TEST);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
