@@ -12,6 +12,7 @@ find_package(glm CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(CGAL CONFIG REQUIRED)
+find_package(freetype CONFIG REQUIRED)
 
 # Include sub-projects.
 add_subdirectory ("3DRoguelike")
