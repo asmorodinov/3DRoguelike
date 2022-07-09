@@ -46,6 +46,8 @@ auto leftPressed = false;
 
 SeedType seed = 0;
 
+auto disableCollision = false;
+
 int main() {
     // glfw: initialize and configure
     // ------------------------------
@@ -92,6 +94,7 @@ int main() {
     auto dimensions = Dimensions{60, 30, 60};
     auto dungeon = Dungeon(dimensions);
     seed = RNG(SeedType()).RandomSeed();
+    // seed = 2442605604;
     dungeon.SetSeed(seed);
     dungeon.Generate();
     camera.Position = dungeon.GetSpawnPoint().AsVec3();
@@ -115,7 +118,7 @@ int main() {
 
         processInput(window);
 
-        ResolveCollisionWithWorld(camera, dungeon.GetTiles(), deltaTime);
+        ResolveCollisionWithWorld(camera, dungeon.GetTiles(), deltaTime, disableCollision);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -182,6 +185,8 @@ void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE) {
         leftPressed = false;
     }
+
+    disableCollision = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
 
     auto forward = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
     auto backward = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;

@@ -135,6 +135,21 @@ void Dungeon::reset() {
     tiles = TilesVec(dimensions, Tile());
 }
 
+void addTile(const glm::ivec3& coords, std::vector<PositionColor>& blocks, std::array<std::vector<PositionColor>, 4>& stairs, const TilesVec& tiles) {
+    const auto& tile = tiles.GetInOrOutOfBounds(coords);
+    if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
+        blocks.push_back({glm::vec3(coords), tile.color, 1.0f});
+    } else if (tile.type == TileType::StairsNorth) {
+        stairs[0].push_back({glm::vec3(coords), tile.color, 1.0f});
+    } else if (tile.type == TileType::StairsWest) {
+        stairs[1].push_back({glm::vec3(coords), tile.color, 1.0f});
+    } else if (tile.type == TileType::StairsSouth) {
+        stairs[2].push_back({glm::vec3(coords), tile.color, 1.0f});
+    } else if (tile.type == TileType::StairsEast) {
+        stairs[3].push_back({glm::vec3(coords), tile.color, 1.0f});
+    }
+}
+
 void Dungeon::Generate() {
     reset();
 
@@ -152,20 +167,13 @@ void Dungeon::Generate() {
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.length; ++z) {
-                const auto& tile = tiles.Get(x, y, z);
-                if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
-                    tilesData.push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                } else if (tile.type == TileType::StairsNorth) {
-                    stairsData[0].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                } else if (tile.type == TileType::StairsWest) {
-                    stairsData[1].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                } else if (tile.type == TileType::StairsSouth) {
-                    stairsData[2].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                } else if (tile.type == TileType::StairsEast) {
-                    stairsData[3].push_back({glm::vec3(x, y, z), tile.color, 1.0f});
-                }
+                auto coords = Coordinates{x, y, z};
+                addTile(coords.AsIVec3(), tilesData, stairsData, tiles);
             }
         }
+    }
+    for (const auto& [coords, tile] : tiles.GetOutOfBoundsMap()) {
+        addTile(coords, tilesData, stairsData, tiles);
     }
 
     renderer.InitInstancedRendering(tilesData, stairsData);

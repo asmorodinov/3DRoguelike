@@ -24,6 +24,14 @@ Coordinates Coordinates::operator-(const Coordinates& other) const {
     return Coordinates{x - other.x, y - other.y, z - other.z};
 }
 
+std::vector<glm::ivec3> Coordinates::GetAllNeighbours() const {
+    auto ix = static_cast<int>(x);
+    auto iy = static_cast<int>(y);
+    auto iz = static_cast<int>(z);
+    return std::vector<glm::ivec3>{glm::ivec3(ix - 1, iy, iz), glm::ivec3(ix + 1, iy, iz), glm::ivec3(ix, iy - 1, iz),
+                                   glm::ivec3(ix, iy + 1, iz), glm::ivec3(ix, iy, iz - 1), glm::ivec3(ix, iy, iz + 1)};
+}
+
 std::vector<Coordinates> Coordinates::GetNeighbours(const Dimensions& dimensions) const {
     auto neighbours = std::vector<Coordinates>();
     if (x > 0) neighbours.push_back(Coordinates{x - 1, y, z});
@@ -64,6 +72,10 @@ std::vector<Coordinates> Coordinates::GetNeighboursWithStairs(const Dimensions& 
 
 glm::vec3 Coordinates::AsVec3() const {
     return glm::vec3(x, y, z);
+}
+
+glm::ivec3 Coordinates::AsIVec3() const {
+    return glm::ivec3(x, y, z);
 }
 
 bool Coordinates::IsInBounds(const Dimensions& dimensions) const {

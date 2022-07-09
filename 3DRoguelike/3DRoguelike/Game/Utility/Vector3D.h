@@ -1,8 +1,10 @@
 #pragma once
 
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
 
 struct Dimensions {
     size_t width = 0;
@@ -24,10 +26,12 @@ struct Coordinates {
         size_t operator()(const Coordinates& coords) const;
     };
 
+    std::vector<glm::ivec3> GetAllNeighbours() const;
     std::vector<Coordinates> GetNeighbours(const Dimensions& dimensions) const;
     std::vector<Coordinates> GetNeighboursWithStairs(const Dimensions& dimensions) const;
 
     glm::vec3 AsVec3() const;
+    glm::ivec3 AsIVec3() const;
 
     bool IsInBounds(const Dimensions& dimensions) const;
 };
@@ -44,7 +48,8 @@ size_t CoordinatesToIndex(const Coordinates& coordinates, const Dimensions& dime
 template <typename T>
 class Vector3D {
  public:
-    Vector3D(const Dimensions& dimensions_ = Dimensions(), const T& init = T()) : dimensions(dimensions_), data(Volume(dimensions), init) {
+    Vector3D(const Dimensions& dimensions_ = Dimensions(), const T& init = T())
+        : dimensions(dimensions_), data(Volume(dimensions), init), outOfBounds() {
     }
 
     void Set(const Coordinates& coordinates, const T& elem) {
@@ -76,7 +81,35 @@ class Vector3D {
         return dimensions;
     }
 
+    void SetInOrOutOfBounds(const glm::ivec3& intcoords, const T& elem) {
+        auto coords = Coordinates{size_t(intcoords.x), size_t(intcoords.y), size_t(intcoords.z)};
+
+        if (coords.IsInBounds(dimensions)) {
+            Set(coords, elem);
+        } else {
+            outOfBounds[intcoords] = elem;
+        }
+    }
+    T GetInOrOutOfBounds(const glm::ivec3& intcoords) const {
+        auto coords = Coordinates{size_t(intcoords.x), size_t(intcoords.y), size_t(intcoords.z)};
+
+        if (coords.IsInBounds(dimensions)) {
+            return GetValue(coords);
+        } else {
+            if (outOfBounds.contains(intcoords)) {
+                return outOfBounds.at(intcoords);
+            } else {
+                return T();
+            }
+        }
+    }
+    const std::unordered_map<glm::ivec3, T> GetOutOfBoundsMap() const {
+        return outOfBounds;
+    }
+
  private:
     Dimensions dimensions;
     std::vector<T> data;
+
+    std::unordered_map<glm::ivec3, T> outOfBounds;
 };
