@@ -5,15 +5,15 @@
 void ResolveCollisionWithWorld(Camera& camera, const TilesVec& world) {
     auto position = camera.Position;
     position = glm::round(position);
-    auto x = static_cast<size_t>(static_cast<int>(position.x));
-    auto y = static_cast<size_t>(static_cast<int>(position.y));
-    auto z = static_cast<size_t>(static_cast<int>(position.z));
+    auto x = static_cast<int>(position.x);
+    auto y = static_cast<int>(position.y);
+    auto z = static_cast<int>(position.z);
 
     const auto& dimensions = world.GetDimensions();
-    for (size_t i = x - 1; i <= x + 1; ++i) {
-        for (size_t j = y - 1; j <= y + 1; ++j) {
-            for (size_t k = z - 1; k <= z + 1; ++k) {
-                auto coords = Coordinates{i, j, k};
+    for (int i = x - 1; i <= x + 1; ++i) {
+        for (int j = y - 1; j <= y + 1; ++j) {
+            for (int k = z - 1; k <= z + 1; ++k) {
+                auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
                 if (!coords.IsInBounds(dimensions)) continue;
 
                 const auto& tile = world.Get(coords);

@@ -1,8 +1,10 @@
 #pragma once
 
-#include <variant>
+#include <optional>
+#include <array>
 #include <glm/glm.hpp>
 
+using Length = float;
 using Radius = float;
 using Depth = float;
 
@@ -27,9 +29,16 @@ struct Triangle {
 
 CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t);
 
+struct Cube {
+    glm::vec3 center;
+    Length sideLength;
+};
+std::optional<std::array<CollisionInfo, 12>> SphereVsCube(const Sphere& s, const Cube& c);
+
 struct MovingObject {
     glm::vec3 position;
     glm::vec3 lastPosition;
 };
 
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj);
+void ResolveCollision(const std::optional<std::array<CollisionInfo, 12>>& info, MovingObject& obj);
