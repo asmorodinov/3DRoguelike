@@ -23,6 +23,8 @@ int StairsCost(TileType type);
 
 TileType ReverseStairsDirection(TileType type);
 
+bool IsAir(TileType type);
+
 enum struct TextureType { None, Texture1, Texture2 };
 
 struct Tile {

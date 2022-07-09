@@ -94,8 +94,7 @@ int main() {
     seed = RNG(SeedType()).RandomSeed();
     dungeon.SetSeed(seed);
     dungeon.Generate();
-
-    camera.Position = glm::vec3(dimensions.width, dimensions.height, dimensions.length) / 2.0f;
+    camera.Position = dungeon.GetSpawnPoint().AsVec3();
 
     size_t frame = 0;
 
@@ -116,7 +115,7 @@ int main() {
 
         processInput(window);
 
-        ResolveCollisionWithWorld(camera, dungeon.GetTiles());
+        ResolveCollisionWithWorld(camera, dungeon.GetTiles(), deltaTime);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -130,14 +129,27 @@ int main() {
             generate = false;
             dungeon.SetSeed(seed);
             dungeon.Generate();
+            camera.Position = dungeon.GetSpawnPoint().AsVec3();
         }
 
         dungeon.Render();
 
         // render text
+        auto fpsstr = std::to_string(static_cast<int>(glm::round(fps)));
+
+        auto pos = camera.Position;
+        auto posx = std::to_string(static_cast<int>(glm::round(pos.x)));
+        auto posy = std::to_string(static_cast<int>(glm::round(pos.y)));
+        auto posz = std::to_string(static_cast<int>(glm::round(pos.z)));
+
+        auto vel = camera.Velocity;
+        auto velx = std::to_string(static_cast<int>(glm::round(vel.x)));
+        auto vely = std::to_string(static_cast<int>(glm::round(vel.y)));
+        auto velz = std::to_string(static_cast<int>(glm::round(vel.z)));
+
         glDisable(GL_DEPTH_TEST);
-        textRenderer.RenderText("fps: " + std::to_string(static_cast<int>(glm::round(fps))), glm::vec2(25.0f, 25.0f), 1.0f,
-                                glm::vec3(0.5, 0.8f, 0.2f));
+        textRenderer.RenderText("fps: " + fpsstr + " pos: " + posx + " " + posy + " " + posz + " vel: " + velx + " " + vely + " " + velz,
+                                glm::vec2(25.0f, 25.0f), 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
         glEnable(GL_DEPTH_TEST);
 
         glfwSwapBuffers(window);
@@ -171,10 +183,11 @@ void processInput(GLFWwindow* window) {
         leftPressed = false;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.ProcessKeyboard(RIGHT, deltaTime);
+    auto forward = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+    auto backward = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+    auto left = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+    auto right = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+    camera.ProcessKeyboard(forward, backward, left, right);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

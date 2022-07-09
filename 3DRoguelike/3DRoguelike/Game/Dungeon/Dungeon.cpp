@@ -143,6 +143,9 @@ void Dungeon::Generate() {
     placeRooms();
     placeCorridors();
 
+    const auto& room = rooms[rng.IntUniform<size_t>(0, rooms.size() - 1)];
+    spawn = RoomCenterCoords(room);
+
     auto tilesData = std::vector<PositionColor>();
     auto stairsData = std::array<std::vector<PositionColor>, 4>({{}, {}, {}, {}});
 
@@ -174,4 +177,8 @@ void Dungeon::Render() {
 
 const TilesVec& Dungeon::GetTiles() const {
     return tiles;
+}
+
+Coordinates Dungeon::GetSpawnPoint() const {
+    return spawn;
 }

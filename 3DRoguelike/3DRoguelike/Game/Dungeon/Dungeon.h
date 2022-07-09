@@ -18,6 +18,8 @@ class Dungeon {
 
     const TilesVec& GetTiles() const;
 
+    Coordinates GetSpawnPoint() const;
+
  private:
     void placeRooms();
     void placeCorridors();
@@ -30,4 +32,6 @@ class Dungeon {
     TilesVec tiles;
     std::vector<Room> rooms;
     TileRenderer renderer;
+
+    Coordinates spawn;
 };

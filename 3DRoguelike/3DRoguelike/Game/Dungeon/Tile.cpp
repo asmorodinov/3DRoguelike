@@ -50,3 +50,9 @@ TileType ReverseStairsDirection(TileType type) {
     LOG_ASSERT(false);
     return TileType::Void;
 }
+
+// used to determine which faces of cube should be checked for collision detection with player
+bool IsAir(TileType type) {
+    return type == TileType::Air || type == TileType::CorridorAir || type == TileType::Stairs || type == TileType::StairsWest ||
+           type == TileType::StairsEast || type == TileType::StairsNorth || type == TileType::StairsSouth;
+}

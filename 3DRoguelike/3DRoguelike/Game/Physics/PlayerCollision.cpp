@@ -2,8 +2,8 @@
 
 #include "CollisionDetection.h"
 
-void ResolveCollisionWithWorld(Camera& camera, const TilesVec& world) {
-    auto position = camera.Position;
+void resolveCollision(MovingObject& object, const TilesVec& world) {
+    auto position = object.position;
     position = glm::round(position);
     auto x = static_cast<int>(position.x);
     auto y = static_cast<int>(position.y);
@@ -19,14 +19,33 @@ void ResolveCollisionWithWorld(Camera& camera, const TilesVec& world) {
                 const auto& tile = world.Get(coords);
                 if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock) continue;
 
-                auto info = SphereVsSphere(Sphere{camera.Position, 0.5f}, Sphere{coords.AsVec3(), 0.5f});
-                if (!info.isColliding) continue;
+                auto faces = std::array<bool, 6>();
+                faces[0] = IsAir(coords + Coordinates{0, 0, size_t(-1)}, world);
+                faces[1] = IsAir(coords + Coordinates{0, 0, size_t(1)}, world);
+                faces[2] = IsAir(coords + Coordinates{size_t(-1), 0, 0}, world);
+                faces[3] = IsAir(coords + Coordinates{size_t(1), 0, 0}, world);
+                faces[4] = IsAir(coords + Coordinates{0, size_t(-1), 0}, world);
+                faces[5] = IsAir(coords + Coordinates{0, size_t(1), 0}, world);
 
-                auto object = MovingObject{camera.Position, camera.LastPosition};
+                auto info = SphereVsCube(Sphere{object.position, 0.3f}, Cube{coords.AsVec3(), 1.0f}, faces);
                 ResolveCollision(info, object);
-                camera.Position = object.position;
-                camera.LastPosition = object.lastPosition;
             }
         }
     }
+}
+
+void ResolveCollisionWithWorld(Camera& camera, const TilesVec& world, float dt) {
+    auto object = MovingObject{camera.Position, camera.Velocity};
+
+    int ccd_max = 50;
+    object.velocity *= 1.0f / ccd_max;
+
+    for (int ccd = 0; ccd < ccd_max; ++ccd) {
+        resolveCollision(object, world);
+
+        auto step = object.velocity * dt;
+        object.position += step;
+    }
+
+    camera.Position = object.position;
 }

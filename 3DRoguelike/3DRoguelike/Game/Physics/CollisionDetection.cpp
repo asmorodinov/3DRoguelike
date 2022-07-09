@@ -3,8 +3,6 @@
 // sphere vs sphere
 
 CollisionInfo SphereVsSphere(const Sphere& s1, const Sphere& s2) {
-    static constexpr auto eps = 0.00000001f;
-
     auto distance = glm::distance(s1.center, s2.center);
     auto radiusSum = s1.radius + s2.radius;
 
@@ -13,10 +11,7 @@ CollisionInfo SphereVsSphere(const Sphere& s1, const Sphere& s2) {
     }
 
     auto depth = radiusSum - distance;
-
-    auto vec = s1.center - s2.center;
-    auto len = glm::length(vec);
-    auto normal = (len <= eps) ? glm::vec3(0.0f) : vec / len;
+    auto normal = glm::normalize(s1.center - s2.center);
 
     return CollisionInfo{true, depth, normal};
 }
@@ -110,7 +105,7 @@ bool quickSphereVsCube(const Sphere& s, const Cube& cube) {
     return glm::distance(c, s.center) <= (r + s.radius);
 }
 
-std::optional<std::array<CollisionInfo, 12>> SphereVsCube(const Sphere& s, const Cube& c) {
+std::vector<CollisionInfo> SphereVsCube(const Sphere& s, const Cube& c, const std::array<bool, 6>& faces) {
     static constexpr auto points = std::array<glm::vec3, 8>{glm::vec3(-1, -1, -1), glm::vec3(1, -1, -1), glm::vec3(1, 1, -1), glm::vec3(-1, 1, -1),
                                                             glm::vec3(-1, -1, 1),  glm::vec3(1, -1, 1),  glm::vec3(1, 1, 1),  glm::vec3(-1, 1, 1)};
     static constexpr auto triangles = std::array<Triangle, 12>{
@@ -120,15 +115,17 @@ std::optional<std::array<CollisionInfo, 12>> SphereVsCube(const Sphere& s, const
         Triangle(points[5], points[4], points[6]), Triangle(points[3], points[6], points[2]), Triangle(points[6], points[3], points[7])};
 
     if (!quickSphereVsCube(s, c)) {
-        return std::nullopt;
+        return {};
     }
 
-    auto res = std::array<CollisionInfo, 12>();
+    auto res = std::vector<CollisionInfo>();
 
     for (size_t i = 0; i < 12; ++i) {
-        const auto& triangle = triangles[i];
-        res[i] = SphereVsTriangle(s, Triangle{c.center + (c.sideLength / 2.0f) * triangle.p0, c.center + (c.sideLength / 2.0f) * triangle.p1,
-                                              c.center + (c.sideLength / 2.0f) * triangle.p2});
+        if (faces[i / 2]) {
+            const auto& triangle = triangles[i];
+            res.push_back(SphereVsTriangle(s, Triangle{c.center + (c.sideLength / 2.0f) * triangle.p0, c.center + (c.sideLength / 2.0f) * triangle.p1,
+                                                       c.center + (c.sideLength / 2.0f) * triangle.p2}));
+        }
     }
 
     return res;
@@ -137,7 +134,7 @@ std::optional<std::array<CollisionInfo, 12>> SphereVsCube(const Sphere& s, const
 // collision resolution
 
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
-    static constexpr auto eps = 0.00000001f;
+    static constexpr auto eps = 0.000001f;
 
     if (!info.isColliding) {
         return;
@@ -145,29 +142,20 @@ void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     const auto& normal = info.penetrationNormal;
     const auto depth = info.penetrationDepth;
 
-    auto velocity = obj.position - obj.lastPosition;
-    auto velocityLength = glm::length(velocity);
-    auto velocityNormalized = (velocityLength <= eps) ? glm::vec3(0.0f) : velocity / velocityLength;
+    auto velocityLength = glm::length(obj.velocity);
+    auto velocityNormalized = (velocityLength <= eps) ? glm::vec3(0.0f) : obj.velocity / velocityLength;
 
-    auto undesiredMotion = normal * glm::dot(velocityNormalized, normal);  // normalized
-    auto desiredMotion = velocityNormalized - undesiredMotion;             // normalized
+    auto cos = glm::dot(velocityNormalized, normal);
+    auto undesiredMotion = (cos < 0.0f) ? (normal * cos) : glm::vec3(0.0f);
 
-    auto newPosition = obj.position + normal * depth;  // remove penetration
+    auto desiredMotion = velocityNormalized - undesiredMotion;
 
-    auto moved = glm::length(newPosition - obj.lastPosition);
-    if (moved < velocityLength) {
-        newPosition += (velocityLength - moved) * desiredMotion;  // also move a little bit in the desired direction
-    }
-
-    obj.position = newPosition;
+    obj.velocity = desiredMotion * velocityLength;
+    obj.position += normal * (depth + eps);
 }
 
-void ResolveCollision(const std::optional<std::array<CollisionInfo, 12>>& info, MovingObject& obj) {
-    if (!info.has_value()) {
-        return;
-    }
-    const auto& arr = info.value();
-    for (size_t i = 0; i < 12; ++i) {
-        ResolveCollision(arr[i], obj);
+void ResolveCollision(const std::vector<CollisionInfo>& info, MovingObject& obj) {
+    for (const auto& elem : info) {
+        ResolveCollision(elem, obj);
     }
 }

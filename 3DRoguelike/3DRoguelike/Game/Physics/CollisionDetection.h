@@ -2,6 +2,8 @@
 
 #include <optional>
 #include <array>
+#include <vector>
+
 #include <glm/glm.hpp>
 
 using Length = float;
@@ -33,12 +35,12 @@ struct Cube {
     glm::vec3 center;
     Length sideLength;
 };
-std::optional<std::array<CollisionInfo, 12>> SphereVsCube(const Sphere& s, const Cube& c);
+std::vector<CollisionInfo> SphereVsCube(const Sphere& s, const Cube& c, const std::array<bool, 6>& faces);
 
 struct MovingObject {
     glm::vec3 position;
-    glm::vec3 lastPosition;
+    glm::vec3 velocity;
 };
 
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj);
-void ResolveCollision(const std::optional<std::array<CollisionInfo, 12>>& info, MovingObject& obj);
+void ResolveCollision(const std::vector<CollisionInfo>& info, MovingObject& obj);
