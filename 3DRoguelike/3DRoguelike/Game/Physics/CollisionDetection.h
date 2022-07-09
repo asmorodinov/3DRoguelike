@@ -19,6 +19,14 @@ struct CollisionInfo {
 
 CollisionInfo SphereVsSphere(const Sphere& s1, const Sphere& s2);
 
+struct Triangle {
+    glm::vec3 p0;
+    glm::vec3 p1;
+    glm::vec3 p2;
+};
+
+CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t);
+
 struct MovingObject {
     glm::vec3 position;
     glm::vec3 lastPosition;
