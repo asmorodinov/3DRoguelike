@@ -1,5 +1,6 @@
 #pragma once
 
+#include <variant>
 #include <glm/glm.hpp>
 
 using Radius = float;
@@ -17,3 +18,10 @@ struct CollisionInfo {
 };
 
 CollisionInfo SphereVsSphere(const Sphere& s1, const Sphere& s2);
+
+struct MovingObject {
+    glm::vec3 position;
+    glm::vec3 lastPosition;
+};
+
+void ResolveCollision(const CollisionInfo& info, MovingObject& obj);

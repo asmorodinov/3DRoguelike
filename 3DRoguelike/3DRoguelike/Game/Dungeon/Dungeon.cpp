@@ -171,3 +171,7 @@ void Dungeon::Generate() {
 void Dungeon::Render() {
     renderer.RenderTilesInstanced();
 }
+
+const TilesVec& Dungeon::GetTiles() const {
+    return tiles;
+}

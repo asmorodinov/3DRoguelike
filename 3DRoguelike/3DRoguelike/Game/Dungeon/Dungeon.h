@@ -16,6 +16,8 @@ class Dungeon {
     void Generate();
     void Render();
 
+    const TilesVec& GetTiles() const;
+
  private:
     void placeRooms();
     void placeCorridors();

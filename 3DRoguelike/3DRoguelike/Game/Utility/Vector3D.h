@@ -28,6 +28,8 @@ struct Coordinates {
     std::vector<Coordinates> GetNeighboursWithStairs(const Dimensions& dimensions) const;
 
     glm::vec3 AsVec3() const;
+
+    bool IsInBounds(const Dimensions& dimensions) const;
 };
 
 using CoordinatesSet = std::unordered_set<Coordinates, Coordinates::HashFunction>;

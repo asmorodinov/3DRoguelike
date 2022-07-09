@@ -66,6 +66,10 @@ glm::vec3 Coordinates::AsVec3() const {
     return glm::vec3(x, y, z);
 }
 
+bool Coordinates::IsInBounds(const Dimensions& dimensions) const {
+    return x < dimensions.width && y < dimensions.height && z < dimensions.length;
+}
+
 size_t Coordinates::HashFunction::operator()(const Coordinates& coords) const {
     size_t xHash = std::hash<size_t>()(coords.x);
     size_t yHash = std::hash<size_t>()(coords.y) << 1;

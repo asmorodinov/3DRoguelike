@@ -11,6 +11,7 @@
 #include "Game/Assets.h"
 #include "Game/Renderer.h"
 #include "Game/UI/RenderText.h"
+#include "Game/Physics/PlayerCollision.h"
 
 #include "Game/Dungeon/Dungeon.h"
 
@@ -114,6 +115,8 @@ int main() {
         }
 
         processInput(window);
+
+        ResolveCollisionWithWorld(camera, dungeon.GetTiles());
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
