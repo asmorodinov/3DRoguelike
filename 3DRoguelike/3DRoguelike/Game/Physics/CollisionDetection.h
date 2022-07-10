@@ -1,46 +1,23 @@
 #pragma once
 
 #include <optional>
-#include <array>
-#include <vector>
 
 #include <glm/glm.hpp>
 
-using Length = float;
-using Radius = float;
-using Depth = float;
-
-struct Sphere {
-    glm::vec3 center;
-    Radius radius;
-};
+using Time = float;
 
 struct CollisionInfo {
-    bool isColliding = false;
-    Depth penetrationDepth = 0.0f;
-    glm::vec3 penetrationNormal = glm::vec3();
+    Time entryTime = 0.0f;
+    glm::vec3 surfaceNormal = glm::vec3();
 };
 
-CollisionInfo SphereVsSphere(const Sphere& s1, const Sphere& s2);
+// std::nullopt means there was no collision
+using CollisionResult = std::optional<CollisionInfo>;
 
-struct Triangle {
-    glm::vec3 p0;
-    glm::vec3 p1;
-    glm::vec3 p2;
+struct Box3D {
+    glm::vec3 p1;  // corner with minimum vertex coords
+    glm::vec3 p2;  // corner with maximum vertex coords
 };
 
-CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t);
-
-struct Cube {
-    glm::vec3 center;
-    Length sideLength;
-};
-
-CollisionInfo SphereVsCube(const Sphere& s, const Cube& c);
-
-struct MovingObject {
-    glm::vec3 position;
-    glm::vec3 velocity;
-};
-
-void ResolveCollision(const CollisionInfo& info, MovingObject& obj);
+// b1 is moving with velocity v1, b2 - static collider
+CollisionResult SweptAABB(const Box3D& b1, const glm::vec3& v1, const Box3D& b2);

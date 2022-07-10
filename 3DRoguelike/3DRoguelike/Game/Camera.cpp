@@ -27,6 +27,7 @@ void Camera::ProcessKeyboard(bool forward, bool backward, bool left, bool right)
     if (backward) Velocity -= Front;
     if (left) Velocity -= Right;
     if (right) Velocity += Right;
+    Velocity.y = 0.0f;
 
     if (glm::length(Velocity) != 0.0f) {
         Velocity = glm::normalize(Velocity);

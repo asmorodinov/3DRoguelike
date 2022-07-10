@@ -11,9 +11,9 @@
 #include "Game/Assets.h"
 #include "Game/Renderer.h"
 #include "Game/UI/RenderText.h"
-#include "Game/Physics/PlayerCollision.h"
 
 #include "Game/Dungeon/Dungeon.h"
+#include "Game/Physics/Entity.h"
 
 #include <iostream>
 #include <string>
@@ -32,6 +32,9 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+
+// player
+Entity player;
 
 // timing
 float deltaTime = 0.0f;  // time between current frame and last frame
@@ -97,7 +100,8 @@ int main() {
     // seed = 2442605604;
     dungeon.SetSeed(seed);
     dungeon.Generate();
-    camera.Position = dungeon.GetSpawnPoint().AsVec3();
+    player.SetPosition(dungeon.GetSpawnPoint().AsVec3());
+    camera.Position = player.GetPosition();
 
     size_t frame = 0;
 
@@ -118,7 +122,8 @@ int main() {
 
         processInput(window);
 
-        ResolveCollisionWithWorld(camera, dungeon.GetTiles(), deltaTime, disableCollision);
+        player.Update(dungeon.GetTiles(), deltaTime, disableCollision);
+        camera.Position = player.GetPosition();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -132,7 +137,8 @@ int main() {
             generate = false;
             dungeon.SetSeed(seed);
             dungeon.Generate();
-            camera.Position = dungeon.GetSpawnPoint().AsVec3();
+            player.SetPosition(dungeon.GetSpawnPoint().AsVec3());
+            camera.Position = player.GetPosition();
         }
 
         dungeon.Render();
@@ -186,13 +192,20 @@ void processInput(GLFWwindow* window) {
         leftPressed = false;
     }
 
-    disableCollision = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+    disableCollision = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 
     auto forward = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
     auto backward = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
     auto left = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
     auto right = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     camera.ProcessKeyboard(forward, backward, left, right);
+
+    auto acceleration = player.GetAcceleration();
+    player.SetAcceleration(glm::vec3(camera.Velocity.x, acceleration.y, camera.Velocity.z));
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        player.Jump();
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
