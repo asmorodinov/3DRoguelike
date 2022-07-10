@@ -35,7 +35,8 @@ struct Cube {
     glm::vec3 center;
     Length sideLength;
 };
-std::vector<CollisionInfo> SphereVsCube(const Sphere& s, const Cube& c, const std::array<bool, 6>& faces);
+
+CollisionInfo SphereVsCube(const Sphere& s, const Cube& c);
 
 struct MovingObject {
     glm::vec3 position;
@@ -43,4 +44,3 @@ struct MovingObject {
 };
 
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj);
-void ResolveCollision(const std::vector<CollisionInfo>& info, MovingObject& obj);

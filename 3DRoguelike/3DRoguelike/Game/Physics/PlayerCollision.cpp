@@ -1,33 +1,27 @@
 #include "PlayerCollision.h"
 
 #include "CollisionDetection.h"
+#include "../Utility/LogDuration.h"
 
 void resolveCollision(MovingObject& object, const TilesVec& world) {
-    auto position = object.position;
-    position = glm::round(position);
-    auto x = static_cast<int>(position.x);
-    auto y = static_cast<int>(position.y);
-    auto z = static_cast<int>(position.z);
+    auto position = glm::ivec3(glm::round(object.position));
+    auto newPosition = glm::ivec3(glm::round(object.position + object.velocity));
+    auto min = glm::min(position, newPosition);
+    auto max = glm::max(position, newPosition);
+
+    object.position += object.velocity;
 
     const auto& dimensions = world.GetDimensions();
-    for (int i = x - 1; i <= x + 1; ++i) {
-        for (int j = y - 1; j <= y + 1; ++j) {
-            for (int k = z - 1; k <= z + 1; ++k) {
+    for (int i = min.x - 1; i <= max.x + 1; ++i) {
+        for (int j = min.y - 1; j <= max.y + 1; ++j) {
+            for (int k = min.z - 1; k <= max.z + 1; ++k) {
                 auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
                 if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock) continue;
 
-                auto faces = std::array<bool, 6>();
-                faces[0] = IsAir(coords + Coordinates{0, 0, size_t(-1)}, world);
-                faces[1] = IsAir(coords + Coordinates{0, 0, size_t(1)}, world);
-                faces[2] = IsAir(coords + Coordinates{size_t(-1), 0, 0}, world);
-                faces[3] = IsAir(coords + Coordinates{size_t(1), 0, 0}, world);
-                faces[4] = IsAir(coords + Coordinates{0, size_t(-1), 0}, world);
-                faces[5] = IsAir(coords + Coordinates{0, size_t(1), 0}, world);
-
-                auto info = SphereVsCube(Sphere{object.position, 0.3f}, Cube{glm::vec3(intCoords), 1.0f}, faces);
+                auto info = SphereVsCube(Sphere{object.position, 0.25f}, Cube{glm::vec3(intCoords), 1.0f});
                 ResolveCollision(info, object);
             }
         }
@@ -35,21 +29,15 @@ void resolveCollision(MovingObject& object, const TilesVec& world) {
 }
 
 void ResolveCollisionWithWorld(Camera& camera, const TilesVec& world, float dt, bool disableCollision) {
-    auto object = MovingObject{camera.Position, camera.Velocity};
-
     if (disableCollision) {
         camera.Position += 5.0f * camera.Velocity * dt;
         return;
     }
 
-    int ccd_max = 50;
-    object.velocity *= 1.0f / ccd_max;
-
-    for (int ccd = 0; ccd < ccd_max; ++ccd) {
+    auto n = 200;
+    auto object = MovingObject{camera.Position, camera.Velocity * dt * (1.0f / n)};
+    for (int i = 0; i < n; ++i) {
         resolveCollision(object, world);
-
-        auto step = object.velocity * dt;
-        object.position += step;
     }
 
     camera.Position = object.position;

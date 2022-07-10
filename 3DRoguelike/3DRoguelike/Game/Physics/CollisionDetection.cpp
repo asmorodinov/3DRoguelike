@@ -1,5 +1,8 @@
 #include "CollisionDetection.h"
 
+#include <algorithm>
+#include <array>
+
 // sphere vs sphere
 
 CollisionInfo SphereVsSphere(const Sphere& s1, const Sphere& s2) {
@@ -105,36 +108,56 @@ bool quickSphereVsCube(const Sphere& s, const Cube& cube) {
     return glm::distance(c, s.center) <= (r + s.radius);
 }
 
-std::vector<CollisionInfo> SphereVsCube(const Sphere& s, const Cube& c, const std::array<bool, 6>& faces) {
-    static constexpr auto points = std::array<glm::vec3, 8>{glm::vec3(-1, -1, -1), glm::vec3(1, -1, -1), glm::vec3(1, 1, -1), glm::vec3(-1, 1, -1),
-                                                            glm::vec3(-1, -1, 1),  glm::vec3(1, -1, 1),  glm::vec3(1, 1, 1),  glm::vec3(-1, 1, 1)};
-    static constexpr auto triangles = std::array<Triangle, 12>{
-        Triangle(points[0], points[2], points[1]), Triangle(points[2], points[0], points[3]), Triangle(points[4], points[5], points[6]),
-        Triangle(points[6], points[7], points[4]), Triangle(points[7], points[3], points[0]), Triangle(points[0], points[4], points[7]),
-        Triangle(points[6], points[1], points[2]), Triangle(points[1], points[6], points[5]), Triangle(points[0], points[1], points[5]),
-        Triangle(points[5], points[4], points[6]), Triangle(points[3], points[6], points[2]), Triangle(points[6], points[3], points[7])};
+bool pointInsideCube(const glm::vec3& point, const Cube& cube) {
+    return glm::all(glm::lessThanEqual(cube.center - cube.sideLength / 2, point)) &&
+           glm::all(glm::lessThanEqual(point, cube.center + cube.sideLength / 2));
+}
 
-    if (!quickSphereVsCube(s, c)) {
-        return {};
+CollisionInfo SphereVsCube(const Sphere& s, const Cube& cube) {
+    static constexpr auto eps = 0.00000001f;
+
+    if (!quickSphereVsCube(s, cube)) return CollisionInfo();
+
+    auto minCorner = cube.center - glm::vec3(cube.sideLength / 2);
+    auto maxCorner = cube.center + glm::vec3(cube.sideLength / 2);
+
+    // center of sphere is inside of the cube
+
+    if (pointInsideCube(s.center, cube)) {
+        auto points = std::array<glm::vec3, 6>{glm::vec3(minCorner.x, s.center.y, s.center.z), glm::vec3(maxCorner.x, s.center.y, s.center.z),
+                                               glm::vec3(s.center.x, minCorner.y, s.center.z), glm::vec3(s.center.x, maxCorner.y, s.center.z),
+                                               glm::vec3(s.center.x, s.center.y, minCorner.z), glm::vec3(s.center.x, s.center.y, maxCorner.z)};
+
+        auto nearestPoint = *std::min_element(points.begin(), points.end(), [&s](const glm::vec3& v1, const glm::vec3& v2) {
+            return glm::distance(v1, s.center) < glm::distance(v2, s.center);
+        });
+
+        auto rayToNearest = nearestPoint - s.center;
+        auto rayLength = glm::length(rayToNearest);
+        auto overlap = s.radius + rayLength;
+        auto rayNormalized = (rayLength <= eps) ? glm::vec3(0.0f) : rayToNearest / rayLength;
+
+        return CollisionInfo{true, overlap, rayNormalized};
     }
 
-    auto res = std::vector<CollisionInfo>();
+    // center of sphere is outside of the cube
 
-    for (size_t i = 0; i < 12; ++i) {
-        if (faces[i / 2]) {
-            const auto& triangle = triangles[i];
-            res.push_back(SphereVsTriangle(s, Triangle{c.center + (c.sideLength / 2.0f) * triangle.p0, c.center + (c.sideLength / 2.0f) * triangle.p1,
-                                                       c.center + (c.sideLength / 2.0f) * triangle.p2}));
-        }
-    }
+    auto nearestPoint = glm::clamp(s.center, minCorner, maxCorner);
+    auto rayToNearest = nearestPoint - s.center;
+    auto rayLength = glm::length(rayToNearest);
+    auto overlap = s.radius - rayLength;
 
-    return res;
+    if (overlap < 0.0f) return CollisionInfo();
+
+    auto rayNormalized = (rayLength <= eps) ? glm::vec3(0.0f) : rayToNearest / rayLength;
+
+    return CollisionInfo{true, overlap, -rayNormalized};
 }
 
 // collision resolution
 
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
-    static constexpr auto eps = 0.000001f;
+    static constexpr auto eps = 0.00005f;
 
     if (!info.isColliding) {
         return;
@@ -142,20 +165,5 @@ void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     const auto& normal = info.penetrationNormal;
     const auto depth = info.penetrationDepth;
 
-    auto velocityLength = glm::length(obj.velocity);
-    auto velocityNormalized = (velocityLength <= eps) ? glm::vec3(0.0f) : obj.velocity / velocityLength;
-
-    auto cos = glm::dot(velocityNormalized, normal);
-    auto undesiredMotion = (cos < 0.0f) ? (normal * cos) : glm::vec3(0.0f);
-
-    auto desiredMotion = velocityNormalized - undesiredMotion;
-
-    obj.velocity = desiredMotion * velocityLength;
     obj.position += normal * (depth + eps);
-}
-
-void ResolveCollision(const std::vector<CollisionInfo>& info, MovingObject& obj) {
-    for (const auto& elem : info) {
-        ResolveCollision(elem, obj);
-    }
 }
