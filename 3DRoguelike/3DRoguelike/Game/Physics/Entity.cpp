@@ -1,7 +1,7 @@
 #include "Entity.h"
 
 Box3D Entity::GetCollider() const {
-    return Box3D{position - glm::vec3(width / 2, 0, width / 2), position + glm::vec3(width / 2, height, width / 2)};
+    return Box3D{position - glm::vec3(width / 2, height / 2, width / 2), position + glm::vec3(width / 2, height / 2, width / 2)};
 }
 
 void Entity::Jump(float jumpHeight_) {
@@ -63,19 +63,17 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
 
         if (!collided) break;
 
+        // update velocity and position
+
         collisionInfo.entryTime -= 0.001f;
-        if (collisionInfo.surfaceNormal.x != 0.0f) {
-            velocity.x = 0.0f;
-            position.x += vel.x * collisionInfo.entryTime;
+
+        for (int i = 0; i < velocity.length(); ++i) {
+            if (collisionInfo.surfaceNormal[i] != 0.0f) {
+                velocity[i] = 0.0f;
+                position[i] += vel[i] * collisionInfo.entryTime;
+            }
         }
-        if (collisionInfo.surfaceNormal.y != 0.0f) {
-            velocity.y = 0.0f;
-            position.y += vel.y * collisionInfo.entryTime;
-        }
-        if (collisionInfo.surfaceNormal.z != 0.0f) {
-            velocity.z = 0.0f;
-            position.z += vel.z * collisionInfo.entryTime;
-        }
+
         if (collisionInfo.surfaceNormal.y > 0.5f) {
             grounded = true;
         }
@@ -88,7 +86,15 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
     velocity += gravity * deltaTime;
 
     // apply friction
-    velocity -= glm::min(velocity, velocity * GetFriction() * deltaTime);
+    for (int i = 0; i < velocity.length(); ++i) {
+        auto value = velocity[i] * GetFriction()[i] * deltaTime;
+
+        if (glm::abs(value) > glm::abs(velocity[i])) {
+            velocity[i] = 0.0f;
+        } else {
+            velocity[i] -= value;
+        }
+    }
 }
 
 // member variables setters and getters
@@ -110,4 +116,16 @@ void Entity::SetAcceleration(const glm::vec3& acc) {
 }
 glm::vec3 Entity::GetAcceleration() const {
     return acceleration;
+}
+
+glm::vec3& Entity::GetAcceleration() {
+    return acceleration;
+}
+
+void Entity::SetFlying(bool flying_) {
+    flying = flying_;
+}
+
+bool Entity::IsFlying() const {
+    return flying;
 }

@@ -47,6 +47,8 @@ bool generate = false;
 auto rightPressed = false;
 auto leftPressed = false;
 
+auto F1Pressed = false;
+
 SeedType seed = 0;
 
 auto disableCollision = false;
@@ -100,6 +102,7 @@ int main() {
     // seed = 2442605604;
     dungeon.SetSeed(seed);
     dungeon.Generate();
+    player.SetFlying(true);
     player.SetPosition(dungeon.GetSpawnPoint().AsVec3());
     camera.Position = player.GetPosition();
 
@@ -156,9 +159,13 @@ int main() {
         auto vely = std::to_string(static_cast<int>(glm::round(vel.y)));
         auto velz = std::to_string(static_cast<int>(glm::round(vel.z)));
 
+        auto dc = std::to_string(disableCollision);
+        auto fl = std::to_string(player.IsFlying());
+
         glDisable(GL_DEPTH_TEST);
-        textRenderer.RenderText("fps: " + fpsstr + " pos: " + posx + " " + posy + " " + posz + " vel: " + velx + " " + vely + " " + velz,
-                                glm::vec2(25.0f, 25.0f), 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+        textRenderer.RenderText(
+            "fps: " + fpsstr + " pos: " + posx + " " + posy + " " + posz + " vel: " + velx + " " + vely + " " + velz + " dc: " + dc + " fl: " + fl,
+            glm::vec2(25.0f, 25.0f), 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
         glEnable(GL_DEPTH_TEST);
 
         glfwSwapBuffers(window);
@@ -192,7 +199,7 @@ void processInput(GLFWwindow* window) {
         leftPressed = false;
     }
 
-    disableCollision = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+    disableCollision = glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS;
 
     auto forward = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
     auto backward = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
@@ -200,11 +207,30 @@ void processInput(GLFWwindow* window) {
     auto right = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     camera.ProcessKeyboard(forward, backward, left, right);
 
-    auto acceleration = player.GetAcceleration();
-    player.SetAcceleration(glm::vec3(camera.Velocity.x, acceleration.y, camera.Velocity.z));
+    player.GetAcceleration().x = camera.Velocity.x;
+    player.GetAcceleration().z = camera.Velocity.z;
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    auto up = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+    auto down = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+
+    if (!F1Pressed && glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+        F1Pressed = true;
+        player.SetFlying(!player.IsFlying());
+    }
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+        F1Pressed = false;
+    }
+
+    if (!player.IsFlying() && up) {
         player.Jump();
+    }
+    if (player.IsFlying()) {
+        if (up && !down) {
+            player.GetAcceleration().y = SPEED;
+        }
+        if (down && !up) {
+            player.GetAcceleration().y = -SPEED;
+        }
     }
 }
 

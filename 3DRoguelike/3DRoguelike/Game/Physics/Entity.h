@@ -6,11 +6,11 @@
 #include "CollisionDetection.h"
 
 static constexpr auto FLYING_ACCELERATION = glm::vec3(0);
-static constexpr auto GRAVITY_ACCELERATION = glm::vec3(0, -3.2, 0);
-static constexpr auto FRICTION = glm::vec3(2);
-static constexpr auto DRAG_FLY = glm::vec3(0.5);
-static constexpr auto DRAG_JUMP = glm::vec3(0.18f, 0.0f, 0.18f);
-static constexpr auto DRAG_FALL = glm::vec3(0.18f, 0.04f, 0.18f);
+static constexpr auto GRAVITY_ACCELERATION = glm::vec3(0, -32, 0);
+static constexpr auto FRICTION = glm::vec3(20);
+static constexpr auto DRAG_FLY = glm::vec3(5);
+static constexpr auto DRAG_JUMP = glm::vec3(1.8f, 0.0f, 1.8f);
+static constexpr auto DRAG_FALL = glm::vec3(1.8f, 0.4f, 1.8f);
 
 class Entity {
  public:
@@ -31,6 +31,10 @@ class Entity {
     glm::vec3 GetVelocity() const;
     void SetAcceleration(const glm::vec3& acc);
     glm::vec3 GetAcceleration() const;
+    glm::vec3& GetAcceleration();
+
+    void SetFlying(bool flying_);
+    bool IsFlying() const;
 
  private:
     float jumpHeight = 1.25f;
