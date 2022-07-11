@@ -67,7 +67,13 @@ int main() {
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", glfwGetPrimaryMonitor(), NULL);
+
+    auto monitor = glfwGetPrimaryMonitor();
+#ifndef NDEBUG
+    monitor = NULL;  // disable full screen in debug mode
+#endif
+
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", monitor, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -149,7 +155,7 @@ int main() {
         // render text
         auto fpsstr = std::to_string(static_cast<int>(glm::round(fps)));
 
-        auto pos = camera.Position;
+        auto pos = player.GetPosition();
         auto posx = std::to_string(static_cast<int>(glm::round(pos.x)));
         auto posy = std::to_string(static_cast<int>(glm::round(pos.y)));
         auto posz = std::to_string(static_cast<int>(glm::round(pos.z)));

@@ -35,7 +35,7 @@ CollisionResult SweptAABB(const Box3D& b1, const glm::vec3& v1, const Box3D& b2)
         return std::nullopt;
     }
     // no collision
-    if (glm::any(glm::greaterThan(vExit, glm::vec3(1)))) {
+    if (glm::any(glm::greaterThan(vEntry, glm::vec3(1)))) {
         return std::nullopt;
     }
 
