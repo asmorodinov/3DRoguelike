@@ -1,5 +1,7 @@
 #include "Entity.h"
 
+#include "../Utility/LogDuration.h"
+
 Box3D Entity::GetCollider() const {
     return Box3D{position - glm::vec3(width / 2, height / 2, width / 2), position + glm::vec3(width / 2, height / 2, width / 2)};
 }
@@ -21,6 +23,8 @@ glm::vec3 Entity::GetFriction() const {
 }
 
 void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollision) {
+    // LOG_DURATION("player update");
+
     velocity += acceleration * GetFriction() * deltaTime;
     acceleration = glm::vec3();
     grounded = false;

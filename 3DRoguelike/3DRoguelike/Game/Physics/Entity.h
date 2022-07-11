@@ -44,7 +44,7 @@ class Entity {
     glm::vec3 acceleration = glm::vec3();
 
     float width = 0.4f;
-    float height = 0.6f;
+    float height = 0.7f;
 
     bool grounded = false;
 };
