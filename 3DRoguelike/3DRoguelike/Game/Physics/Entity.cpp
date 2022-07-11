@@ -71,7 +71,7 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
 
         // update velocity and position
 
-        collisionInfo.entryTime -= 0.001f;
+        collisionInfo.entryTime -= 0.01f;
 
         for (int i = 0; i < velocity.length(); ++i) {
             if (collisionInfo.surfaceNormal[i] != 0.0f) {
