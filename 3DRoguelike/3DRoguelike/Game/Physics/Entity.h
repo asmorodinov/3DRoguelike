@@ -47,4 +47,7 @@ class Entity {
     float height = 0.7f;
 
     bool grounded = false;
+
+    int maxJumps = 3;
+    int jumpsLeft = 0;
 };

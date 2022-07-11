@@ -48,6 +48,7 @@ auto rightPressed = false;
 auto leftPressed = false;
 
 auto F1Pressed = false;
+auto spacePressed = false;
 
 SeedType seed = 0;
 
@@ -216,7 +217,13 @@ void processInput(GLFWwindow* window) {
     player.GetAcceleration().x = camera.Velocity.x;
     player.GetAcceleration().z = camera.Velocity.z;
 
+    auto jump = false;
     auto up = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+    if (up && !spacePressed) {
+        jump = true;
+    }
+    spacePressed = up;
+
     auto down = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 
     if (!F1Pressed && glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
@@ -227,7 +234,7 @@ void processInput(GLFWwindow* window) {
         F1Pressed = false;
     }
 
-    if (!player.IsFlying() && up) {
+    if (!player.IsFlying() && jump) {
         player.Jump();
     }
     if (player.IsFlying()) {

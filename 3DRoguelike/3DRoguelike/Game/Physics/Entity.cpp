@@ -7,7 +7,10 @@ Box3D Entity::GetCollider() const {
 }
 
 void Entity::Jump(float jumpHeight_) {
-    if (!grounded) return;
+    if (jumpsLeft == 0) {
+        return;
+    }
+    --jumpsLeft;
 
     if (jumpHeight_ == 0.0f) {
         jumpHeight_ = jumpHeight;
@@ -82,6 +85,7 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
 
         if (collisionInfo.surfaceNormal.y > 0.5f) {
             grounded = true;
+            jumpsLeft = maxJumps;
         }
     }
 
