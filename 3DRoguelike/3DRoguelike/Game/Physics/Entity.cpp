@@ -26,6 +26,8 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
     grounded = false;
 
     for (int n = 0; n < 3 && !disableCollision; ++n) {
+        auto collider = GetCollider();
+
         auto vel = velocity * deltaTime;
 
         // collision variables
@@ -48,7 +50,7 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
                     if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock) continue;
 
                     // check for collision
-                    auto collisionResult = SweptAABB(GetCollider(), vel, Box3D{glm::vec3(intCoords) - 0.5f, glm::vec3(intCoords) + 0.5f});
+                    auto collisionResult = SweptAABB(collider, vel, Box3D{glm::vec3(intCoords) - 0.5f, glm::vec3(intCoords) + 0.5f});
                     if (!collisionResult.has_value()) continue;
                     const auto& info = collisionResult.value();
 
