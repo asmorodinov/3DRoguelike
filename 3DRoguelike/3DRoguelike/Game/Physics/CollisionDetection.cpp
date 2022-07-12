@@ -192,6 +192,10 @@ CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t) {
     return CollisionInfo{true, penetration_depth, penetration_normal};
 }
 
+std::vector<CollisionInfo> SphereVsRectangle(const Sphere& s, const Rectangle& r) {
+    return {SphereVsTriangle(s, Triangle{r[1], r[3], r[0]}), SphereVsTriangle(s, Triangle{r[3], r[1], r[2]})};
+}
+
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     static constexpr auto eps = 0.00000001f;
     static constexpr auto eps2 = 0.001f;
@@ -215,5 +219,11 @@ void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     if (glm::dot(normal, glm::vec3(0.0f, 1.0f, 0.0f)) > 0.3f) {
         obj.grounded = true;
         obj.jumpsLeft = obj.maxJumps;
+    }
+}
+
+void ResolveCollision(const std::vector<CollisionInfo>& infos, MovingObject& obj) {
+    for (const auto& info : infos) {
+        ResolveCollision(info, obj);
     }
 }
