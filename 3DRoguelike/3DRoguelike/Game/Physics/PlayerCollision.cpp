@@ -68,26 +68,70 @@ void ResolveCollisionWithWorldContinous(const Box3D& boxCollider, MovingObject& 
 // discrete collision detection
 
 void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime) {
-    // check collision with blocks inside certain area around Entity
-    auto intPosition = glm::ivec3(glm::round(object.position));
-    auto newPosition = glm::ivec3(glm::round(object.position + object.velocity * deltaTime));
-    auto min = glm::min(intPosition, newPosition);
-    auto max = glm::max(intPosition, newPosition);
-    const auto& dimensions = world.GetDimensions();
+    // collision detection with blocks
+    {
+        auto intPosition = glm::ivec3(glm::round(object.position));
+        auto newPosition = glm::ivec3(glm::round(object.position + object.velocity * deltaTime));
+        auto min = glm::min(intPosition, newPosition);
+        auto max = glm::max(intPosition, newPosition);
+        const auto& dimensions = world.GetDimensions();
 
-    for (int i = min.x - 1; i <= max.x + 1; ++i) {
-        for (int j = min.y - 1; j <= max.y + 1; ++j) {
-            for (int k = min.z - 1; k <= max.z + 1; ++k) {
-                auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
-                auto intCoords = glm::ivec3(i, j, k);
+        for (int i = min.x - 1; i <= max.x + 1; ++i) {
+            for (int j = min.y - 1; j <= max.y + 1; ++j) {
+                for (int k = min.z - 1; k <= max.z + 1; ++k) {
+                    auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
+                    auto intCoords = glm::ivec3(i, j, k);
 
-                const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock) continue;
+                    const auto& tile = world.GetInOrOutOfBounds(intCoords);
+                    if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock) continue;
 
-                // check for collision
-                auto info = SphereVsCube(Sphere{object.position, sphereCollider.radius}, Cube{glm::vec3(intCoords), 1.0f});
-                // collision response
-                ResolveCollision(info, object);
+                    // check for collision
+                    auto info = SphereVsCube(Sphere{object.position, sphereCollider.radius}, Cube{glm::vec3(intCoords), 1.0f});
+                    // collision response
+                    ResolveCollision(info, object);
+                }
+            }
+        }
+    }
+
+    // collision detection with stairs
+    {
+        auto intPosition = glm::ivec3(glm::round(object.position));
+        auto newPosition = glm::ivec3(glm::round(object.position + object.velocity * deltaTime));
+        auto min = glm::min(intPosition, newPosition);
+        auto max = glm::max(intPosition, newPosition);
+        const auto& dimensions = world.GetDimensions();
+
+        for (int i = min.x - 2; i <= max.x + 2; ++i) {
+            for (int j = min.y - 2; j <= max.y + 2; ++j) {
+                for (int k = min.z - 2; k <= max.z + 2; ++k) {
+                    auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
+                    auto intCoords = glm::ivec3(i, j, k);
+
+                    const auto& tile = world.GetInOrOutOfBounds(intCoords);
+                    if (tile.type != TileType::StairsNorth && tile.type != TileType::StairsWest && tile.type != TileType::StairsSouth &&
+                        tile.type != TileType::StairsEast)
+                        continue;
+
+                    auto center = glm::vec3(intCoords);
+                    auto rect = Rectangle{glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, 1.5f),
+                                          glm::vec3(0.5f, -0.5f, 1.5f)};
+                    if (tile.type == TileType::StairsWest) {
+                        RotateRectangleY(rect, 1);
+                    } else if (tile.type == TileType::StairsSouth) {
+                        RotateRectangleY(rect, 2);
+                    } else if (tile.type == TileType::StairsEast) {
+                        RotateRectangleY(rect, 3);
+                    }
+                    for (auto& vertex : rect) {
+                        vertex += center;
+                    }
+
+                    // check for collision
+                    auto info = SphereVsRectangle(Sphere{object.position, sphereCollider.radius}, rect);
+                    // collision response
+                    ResolveCollision(info, object);
+                }
             }
         }
     }

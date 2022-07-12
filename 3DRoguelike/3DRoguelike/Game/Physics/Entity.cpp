@@ -43,7 +43,7 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
     ResolveCollisionWithWorldDiscrete(GetSphereCollider(), *this, world, deltaTime, disableCollision);
 
     // apply gravity
-    auto gravity = flying ? FLYING_ACCELERATION : GRAVITY_ACCELERATION;
+    auto gravity = (flying || grounded) ? FLYING_ACCELERATION : GRAVITY_ACCELERATION;
     velocity += gravity * deltaTime;
 
     // apply friction

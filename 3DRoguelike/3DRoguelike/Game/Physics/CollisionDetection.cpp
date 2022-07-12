@@ -196,6 +196,17 @@ std::vector<CollisionInfo> SphereVsRectangle(const Sphere& s, const Rectangle& r
     return {SphereVsTriangle(s, Triangle{r[1], r[3], r[0]}), SphereVsTriangle(s, Triangle{r[3], r[1], r[2]})};
 }
 
+void RotateRectangleY(Rectangle& r, int cnt) {
+    for (int i = 0; i < cnt % 4; ++i) {
+        for (auto& vertex : r) {
+            auto x = vertex.x;
+            auto z = vertex.z;
+            vertex.x = -z;
+            vertex.z = x;
+        }
+    }
+}
+
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     static constexpr auto eps = 0.00000001f;
     static constexpr auto eps2 = 0.001f;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <optional>
 #include <vector>
 
@@ -59,6 +60,8 @@ CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t);
 
 using Rectangle = std::array<glm::vec3, 4>;
 std::vector<CollisionInfo> SphereVsRectangle(const Sphere& s, const Rectangle& r);
+
+void RotateRectangleY(Rectangle& r, int cnt);
 
 struct MovingObject {
     glm::vec3 position = glm::vec3();
