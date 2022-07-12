@@ -48,6 +48,14 @@ struct CollisionInfo {
 
 CollisionInfo SphereVsCube(const Sphere& s, const Cube& c);
 
+struct Triangle {
+    glm::vec3 p0;
+    glm::vec3 p1;
+    glm::vec3 p2;
+};
+
+CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t);
+
 struct MovingObject {
     glm::vec3 position = glm::vec3();
     glm::vec3 velocity = glm::vec3();
