@@ -50,9 +50,9 @@ ContinousCollisionResult SweptAABB(const Box3D& b1, const glm::vec3& v1, const B
     }
 
     auto normal = glm::vec3(0.0f);
-    if (vEntry.x == entry) normal.x = (v1.x > 0) ? -1 : 1;
-    if (vEntry.y == entry) normal.y = (v1.y > 0) ? -1 : 1;
-    if (vEntry.z == entry) normal.z = (v1.z > 0) ? -1 : 1;
+    if (vEntry.x == entry) normal.x = (v1.x > 0) ? -1.0f : 1.0f;
+    if (vEntry.y == entry) normal.y = (v1.y > 0) ? -1.0f : 1.0f;
+    if (vEntry.z == entry) normal.z = (v1.z > 0) ? -1.0f : 1.0f;
 
     return ContinousCollisionInfo{entry, normal};
 }

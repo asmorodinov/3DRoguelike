@@ -49,11 +49,11 @@ struct CollisionInfo {
 CollisionInfo SphereVsCube(const Sphere& s, const Cube& c);
 
 struct MovingObject {
-    glm::vec3 position;
-    glm::vec3 velocity;
-    bool grounded;
-    int jumpsLeft;
-    int maxJumps;
+    glm::vec3 position = glm::vec3();
+    glm::vec3 velocity = glm::vec3();
+    bool grounded = false;
+    int jumpsLeft = 0;
+    int maxJumps = 3;
 };
 
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj);

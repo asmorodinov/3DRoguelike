@@ -34,12 +34,7 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
     grounded = false;
 
     // collision detection
-    auto movingObject = MovingObject{position, velocity, grounded, jumpsLeft, maxJumps};
-    ResolveCollisionWithWorld(GetCollider(), movingObject, world, deltaTime, disableCollision);
-    position = movingObject.position;
-    velocity = movingObject.velocity;
-    grounded = movingObject.grounded;
-    jumpsLeft = movingObject.jumpsLeft;
+    ResolveCollisionWithWorld(GetCollider(), *this, world, deltaTime, disableCollision);
 
     // physics calculations
     position += velocity * deltaTime;

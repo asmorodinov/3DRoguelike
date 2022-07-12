@@ -12,7 +12,7 @@ static constexpr auto DRAG_FLY = glm::vec3(5);
 static constexpr auto DRAG_JUMP = glm::vec3(1.8f, 0.0f, 1.8f);
 static constexpr auto DRAG_FALL = glm::vec3(1.8f, 0.4f, 1.8f);
 
-class Entity {
+class Entity : private MovingObject {
  public:
     Entity() = default;
 
@@ -39,15 +39,9 @@ class Entity {
  private:
     float jumpHeight = 1.25f;
     bool flying = false;
-    glm::vec3 position = glm::vec3();
-    glm::vec3 velocity = glm::vec3();
+
     glm::vec3 acceleration = glm::vec3();
 
     float width = 0.4f;
     float height = 0.7f;
-
-    bool grounded = false;
-
-    int maxJumps = 3;
-    int jumpsLeft = 0;
 };
