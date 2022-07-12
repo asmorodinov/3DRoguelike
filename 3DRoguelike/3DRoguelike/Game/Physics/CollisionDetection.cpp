@@ -114,7 +114,7 @@ CollisionInfo SphereVsCube(const Sphere& s, const Cube& cube) {
 
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     static constexpr auto eps = 0.00000001f;
-    static constexpr auto eps2 = 0.0001f;
+    static constexpr auto eps2 = 0.001f;
 
     if (!info.isColliding) return;
 
@@ -124,7 +124,8 @@ void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     auto velocityLength = glm::length(obj.velocity);
     auto velocityNormalized = (velocityLength <= eps) ? glm::vec3(0.0f) : obj.velocity / velocityLength;
 
-    auto undesiredMotion = normal * glm::dot(velocityNormalized, normal);
+    auto cos = glm::dot(velocityNormalized, normal);
+    auto undesiredMotion = (cos > 0.0f) ? glm::vec3(0.0f) : normal * cos;  // if cos > 0 it means that we are already moving away from surface
     auto desiredMotion = velocityNormalized - undesiredMotion;
 
     obj.position += normal * (depth + eps2);        // remove penetration
@@ -133,5 +134,6 @@ void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     // handle collision with ground
     if (glm::dot(normal, glm::vec3(0.0f, 1.0f, 0.0f)) > 0.3f) {
         obj.grounded = true;
+        obj.jumpsLeft = obj.maxJumps;
     }
 }

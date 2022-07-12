@@ -1,6 +1,9 @@
 #include "PlayerCollision.h"
 
-void ResolveCollisionWithWorld(const Box3D& boxCollider, MovingObject& object, const TilesVec& world, float deltaTime, bool disableCollision) {
+// continous collision detection
+
+void ResolveCollisionWithWorldContinous(const Box3D& boxCollider, MovingObject& object, const TilesVec& world, float deltaTime,
+                                        bool disableCollision) {
     for (int n = 0; n < 3 && !disableCollision; ++n) {
         auto collider = Box3D{object.position + boxCollider.p1, object.position + boxCollider.p2};
 
@@ -52,9 +55,58 @@ void ResolveCollisionWithWorld(const Box3D& boxCollider, MovingObject& object, c
             }
         }
 
-        if (collisionInfo.surfaceNormal.y > 0.5f) {
+        if (glm::dot(collisionInfo.surfaceNormal, glm::vec3(0.0f, 1.0f, 0.0f)) > 0.3f) {
             object.grounded = true;
             object.jumpsLeft = object.maxJumps;
         }
+    }
+
+    // update position
+    object.position += object.velocity * deltaTime;
+}
+
+// discrete collision detection
+
+void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime) {
+    // check collision with blocks inside certain area around Entity
+    auto intPosition = glm::ivec3(glm::round(object.position));
+    auto newPosition = glm::ivec3(glm::round(object.position + object.velocity * deltaTime));
+    auto min = glm::min(intPosition, newPosition);
+    auto max = glm::max(intPosition, newPosition);
+    const auto& dimensions = world.GetDimensions();
+
+    for (int i = min.x - 1; i <= max.x + 1; ++i) {
+        for (int j = min.y - 1; j <= max.y + 1; ++j) {
+            for (int k = min.z - 1; k <= max.z + 1; ++k) {
+                auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
+                auto intCoords = glm::ivec3(i, j, k);
+
+                const auto& tile = world.GetInOrOutOfBounds(intCoords);
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock) continue;
+
+                // check for collision
+                auto info = SphereVsCube(Sphere{object.position, sphereCollider.radius}, Cube{glm::vec3(intCoords), 1.0f});
+                // collision response
+                ResolveCollision(info, object);
+            }
+        }
+    }
+
+    // update position
+    object.position += object.velocity * deltaTime;
+}
+
+void ResolveCollisionWithWorldDiscrete(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime,
+                                       bool disableCollision) {
+    if (disableCollision) {
+        object.position += object.velocity * deltaTime;
+        return;
+    }
+
+    // perform multiple discrete substeps per frame
+
+    int steps = 150;
+    for (int i = 0; i < steps; ++i) {
+        resolvePlayerVsWorldCollision(sphereCollider, object, world, deltaTime / steps);
     }
 }

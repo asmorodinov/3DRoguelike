@@ -16,6 +16,7 @@ class Entity : private MovingObject {
  public:
     Entity() = default;
 
+    Sphere GetSphereCollider() const;
     Box3D GetCollider() const;
 
     void Jump(float jumpHeight_ = 0.0f);
@@ -44,4 +45,5 @@ class Entity : private MovingObject {
 
     float width = 0.4f;
     float height = 0.7f;
+    float radius = 0.4f;
 };

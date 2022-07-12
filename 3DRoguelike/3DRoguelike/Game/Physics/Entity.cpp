@@ -3,6 +3,10 @@
 #include "../Utility/LogDuration.h"
 #include "../Physics/PlayerCollision.h"
 
+Sphere Entity::GetSphereCollider() const {
+    return Sphere{glm::vec3(), radius};
+}
+
 Box3D Entity::GetCollider() const {
     return Box3D{-glm::vec3(width / 2, height / 2, width / 2), glm::vec3(width / 2, height / 2, width / 2)};
 }
@@ -34,10 +38,9 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
     grounded = false;
 
     // collision detection
-    ResolveCollisionWithWorld(GetCollider(), *this, world, deltaTime, disableCollision);
 
-    // physics calculations
-    position += velocity * deltaTime;
+    // ResolveCollisionWithWorldContinous(GetCollider(), *this, world, deltaTime, disableCollision);
+    ResolveCollisionWithWorldDiscrete(GetSphereCollider(), *this, world, deltaTime, disableCollision);
 
     // apply gravity
     auto gravity = flying ? FLYING_ACCELERATION : GRAVITY_ACCELERATION;
