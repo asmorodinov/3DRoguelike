@@ -117,13 +117,13 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
 
                     auto center = glm::vec3(intCoords);
 
-                    auto model = GetStairsModelData(0);
+                    auto model = GetSlopeModelData(0);
                     if (tile.type == TileType::StairsWest) {
-                        model = GetStairsModelData(1);
+                        model = GetSlopeModelData(1);
                     } else if (tile.type == TileType::StairsSouth) {
-                        model = GetStairsModelData(2);
+                        model = GetSlopeModelData(2);
                     } else if (tile.type == TileType::StairsEast) {
-                        model = GetStairsModelData(3);
+                        model = GetSlopeModelData(3);
                     }
                     Move(model, center);
 

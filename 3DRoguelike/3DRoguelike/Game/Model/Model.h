@@ -19,3 +19,4 @@ void RotateY(ModelData& faces);
 void RotateX(ModelData& faces);
 
 ModelData GetStairsModelData(int rotation);
+ModelData GetSlopeModelData(int rotation);

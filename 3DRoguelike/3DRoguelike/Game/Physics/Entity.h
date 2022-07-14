@@ -45,5 +45,5 @@ class Entity : private MovingObject {
 
     float width = 0.4f;
     float height = 0.7f;
-    float radius = 0.4f;
+    float radius = 0.3f;
 };

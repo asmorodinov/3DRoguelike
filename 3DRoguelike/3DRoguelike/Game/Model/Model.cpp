@@ -1,5 +1,7 @@
 #include "Model.h"
 
+#include "../Assets.h"
+
 void Move(ModelData& faces, glm::vec3 offset) {
     for (auto& face : faces) {
         for (auto& vertex : face) {
@@ -31,21 +33,17 @@ void RotateX(ModelData& faces) {
 }
 
 ModelData GetStairsModelData(int rotation) {
-    auto data = ModelData{
-        {Vertex{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}}, Vertex{{0.5f, 0.5f, -0.5f}, {1.0f, 1.0f}}, Vertex{{0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}}},
-        {Vertex{{0.5f, 0.5f, -0.5f}, {1.0f, 1.0f}}, Vertex{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}}, Vertex{{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f}}},
-        {Vertex{{-0.5f, -0.5f, 1.5f}, {1.0f, 0.0f}}, Vertex{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f}}, Vertex{{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}}},
-        {Vertex{{0.5f, -0.5f, 1.5f}, {1.0f, 0.0f}}, Vertex{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}}, Vertex{{0.5f, 0.5f, -0.5f}, {1.0f, 1.0f}}},
-        {Vertex{{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}}, Vertex{{0.5f, -0.5f, -0.5f}, {1.0f, 1.0f}}, Vertex{{0.5f, -0.5f, 1.5f}, {1.0f, 0.0f}}},
-        {Vertex{{0.5f, -0.5f, 1.5f}, {1.0f, 0.0f}}, Vertex{{-0.5f, -0.5f, 1.5f}, {0.0f, 0.0f}}, Vertex{{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}}},
-        {Vertex{{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f}}, Vertex{{0.5f, -0.5f, 1.5f}, {1.0f, 0.0f}}, Vertex{{0.5f, 0.5f, -0.5f}, {1.0f, 1.0f}}},
-        {Vertex{{0.5f, -0.5f, 1.5f}, {1.0f, 0.0f}}, Vertex{{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f}}, Vertex{{-0.5f, -0.5f, 1.5f}, {0.0f, 0.0f}}}};
+    auto data = Assets::GetModelData("stairs.obj");
 
-    auto data2 = data;
-    RotateX(data2);
-    RotateX(data2);
-    Move(data2, glm::vec3(0, 1, 1));
-    data.insert(data.end(), data2.begin(), data2.end());
+    for (int i = 0; i < rotation % 4; ++i) {
+        RotateY(data);
+    }
+
+    return data;
+}
+
+ModelData GetSlopeModelData(int rotation) {
+    auto data = Assets::GetModelData("slope.obj");
 
     for (int i = 0; i < rotation % 4; ++i) {
         RotateY(data);
