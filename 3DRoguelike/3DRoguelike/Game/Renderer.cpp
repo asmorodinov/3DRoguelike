@@ -5,6 +5,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Assets.h"
+
 GLModel SendModelDataToGPU(const ModelData& data) {
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -29,7 +31,7 @@ GLModel SendModelDataToGPU(const ModelData& data) {
 }
 
 GLModel GetCubeModel() {
-    auto data = GetCubeModelData();
+    const auto& data = Assets::GetModelData("cube.obj");
     return SendModelDataToGPU(data);
 }
 

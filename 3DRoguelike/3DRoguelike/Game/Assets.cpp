@@ -25,3 +25,13 @@ const Texture& Assets::GetTexture(const std::string& name) {
 
     return textures[name];
 }
+
+const ModelData& Assets::GetModelData(const std::string& name) {
+    auto& models = Assets::Get().models;
+
+    if (!models.contains(name)) {
+        models[name] = OBJToModel(OBJ::LoadFromOBJ(name));
+    }
+
+    return models[name];
+}

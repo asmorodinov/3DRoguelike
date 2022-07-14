@@ -10,6 +10,9 @@
 #include "Texture.h"
 #include "Shader.h"
 
+#include "Model/Model.h"
+#include "Model/ModelConverter.h"
+
 class Assets {
  public:
     static Assets& Get();
@@ -19,6 +22,7 @@ class Assets {
 
     static Shader& GetShader(const std::string& vertexShader, const std::string& fragmentShader);
     static const Texture& GetTexture(const std::string& name);
+    static const ModelData& GetModelData(const std::string& name);
 
  public:
     glm::mat4 orthogonalProjection;
@@ -31,4 +35,5 @@ class Assets {
  private:
     std::unordered_map<std::string, Shader> shaders;
     std::unordered_map<std::string, Texture> textures;
+    std::unordered_map<std::string, ModelData> models;
 };
