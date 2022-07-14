@@ -1,5 +1,7 @@
 #include "PlayerCollision.h"
 
+#include "../Model/Model.h"
+
 // continous collision detection
 
 void ResolveCollisionWithWorldContinous(const Box3D& boxCollider, MovingObject& object, const TilesVec& world, float deltaTime,
@@ -114,21 +116,19 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
                         continue;
 
                     auto center = glm::vec3(intCoords);
-                    auto rect = Rectangle{glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, 1.5f),
-                                          glm::vec3(0.5f, -0.5f, 1.5f)};
+
+                    auto model = GetStairsModelData(0);
                     if (tile.type == TileType::StairsWest) {
-                        RotateRectangleY(rect, 1);
+                        model = GetStairsModelData(1);
                     } else if (tile.type == TileType::StairsSouth) {
-                        RotateRectangleY(rect, 2);
+                        model = GetStairsModelData(2);
                     } else if (tile.type == TileType::StairsEast) {
-                        RotateRectangleY(rect, 3);
+                        model = GetStairsModelData(3);
                     }
-                    for (auto& vertex : rect) {
-                        vertex += center;
-                    }
+                    Move(model, center);
 
                     // check for collision
-                    auto info = SphereVsRectangle(Sphere{object.position, sphereCollider.radius}, rect);
+                    auto info = SphereVsModel(Sphere{object.position, sphereCollider.radius}, model);
                     // collision response
                     ResolveCollision(info, object);
                 }

@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include "../Model/Model.h"
+
 // continous collision detection
 
 using Time = float;
@@ -58,10 +60,7 @@ struct Triangle {
 
 CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t);
 
-using Rectangle = std::array<glm::vec3, 4>;
-std::vector<CollisionInfo> SphereVsRectangle(const Sphere& s, const Rectangle& r);
-
-void RotateRectangleY(Rectangle& r, int cnt);
+std::vector<CollisionInfo> SphereVsModel(const Sphere& s, const ModelData& m);
 
 struct MovingObject {
     glm::vec3 position = glm::vec3();

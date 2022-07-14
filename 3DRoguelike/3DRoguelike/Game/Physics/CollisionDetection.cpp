@@ -192,19 +192,37 @@ CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t) {
     return CollisionInfo{true, penetration_depth, penetration_normal};
 }
 
-std::vector<CollisionInfo> SphereVsRectangle(const Sphere& s, const Rectangle& r) {
-    return {SphereVsTriangle(s, Triangle{r[1], r[3], r[0]}), SphereVsTriangle(s, Triangle{r[3], r[1], r[2]})};
-}
-
-void RotateRectangleY(Rectangle& r, int cnt) {
-    for (int i = 0; i < cnt % 4; ++i) {
-        for (auto& vertex : r) {
-            auto x = vertex.x;
-            auto z = vertex.z;
-            vertex.x = -z;
-            vertex.z = x;
+bool quickSphereVsModel(const Sphere& s, const ModelData& m) {
+    auto c = glm::vec3();
+    for (const auto& face : m) {
+        for (const auto& vertex : face) {
+            c += vertex.position;
         }
     }
+    c *= 1.0f / (3 * m.size());
+
+    auto r = 0.0f;
+    for (const auto& face : m) {
+        for (const auto& vertex : face) {
+            r = glm::max(r, glm::distance(c, vertex.position));
+        }
+    }
+
+    return glm::distance(c, s.center) <= (r + s.radius);
+}
+
+std::vector<CollisionInfo> SphereVsModel(const Sphere& s, const ModelData& m) {
+    if (!quickSphereVsModel(s, m)) {
+        return {};
+    }
+
+    auto res = std::vector<CollisionInfo>();
+
+    for (const auto& face : m) {
+        res.push_back(SphereVsTriangle(s, Triangle{face[0].position, face[1].position, face[2].position}));
+    }
+
+    return res;
 }
 
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
