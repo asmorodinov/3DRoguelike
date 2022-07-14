@@ -45,9 +45,9 @@ class TileRenderer {
     void InitRendering();
 
  private:
-    Model cubeModel;
+    GLModel cubeModel;
     InstancedModel cubeInstancedModel;
-    std::array<Model, 4> stairsModel;
+    std::array<GLModel, 4> stairsModel;
     std::array<InstancedModel, 4> stairsInstancedModel;
 
     Shader shader;

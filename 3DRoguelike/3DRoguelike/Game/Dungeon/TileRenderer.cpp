@@ -11,7 +11,7 @@ TileRenderer::TileRenderer()
       texture1(Assets::GetTexture("texture3.png")) {
 }
 
-void initInstancedRendering(const Model& model, InstancedModel& instancedModel, const std::vector<PositionColor>& tiles) {
+void initInstancedRendering(const GLModel& model, InstancedModel& instancedModel, const std::vector<PositionColor>& tiles) {
     if (tiles.empty()) {
         return;
     }

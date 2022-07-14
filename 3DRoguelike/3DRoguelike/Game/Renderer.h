@@ -1,24 +1,28 @@
 #pragma once
 
+#include "Model/Model.h"
+
 using VAO = unsigned int;
 using VBO = unsigned int;
 using BufferId = unsigned int;
 
-class Model {
+class GLModel {
  public:
-    Model(VAO vao_, VBO vbo_, unsigned int tc);
-    ~Model();
+    GLModel(VAO vao_, VBO vbo_, unsigned int tc);
+    ~GLModel();
 
-    Model(Model const&) = delete;
-    Model& operator=(Model const&) = delete;
+    GLModel(GLModel const&) = delete;
+    GLModel& operator=(GLModel const&) = delete;
 
     VAO vao = 0;
     VBO vbo = 0;
     unsigned int triangleCount = 0;
 };
 
-Model GetCubeModel();
-Model GetStairsModel(int rotation);
+GLModel SendModelDataToGPU(const ModelData& data);
 
-void BindModel(const Model& model);
-void RenderModel(const Model& model);
+GLModel GetCubeModel();
+GLModel GetStairsModel(int rotation);
+
+void BindModel(const GLModel& model);
+void RenderModel(const GLModel& model);
