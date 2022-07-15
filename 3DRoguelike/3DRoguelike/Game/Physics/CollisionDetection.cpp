@@ -231,8 +231,17 @@ void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
 
     if (!info.isColliding) return;
 
-    const auto& normal = info.penetrationNormal;
+    auto normal = info.penetrationNormal;
     const auto depth = info.penetrationDepth;
+
+    // handle collision with ground
+    auto up = glm::vec3(0.0f, 1.0f, 0.0f);
+    if (glm::dot(normal, up) > 0.8f) {
+        obj.grounded = true;
+        obj.jumpsLeft = obj.maxJumps;
+
+        normal = up;  // change normal so that player won't slide down when standing still on a sloped surface
+    }
 
     auto velocityLength = glm::length(obj.velocity);
     auto velocityNormalized = (velocityLength <= eps) ? glm::vec3(0.0f) : obj.velocity / velocityLength;
@@ -243,12 +252,6 @@ void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
 
     obj.position += normal * (depth + eps2);        // remove penetration
     obj.velocity = desiredMotion * velocityLength;  // update velocity
-
-    // handle collision with ground
-    if (glm::dot(normal, glm::vec3(0.0f, 1.0f, 0.0f)) > 0.3f) {
-        obj.grounded = true;
-        obj.jumpsLeft = obj.maxJumps;
-    }
 }
 
 void ResolveCollision(const std::vector<CollisionInfo>& infos, MovingObject& obj) {
