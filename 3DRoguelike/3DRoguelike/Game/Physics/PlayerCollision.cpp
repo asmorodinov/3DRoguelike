@@ -207,6 +207,33 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
     }
 
     if (!hit) return std::nullopt;
+    if (res.t > maxLength) return std::nullopt;
+
+    return res;
+}
+
+RayIntersectionResult CastMultipleRays(const Ray& ray, const std::vector<glm::vec3>& originDeltas, const TilesVec& world, Length maxLength) {
+    auto hit = false;
+    auto res = RayIntersectionInfo{glm::vec3(), glm::vec3(), std::numeric_limits<float>::infinity()};
+
+    for (const auto& delta : originDeltas) {
+        auto intersection = RayCast(Ray{ray.origin + delta, ray.direction}, world, maxLength);
+
+        if (!intersection.has_value()) continue;
+
+        const auto& value = intersection.value();
+        if (!hit) {
+            hit = true;
+            res = value;
+            continue;
+        }
+
+        if (glm::distance(value.intersectionPoint, ray.origin) < glm::distance(res.intersectionPoint, ray.origin)) {
+            res = value;
+        }
+    }
+
+    if (!hit) return std::nullopt;
 
     return res;
 }

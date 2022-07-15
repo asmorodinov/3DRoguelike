@@ -42,6 +42,7 @@ class Entity : private MovingObject {
  private:
     float jumpHeight = 1.25f;
     bool flying = false;
+    size_t standingStill = 0;
 
     glm::vec3 acceleration = glm::vec3();
 
