@@ -30,6 +30,8 @@ ContinousCollisionResult SweptAABB(const Box3D& b1, const glm::vec3& v1, const B
 
 // discrete collision detection
 
+// collision detection
+
 using Depth = float;
 using Radius = float;
 using Length = float;
@@ -61,6 +63,23 @@ struct Triangle {
 CollisionInfo SphereVsTriangle(const Sphere& s, const Triangle& t);
 
 std::vector<CollisionInfo> SphereVsModel(const Sphere& s, const ModelData& m);
+
+struct Ray {
+    glm::vec3 origin;
+    glm::vec3 direction;
+};
+
+struct RayIntersectionInfo {
+    glm::vec3 intersectionPoint;
+    glm::vec3 surfaceNormal;
+    Time t;
+};
+using RayIntersectionResult = std::optional<RayIntersectionInfo>;
+
+RayIntersectionResult RayVsTriangle(const Ray& r, const Triangle& tr);
+RayIntersectionResult RayVsModel(const Ray& r, const ModelData& m);
+
+// collision resolution
 
 struct MovingObject {
     glm::vec3 position = glm::vec3();

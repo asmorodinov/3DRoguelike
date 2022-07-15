@@ -154,3 +154,59 @@ void ResolveCollisionWithWorldDiscrete(const Sphere& sphereCollider, MovingObjec
         resolvePlayerVsWorldCollision(sphereCollider, object, world, deltaTime / steps);
     }
 }
+
+// ray cast
+
+RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxLength) {
+    auto hit = false;
+    auto res = RayIntersectionInfo{glm::vec3(), glm::vec3(), std::numeric_limits<float>::infinity()};
+
+    // collision detection with stairs
+
+    auto intPosition = glm::ivec3(glm::round(ray.origin));
+    auto newPosition = glm::ivec3(glm::round(ray.origin + ray.direction * maxLength));
+    auto min = glm::min(intPosition, newPosition);
+    auto max = glm::max(intPosition, newPosition);
+    const auto& dimensions = world.GetDimensions();
+
+    for (int i = min.x - 2; i <= max.x + 2; ++i) {
+        for (int j = min.y - 2; j <= max.y + 2; ++j) {
+            for (int k = min.z - 2; k <= max.z + 2; ++k) {
+                auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
+                auto intCoords = glm::ivec3(i, j, k);
+
+                const auto& tile = world.GetInOrOutOfBounds(intCoords);
+                if (tile.type != TileType::StairsNorth && tile.type != TileType::StairsWest && tile.type != TileType::StairsSouth &&
+                    tile.type != TileType::StairsEast)
+                    continue;
+
+                auto center = glm::vec3(intCoords);
+
+                auto model = GetSlopeModelData(0);
+                if (tile.type == TileType::StairsWest) {
+                    model = GetSlopeModelData(1);
+                } else if (tile.type == TileType::StairsSouth) {
+                    model = GetSlopeModelData(2);
+                } else if (tile.type == TileType::StairsEast) {
+                    model = GetSlopeModelData(3);
+                }
+                Move(model, center);
+
+                // check for collision
+                auto intersection = RayVsModel(ray, model);
+
+                if (!intersection.has_value()) continue;
+                hit = true;
+
+                const auto& value = intersection.value();
+                if (value.t < res.t) {
+                    res = value;
+                }
+            }
+        }
+    }
+
+    if (!hit) return std::nullopt;
+
+    return res;
+}

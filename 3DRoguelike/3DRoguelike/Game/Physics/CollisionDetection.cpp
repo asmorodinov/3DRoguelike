@@ -225,6 +225,80 @@ std::vector<CollisionInfo> SphereVsModel(const Sphere& s, const ModelData& m) {
     return res;
 }
 
+RayIntersectionResult RayVsTriangle(const Ray& r, const Triangle& tr) {
+    static constexpr auto eps = 0.00000001f;
+
+    // compute plane's normal
+    auto v0v1 = tr.p1 - tr.p0;
+    auto v0v2 = tr.p2 - tr.p0;
+    // no need to normalize
+    auto N = glm::cross(v0v1, v0v2);  // N
+    auto area2 = glm::length(N);
+
+    // Step 1: finding P
+
+    // check if ray and plane are parallel ?
+    auto NdotRayDirection = glm::dot(N, r.direction);
+    if (glm::abs(NdotRayDirection) < eps)  // almost 0
+        return std::nullopt;               // they are parallel so they don't intersect !
+
+    // compute d parameter using equation 2
+    auto d = glm::dot(-N, tr.p0);
+
+    // compute t (equation 3)
+    auto t = -(glm::dot(N, r.origin) + d) / NdotRayDirection;
+
+    // check if the triangle is in behind the ray
+    if (t < 0.0f) return std::nullopt;  // the triangle is behind
+
+    // compute the intersection point using equation 1
+    auto P = r.origin + t * r.direction;
+
+    // Step 2: inside-outside test
+    auto C = glm::vec3();  // vector perpendicular to triangle's plane
+
+    // edge 0
+    auto edge0 = tr.p1 - tr.p0;
+    auto vp0 = P - tr.p0;
+    C = glm::cross(edge0, vp0);
+    if (glm::dot(N, C) < 0) return std::nullopt;  // P is on the right side
+
+    // edge 1
+    auto edge1 = tr.p2 - tr.p1;
+    auto vp1 = P - tr.p1;
+    C = glm::cross(edge1, vp1);
+    if (glm::dot(N, C) < 0) return std::nullopt;  // P is on the right side
+
+    // edge 2
+    auto edge2 = tr.p0 - tr.p2;
+    auto vp2 = P - tr.p2;
+    C = glm::cross(edge2, vp2);
+    if (glm::dot(N, C) < 0) return std::nullopt;  // P is on the right side;
+
+    return RayIntersectionInfo{P, glm::normalize(N), t};  // this ray hits the triangle
+}
+
+RayIntersectionResult RayVsModel(const Ray& r, const ModelData& m) {
+    auto hit = false;
+    auto res = RayIntersectionInfo{glm::vec3(), glm::vec3(), std::numeric_limits<float>::infinity()};
+
+    for (const auto& face : m) {
+        auto intersection = RayVsTriangle(r, Triangle{face[0].position, face[1].position, face[2].position});
+
+        if (!intersection.has_value()) continue;
+        hit = true;
+
+        const auto& value = intersection.value();
+        if (value.t < res.t) {
+            res = value;
+        }
+    }
+
+    if (!hit) return std::nullopt;
+
+    return res;
+}
+
 void ResolveCollision(const CollisionInfo& info, MovingObject& obj) {
     static constexpr auto eps = 0.00000001f;
     static constexpr auto eps2 = 0.001f;
