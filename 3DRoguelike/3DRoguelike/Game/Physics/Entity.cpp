@@ -90,3 +90,7 @@ void Entity::SetFlying(bool flying_) {
 bool Entity::IsFlying() const {
     return flying;
 }
+
+bool Entity::IsGrounded() const {
+    return grounded;
+}

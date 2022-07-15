@@ -37,6 +37,8 @@ class Entity : private MovingObject {
     void SetFlying(bool flying_);
     bool IsFlying() const;
 
+    bool IsGrounded() const;
+
  private:
     float jumpHeight = 1.25f;
     bool flying = false;
