@@ -13,7 +13,7 @@ void ResolveCollisionWithWorldContinous(const Box3D& boxCollider, MovingObject& 
 void ResolveCollisionWithWorldDiscrete(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime,
                                        bool disableCollision);
 
-// ray cast method (for now only finds intersection with stairs tiles)
+// ray cast method
 // needed to fix issue of player bouncing when moving down stairs:
 // 1. first we cast a ray down from player position
 // 2. then we project velocity of the player onto the surface of ray intersection surface

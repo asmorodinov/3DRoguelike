@@ -18,5 +18,6 @@ void Move(ModelData& faces, glm::vec3 offset);
 void RotateY(ModelData& faces);
 void RotateX(ModelData& faces);
 
+ModelData GetCubeModelData();
 ModelData GetStairsModelData(int rotation);
 ModelData GetSlopeModelData(int rotation);

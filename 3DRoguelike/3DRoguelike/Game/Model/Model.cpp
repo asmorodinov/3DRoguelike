@@ -32,6 +32,10 @@ void RotateX(ModelData& faces) {
     }
 }
 
+ModelData GetCubeModelData() {
+    return Assets::GetModelData("cube.obj");
+}
+
 ModelData GetStairsModelData(int rotation) {
     auto data = Assets::GetModelData("stairs.obj");
 

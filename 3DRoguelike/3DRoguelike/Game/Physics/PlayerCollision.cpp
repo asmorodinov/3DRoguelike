@@ -70,68 +70,52 @@ void ResolveCollisionWithWorldContinous(const Box3D& boxCollider, MovingObject& 
 // discrete collision detection
 
 void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime) {
-    // collision detection with blocks
-    {
-        auto intPosition = glm::ivec3(glm::round(object.position));
-        auto newPosition = glm::ivec3(glm::round(object.position + object.velocity * deltaTime));
-        auto min = glm::min(intPosition, newPosition);
-        auto max = glm::max(intPosition, newPosition);
-        const auto& dimensions = world.GetDimensions();
+    auto intPosition = glm::ivec3(glm::round(object.position));
+    auto newPosition = glm::ivec3(glm::round(object.position + object.velocity * deltaTime));
+    auto min = glm::min(intPosition, newPosition);
+    auto max = glm::max(intPosition, newPosition);
+    const auto& dimensions = world.GetDimensions();
 
-        for (int i = min.x - 1; i <= max.x + 1; ++i) {
-            for (int j = min.y - 1; j <= max.y + 1; ++j) {
-                for (int k = min.z - 1; k <= max.z + 1; ++k) {
-                    auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
-                    auto intCoords = glm::ivec3(i, j, k);
+    for (int i = min.x - 2; i <= max.x + 2; ++i) {
+        for (int j = min.y - 2; j <= max.y + 2; ++j) {
+            for (int k = min.z - 2; k <= max.z + 2; ++k) {
+                auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
+                auto intCoords = glm::ivec3(i, j, k);
 
-                    const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                    if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock) continue;
+                const auto& tile = world.GetInOrOutOfBounds(intCoords);
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsNorth &&
+                    tile.type != TileType::StairsWest && tile.type != TileType::StairsSouth && tile.type != TileType::StairsEast)
+                    continue;
 
+                // collision with blocks
+
+                if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
                     // check for collision
                     auto info = SphereVsCube(Sphere{object.position, sphereCollider.radius}, Cube{glm::vec3(intCoords), 1.0f});
                     // collision response
                     ResolveCollision(info, object);
+
+                    continue;
                 }
-            }
-        }
-    }
 
-    // collision detection with stairs
-    {
-        auto intPosition = glm::ivec3(glm::round(object.position));
-        auto newPosition = glm::ivec3(glm::round(object.position + object.velocity * deltaTime));
-        auto min = glm::min(intPosition, newPosition);
-        auto max = glm::max(intPosition, newPosition);
-        const auto& dimensions = world.GetDimensions();
+                // collision with stairs
 
-        for (int i = min.x - 2; i <= max.x + 2; ++i) {
-            for (int j = min.y - 2; j <= max.y + 2; ++j) {
-                for (int k = min.z - 2; k <= max.z + 2; ++k) {
-                    auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
-                    auto intCoords = glm::ivec3(i, j, k);
+                auto center = glm::vec3(intCoords);
 
-                    const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                    if (tile.type != TileType::StairsNorth && tile.type != TileType::StairsWest && tile.type != TileType::StairsSouth &&
-                        tile.type != TileType::StairsEast)
-                        continue;
-
-                    auto center = glm::vec3(intCoords);
-
-                    auto model = GetSlopeModelData(0);
-                    if (tile.type == TileType::StairsWest) {
-                        model = GetSlopeModelData(1);
-                    } else if (tile.type == TileType::StairsSouth) {
-                        model = GetSlopeModelData(2);
-                    } else if (tile.type == TileType::StairsEast) {
-                        model = GetSlopeModelData(3);
-                    }
-                    Move(model, center);
-
-                    // check for collision
-                    auto info = SphereVsModel(Sphere{object.position, sphereCollider.radius}, model);
-                    // collision response
-                    ResolveCollision(info, object);
+                auto model = GetSlopeModelData(0);
+                if (tile.type == TileType::StairsWest) {
+                    model = GetSlopeModelData(1);
+                } else if (tile.type == TileType::StairsSouth) {
+                    model = GetSlopeModelData(2);
+                } else if (tile.type == TileType::StairsEast) {
+                    model = GetSlopeModelData(3);
                 }
+                Move(model, center);
+
+                // check for collision
+                auto info = SphereVsModel(Sphere{object.position, sphereCollider.radius}, model);
+                // collision response
+                ResolveCollision(info, object);
             }
         }
     }
@@ -161,8 +145,6 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
     auto hit = false;
     auto res = RayIntersectionInfo{glm::vec3(), glm::vec3(), std::numeric_limits<float>::infinity()};
 
-    // collision detection with stairs
-
     auto intPosition = glm::ivec3(glm::round(ray.origin));
     auto newPosition = glm::ivec3(glm::round(ray.origin + ray.direction * maxLength));
     auto min = glm::min(intPosition, newPosition);
@@ -176,8 +158,8 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::StairsNorth && tile.type != TileType::StairsWest && tile.type != TileType::StairsSouth &&
-                    tile.type != TileType::StairsEast)
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsNorth &&
+                    tile.type != TileType::StairsWest && tile.type != TileType::StairsSouth && tile.type != TileType::StairsEast)
                     continue;
 
                 auto center = glm::vec3(intCoords);
@@ -189,6 +171,8 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
                     model = GetSlopeModelData(2);
                 } else if (tile.type == TileType::StairsEast) {
                     model = GetSlopeModelData(3);
+                } else if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
+                    model = GetCubeModelData();
                 }
                 Move(model, center);
 
