@@ -179,8 +179,15 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
 
     auto stairsInfo = GetStairsInfo(b->position, a->position);
     const auto& stairsTiles = stairsInfo.stairsTiles;
-    for (const auto& tile : stairsTiles) {
-        if (!CanPlaceStairs(world.Get(tile).type)) {
+
+    // only stairs top part can dig through stairs blocks
+    const auto& topPart = world.Get(stairsTiles[0]).type;
+    if (!CanPlaceStairs(topPart) && topPart != TileType::StairsBlock) {
+        return pathCost;
+    }
+
+    for (size_t i = 1; i < stairsTiles.size(); ++i) {
+        if (!CanPlaceStairs(world.Get(stairsTiles[i]).type)) {
             return pathCost;
         }
     }
@@ -244,8 +251,14 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
     std::swap(corridorWall.color.r, corridorWall.color.g);
     corridorWall.color.b = 1.0f;
 
+    auto stairsWall = wall;
+    stairsWall.type = TileType::StairsBlock;
+    stairsWall.color.r = 1.0f;
+
     const auto& dimensions = world.GetDimensions();
     for (const auto& coords : totalPath) {
+        const auto& tile = world.Get(coords);
+
         for (const auto& intAdjacent : coords.GetAllNeighbours()) {
             auto adjacent = Coordinates{size_t(intAdjacent.x), size_t(intAdjacent.y), size_t(intAdjacent.z)};
 
@@ -255,7 +268,12 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
             if (!adjacent.IsInBounds(dimensions) || world.Get(adjacent).type == TileType::Void) {
                 if (adjacent.y == coords.y) {
                     // it's ok for other corridors to pass through walls (side walls), so we set the tile to corridorBlock
-                    world.SetInOrOutOfBounds(intAdjacent, corridorWall);
+                    // upd: if we are horizontally adjacent to stairs top part then set tile to StairsBlock
+                    if (tile.type == TileType::StairsTopPart) {
+                        world.SetInOrOutOfBounds(intAdjacent, stairsWall);
+                    } else {
+                        world.SetInOrOutOfBounds(intAdjacent, corridorWall);
+                    }
                 } else {
                     // other corridors should not be able to pass through floor or ceiling of the corridor
                     world.SetInOrOutOfBounds(intAdjacent, wall);

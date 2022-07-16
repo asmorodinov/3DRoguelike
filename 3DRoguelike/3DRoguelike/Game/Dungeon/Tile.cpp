@@ -29,6 +29,8 @@ int StairsCost(TileType type) {
         case TileType::Void:
             return 50;
         case TileType::CorridorBlock:
+            return 45;
+        case TileType::StairsBlock:
             return 40;
     }
 
