@@ -8,7 +8,7 @@ enum struct TileType {
     Block,          // solid tile
     CorridorBlock,  // block that corridors are allowed to override with air
     CorridorAir,    // corridors are allowed to pass through it
-    Stairs,         // stairs tile
+    StairsAir,      // stairs tile
     StairsNorth,    // stairs tile that goes north (dz = 1 , dx = 0)
     StairsSouth,    // stairs tile that goes south (dz = -1, dx = 0)
     StairsWest,     // stairs tile that goes west  (dz = 0, dx = -1)

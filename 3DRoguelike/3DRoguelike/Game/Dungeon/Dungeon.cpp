@@ -109,7 +109,7 @@ void Dungeon::placeCorridors() {
             TileType::Block, TextureType::Texture2,
             glm::vec3(0.4f, 0.3f, 0.8f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
         auto stairs = Tile{
-            TileType::Stairs, TextureType::Texture2,
+            TileType::StairsAir, TextureType::Texture2,
             glm::vec3(0.4f, 0.3f, 0.8f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
 
         auto startTiles = r1->GetEdgeTiles();
