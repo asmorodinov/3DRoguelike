@@ -169,10 +169,11 @@ int main() {
         auto dc = std::to_string(disableCollision);
         auto fl = std::to_string(player.IsFlying());
         auto gr = std::to_string(player.IsGrounded());
+        auto ju = std::to_string(player.IsJumping());
 
         glDisable(GL_DEPTH_TEST);
         textRenderer.RenderText("fps: " + fpsstr + " pos: " + posx + " " + posy + " " + posz + " vel: " + velx + " " + vely + " " + velz +
-                                    " dc: " + dc + " fl: " + fl + " gr: " + gr,
+                                    " dc: " + dc + " fl: " + fl + " gr: " + gr + " ju: " + ju,
                                 glm::vec2(25.0f, 25.0f), 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
         glEnable(GL_DEPTH_TEST);
 

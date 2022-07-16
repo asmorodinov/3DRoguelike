@@ -23,6 +23,7 @@ void Entity::Jump(float jumpHeight_) {
         jumpHeight_ = jumpHeight;
     }
     velocity.y = glm::sqrt(-2 * GRAVITY_ACCELERATION.y * jumpHeight_);
+    jumping = true;
 }
 
 glm::vec3 Entity::GetFriction() const {
@@ -72,13 +73,21 @@ bool adjustVelocityToSlope(const glm::vec3& position, float radius, glm::vec3& v
 void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollision) {
     velocity += acceleration * GetFriction() * deltaTime;
     acceleration = glm::vec3();
+    grounded = false;
+
     // adjust velocity
-    grounded = adjustVelocityToSlope(position, radius, velocity, world);
+    if (!jumping && !disableCollision) {
+        grounded = adjustVelocityToSlope(position, radius, velocity, world);
+    }
 
     // collision detection
 
     // ResolveCollisionWithWorldContinous(GetCollider(), *this, world, deltaTime, disableCollision);
     ResolveCollisionWithWorldDiscrete(GetSphereCollider(), *this, world, deltaTime, disableCollision);
+
+    if (grounded && jumping) {
+        jumping = false;
+    }
 
     // apply gravity
     auto gravity = (flying || grounded) ? FLYING_ACCELERATION : GRAVITY_ACCELERATION;
@@ -131,4 +140,8 @@ bool Entity::IsFlying() const {
 
 bool Entity::IsGrounded() const {
     return grounded;
+}
+
+bool Entity::IsJumping() const {
+    return jumping;
 }
