@@ -80,15 +80,16 @@ std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& st
                 continue;
             }
             if (pathCost.isStairs) {
-                auto verticalOffset = GetVerticalOffset(neighbourCoords, nodeCoords);
-                auto horizontalOffset = GetHorizontalOffset(neighbourCoords, nodeCoords);
+                auto stairsInfo = GetStairsInfo(neighbourCoords, nodeCoords);
 
-                const auto& set = nodePtr->previousSet;
-                if (set.contains(nodeCoords + horizontalOffset) || set.contains(nodeCoords + horizontalOffset + horizontalOffset) ||
-                    set.contains(nodeCoords + verticalOffset + horizontalOffset) ||
-                    set.contains(nodeCoords + verticalOffset + horizontalOffset + horizontalOffset)) {
-                    continue;
+                auto contains = false;
+                for (const auto& tile : stairsInfo.stairsTiles) {
+                    if (nodePtr->previousSet.contains(tile)) {
+                        contains = true;
+                        break;
+                    }
                 }
+                if (contains) continue;
             }
             auto newCost = nodePtr->cost + pathCost.cost;
 
@@ -104,12 +105,10 @@ std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& st
                 neighbour.previousSet.insert(nodeCoords);
 
                 if (pathCost.isStairs) {
-                    auto verticalOffset = GetVerticalOffset(neighbourCoords, nodeCoords);
-                    auto horizontalOffset = GetHorizontalOffset(neighbourCoords, nodeCoords);
-                    neighbour.previousSet.insert(nodeCoords + horizontalOffset);
-                    neighbour.previousSet.insert(nodeCoords + horizontalOffset + horizontalOffset);
-                    neighbour.previousSet.insert(nodeCoords + verticalOffset + horizontalOffset);
-                    neighbour.previousSet.insert(nodeCoords + verticalOffset + horizontalOffset + horizontalOffset);
+                    auto stairsInfo = GetStairsInfo(neighbourCoords, nodeCoords);
+                    for (const auto& tile : stairsInfo.stairsTiles) {
+                        neighbour.previousSet.insert(tile);
+                    }
                 }
             }
         }
@@ -178,20 +177,19 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
         return pathCost;
     }
 
-    auto verticalOffset = GetVerticalOffset(b->position, a->position);
-    auto horizontalOffset = GetHorizontalOffset(b->position, a->position);
-
-    const auto& t1 = world.Get(a->position + horizontalOffset);
-    const auto& t2 = world.Get(a->position + horizontalOffset + horizontalOffset);
-    const auto& t3 = world.Get(a->position + verticalOffset + horizontalOffset);
-    const auto& t4 = world.Get(a->position + verticalOffset + horizontalOffset + horizontalOffset);
-
-    // can not place all 4 blocks of the staircase => can not place staircase
-    if (!CanPlaceStairs(t1.type) || !CanPlaceStairs(t2.type) || !CanPlaceStairs(t3.type) || !CanPlaceStairs(t4.type)) {
-        return pathCost;
+    auto stairsInfo = GetStairsInfo(b->position, a->position);
+    const auto& stairsTiles = stairsInfo.stairsTiles;
+    for (const auto& tile : stairsTiles) {
+        if (!CanPlaceStairs(world.Get(tile).type)) {
+            return pathCost;
+        }
     }
 
-    pathCost.cost = StairsCost(t1.type) + StairsCost(t2.type) + StairsCost(t3.type) + StairsCost(t4.type) + calculateHeuristic(b, target);
+    pathCost.cost = calculateHeuristic(b, target);
+    for (const auto& tile : stairsTiles) {
+        pathCost.cost += StairsCost(world.Get(tile).type);
+    }
+
     pathCost.passable = true;
     pathCost.isStairs = true;
     return pathCost;
@@ -217,40 +215,17 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
 
         if (delta.y == 0) continue;
 
-        auto verticalOffset = GetVerticalOffset(coords, prev);
-        auto horizontalOffset = GetHorizontalOffset(coords, prev);
+        auto stairsInfo = GetStairsInfo(coords, prev);
+        stairs2.direction = stairsInfo.direction;
 
-        if (delta.z == 3 && delta.x == 0) {
-            stairs2.direction = TileDirection::North;
-        } else if (delta.x == -3 && delta.z == 0) {
-            stairs2.direction = TileDirection::West;
-        } else if (delta.z == -3 && delta.x == 0) {
-            stairs2.direction = TileDirection::South;
-        } else if (delta.x == 3 && delta.z == 0) {
-            stairs2.direction = TileDirection::East;
-        } else {
-            LOG_ASSERT(false);
+        const auto& stairsTiles = stairsInfo.stairsTiles;
+        for (const auto& tile : stairsTiles) {
+            stairsVec.push_back(tile);
         }
-
-        auto specialTile = prev + verticalOffset + horizontalOffset;
-        auto normalTile = prev + horizontalOffset + horizontalOffset;
-        if (delta.y == 1) {
-            stairs2.direction = ReverseTileDirection(stairs2.direction);
-            std::swap(specialTile, normalTile);
-        } else if (delta.y == -1) {
-            // do nothing
-        } else {
-            LOG_ASSERT(false);
+        world.Set(stairsTiles[0], stairs2);
+        for (size_t i = 1; i < stairsTiles.size(); ++i) {
+            world.Set(stairsTiles[i], stairs);
         }
-
-        world.Set(prev + horizontalOffset, stairs);
-        world.Set(normalTile, stairs);
-        world.Set(specialTile, stairs2);
-        world.Set(prev + verticalOffset + horizontalOffset + horizontalOffset, stairs);
-        stairsVec.push_back(prev + horizontalOffset);
-        stairsVec.push_back(prev + horizontalOffset + horizontalOffset);
-        stairsVec.push_back(prev + verticalOffset + horizontalOffset);
-        stairsVec.push_back(prev + verticalOffset + horizontalOffset + horizontalOffset);
     }
 
     // add stairs tiles to path as well

@@ -1,10 +1,15 @@
 #pragma once
 
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
+
+#include "../Dungeon/Tile.h"
+
+// Dimensions and Coordinates structs
 
 struct Dimensions {
     size_t width = 0;
@@ -38,12 +43,27 @@ struct Coordinates {
 
 using CoordinatesSet = std::unordered_set<Coordinates, Coordinates::HashFunction>;
 
+// calculating info about staircases
+
 Coordinates GetVerticalOffset(const Coordinates& c1, const Coordinates& c2);
 Coordinates GetHorizontalOffset(const Coordinates& c1, const Coordinates& c2);
+
+struct StairsInfo {
+    Coordinates verticalOffset;
+    Coordinates horizontalOffset;
+    std::array<Coordinates, 4> stairsTiles;  // 0 - top of the stairs, 1 - bottom of the stairs, 2, 3 - empty tiles (air)
+    TileDirection direction;
+};
+
+StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoords);
+
+// utility functions
 
 size_t Volume(const Dimensions& dimensions);
 
 size_t CoordinatesToIndex(const Coordinates& coordinates, const Dimensions& dimensions);
+
+// Vector3D class
 
 template <typename T>
 class Vector3D {

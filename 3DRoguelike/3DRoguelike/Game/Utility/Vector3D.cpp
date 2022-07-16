@@ -1,5 +1,7 @@
 #include "Vector3D.h"
 
+#include "../Assert.h"
+
 bool Coordinates::operator<(const Coordinates& other) const {
     if (x != other.x) {
         return x < other.x;
@@ -100,6 +102,47 @@ Coordinates GetHorizontalOffset(const Coordinates& c1, const Coordinates& c2) {
     auto xDir = glm::clamp(dx, -1, 1);
     auto zDir = glm::clamp(dz, -1, 1);
     return Coordinates{size_t(xDir), 0, size_t(zDir)};
+}
+
+StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoords) {
+    auto verticalOffset = GetVerticalOffset(toCoords, fromCoords);
+    auto horizontalOffset = GetHorizontalOffset(toCoords, fromCoords);
+    auto delta = toCoords - fromCoords;
+
+    LOG_ASSERT(delta.y != 0);
+
+    auto direction = TileDirection::None;
+    if (delta.z == 3 && delta.x == 0) {
+        direction = TileDirection::North;
+    } else if (delta.x == -3 && delta.z == 0) {
+        direction = TileDirection::West;
+    } else if (delta.z == -3 && delta.x == 0) {
+        direction = TileDirection::South;
+    } else if (delta.x == 3 && delta.z == 0) {
+        direction = TileDirection::East;
+    } else {
+        LOG_ASSERT(false);
+    }
+
+    auto coords = std::array<Coordinates, 4>{};
+
+    if (delta.y == -1) {
+        coords[0] = fromCoords + verticalOffset + horizontalOffset;    // stairs top
+        coords[1] = toCoords - horizontalOffset;                       // stairs bottom
+        coords[2] = fromCoords + horizontalOffset;                     // empty (air)
+        coords[3] = fromCoords + horizontalOffset + horizontalOffset;  // empty (air)
+    } else if (delta.y == 1) {
+        direction = ReverseTileDirection(direction);
+
+        coords[0] = fromCoords + horizontalOffset + horizontalOffset;  // stairs top
+        coords[1] = fromCoords + horizontalOffset;                     // stairs bottom
+        coords[2] = toCoords - horizontalOffset;                       // empty (air)
+        coords[3] = toCoords - horizontalOffset - horizontalOffset;    // empty (air)
+    } else {
+        LOG_ASSERT(false);
+    }
+
+    return {verticalOffset, horizontalOffset, coords, direction};
 }
 
 size_t Volume(const Dimensions& dimensions) {
