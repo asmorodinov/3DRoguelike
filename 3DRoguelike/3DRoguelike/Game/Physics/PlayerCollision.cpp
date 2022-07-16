@@ -101,11 +101,11 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
                 auto center = glm::vec3(intCoords);
 
                 auto model = GetSlopeModelData(0);
-                if (tile.direction == TileDirection::West) {
+                if (tile.orientation == TileOrientation::West) {
                     model = GetSlopeModelData(1);
-                } else if (tile.direction == TileDirection::South) {
+                } else if (tile.orientation == TileOrientation::South) {
                     model = GetSlopeModelData(2);
-                } else if (tile.direction == TileDirection::East) {
+                } else if (tile.orientation == TileOrientation::East) {
                     model = GetSlopeModelData(3);
                 }
                 Move(model, center);
@@ -161,11 +161,11 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
                 auto center = glm::vec3(intCoords);
 
                 auto model = GetSlopeModelData(0);
-                if (tile.type == TileType::StairsTopBlock && tile.direction == TileDirection::West) {
+                if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::West) {
                     model = GetSlopeModelData(1);
-                } else if (tile.type == TileType::StairsTopBlock && tile.direction == TileDirection::South) {
+                } else if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::South) {
                     model = GetSlopeModelData(2);
-                } else if (tile.type == TileType::StairsTopBlock && tile.direction == TileDirection::East) {
+                } else if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::East) {
                     model = GetSlopeModelData(3);
                 } else if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
                     model = GetCubeModelData();

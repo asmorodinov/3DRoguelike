@@ -77,10 +77,10 @@ void RectRoom::Generate(RNG& rng, SeedType seed) {
     auto height = rng.IntUniform<size_t>(9, 12);
     auto length = rng.IntUniform<size_t>(13, 22);
     size = Dimensions{width, height, length};
-    tiles = TilesVec(size, Tile{TileType::FakeAir, TileDirection::None, TextureType::None, glm::vec3(1.0f)});
+    tiles = TilesVec(size, Tile{TileType::FakeAir, TileOrientation::None, TextureType::None, glm::vec3(1.0f)});
 
-    auto air = Tile{TileType::Air, TileDirection::None, TextureType::None, glm::vec3(1.0f)};
-    auto wall = Tile{TileType::Block, TileDirection::None, TextureType::Texture1,
+    auto air = Tile{TileType::Air, TileOrientation::None, TextureType::None, glm::vec3(1.0f)};
+    auto wall = Tile{TileType::Block, TileOrientation::None, TextureType::Texture1,
                      glm::vec3(rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f))};
 
     auto offset = Coordinates{1, 1, 1};

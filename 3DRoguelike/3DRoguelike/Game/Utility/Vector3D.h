@@ -52,7 +52,7 @@ struct StairsInfo {
     Coordinates verticalOffset;
     Coordinates horizontalOffset;
     std::array<Coordinates, 4> stairsTiles;  // 0 - top of the stairs, 1 - bottom of the stairs, 2, 3 - empty tiles (air)
-    TileDirection direction;
+    TileOrientation orientation;
 };
 
 StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoords);

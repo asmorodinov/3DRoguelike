@@ -195,13 +195,16 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
     return pathCost;
 }
 
-void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairs) {
+void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairsAir) {
     // place air and stairs tiles
 
     auto stairsVec = std::vector<Coordinates>();
 
-    auto stairs2 = stairs;
-    stairs2.type = TileType::StairsTopBlock;
+    auto topBlock = stairsAir;
+    topBlock.type = TileType::StairsTopBlock;
+
+    auto bottomBlock = stairsAir;
+    bottomBlock.type = TileType::StairsBottomBlock;
 
     for (size_t i = 0; i < path.size(); ++i) {
         const auto& coords = path[i];
@@ -216,15 +219,17 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
         if (delta.y == 0) continue;
 
         auto stairsInfo = GetStairsInfo(coords, prev);
-        stairs2.direction = stairsInfo.direction;
+        topBlock.orientation = stairsInfo.orientation;
+        bottomBlock.orientation = stairsInfo.orientation;
 
         const auto& stairsTiles = stairsInfo.stairsTiles;
         for (const auto& tile : stairsTiles) {
             stairsVec.push_back(tile);
         }
-        world.Set(stairsTiles[0], stairs2);
-        for (size_t i = 1; i < stairsTiles.size(); ++i) {
-            world.Set(stairsTiles[i], stairs);
+        world.Set(stairsTiles[0], topBlock);
+        world.Set(stairsTiles[1], bottomBlock);
+        for (size_t i = 2; i < stairsTiles.size(); ++i) {
+            world.Set(stairsTiles[i], stairsAir);
         }
     }
 

@@ -111,15 +111,15 @@ StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoo
 
     LOG_ASSERT(delta.y != 0);
 
-    auto direction = TileDirection::None;
+    auto orientation = TileOrientation::None;
     if (delta.z == 3 && delta.x == 0) {
-        direction = TileDirection::North;
+        orientation = TileOrientation::North;
     } else if (delta.x == -3 && delta.z == 0) {
-        direction = TileDirection::West;
+        orientation = TileOrientation::West;
     } else if (delta.z == -3 && delta.x == 0) {
-        direction = TileDirection::South;
+        orientation = TileOrientation::South;
     } else if (delta.x == 3 && delta.z == 0) {
-        direction = TileDirection::East;
+        orientation = TileOrientation::East;
     } else {
         LOG_ASSERT(false);
     }
@@ -132,7 +132,7 @@ StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoo
         coords[2] = fromCoords + horizontalOffset;                     // empty (air)
         coords[3] = fromCoords + horizontalOffset + horizontalOffset;  // empty (air)
     } else if (delta.y == 1) {
-        direction = ReverseTileDirection(direction);
+        orientation = ReverseTileOrientation(orientation);
 
         coords[0] = fromCoords + horizontalOffset + horizontalOffset;  // stairs top
         coords[1] = fromCoords + horizontalOffset;                     // stairs bottom
@@ -142,7 +142,7 @@ StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoo
         LOG_ASSERT(false);
     }
 
-    return {verticalOffset, horizontalOffset, coords, direction};
+    return {verticalOffset, horizontalOffset, coords, orientation};
 }
 
 size_t Volume(const Dimensions& dimensions) {

@@ -35,18 +35,18 @@ int StairsCost(TileType type) {
     return 1000;
 }
 
-TileDirection ReverseTileDirection(TileDirection direction) {
-    switch (direction) {
-        case TileDirection::East:
-            return TileDirection::West;
-        case TileDirection::West:
-            return TileDirection::East;
-        case TileDirection::North:
-            return TileDirection::South;
-        case TileDirection::South:
-            return TileDirection::North;
+TileOrientation ReverseTileOrientation(TileOrientation orientation) {
+    switch (orientation) {
+        case TileOrientation::East:
+            return TileOrientation::West;
+        case TileOrientation::West:
+            return TileOrientation::East;
+        case TileOrientation::North:
+            return TileOrientation::South;
+        case TileOrientation::South:
+            return TileOrientation::North;
     }
 
     LOG_ASSERT(false);
-    return TileDirection::None;
+    return TileOrientation::None;
 }
