@@ -83,9 +83,7 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsNorth &&
-                    tile.type != TileType::StairsWest && tile.type != TileType::StairsSouth && tile.type != TileType::StairsEast)
-                    continue;
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsBlock) continue;
 
                 // collision with blocks
 
@@ -103,11 +101,11 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
                 auto center = glm::vec3(intCoords);
 
                 auto model = GetSlopeModelData(0);
-                if (tile.type == TileType::StairsWest) {
+                if (tile.direction == TileDirection::West) {
                     model = GetSlopeModelData(1);
-                } else if (tile.type == TileType::StairsSouth) {
+                } else if (tile.direction == TileDirection::South) {
                     model = GetSlopeModelData(2);
-                } else if (tile.type == TileType::StairsEast) {
+                } else if (tile.direction == TileDirection::East) {
                     model = GetSlopeModelData(3);
                 }
                 Move(model, center);
@@ -158,18 +156,16 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsNorth &&
-                    tile.type != TileType::StairsWest && tile.type != TileType::StairsSouth && tile.type != TileType::StairsEast)
-                    continue;
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsBlock) continue;
 
                 auto center = glm::vec3(intCoords);
 
                 auto model = GetSlopeModelData(0);
-                if (tile.type == TileType::StairsWest) {
+                if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::West) {
                     model = GetSlopeModelData(1);
-                } else if (tile.type == TileType::StairsSouth) {
+                } else if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::South) {
                     model = GetSlopeModelData(2);
-                } else if (tile.type == TileType::StairsEast) {
+                } else if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::East) {
                     model = GetSlopeModelData(3);
                 } else if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
                     model = GetCubeModelData();

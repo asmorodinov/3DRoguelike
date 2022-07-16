@@ -203,6 +203,7 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
     auto stairsVec = std::vector<Coordinates>();
 
     auto stairs2 = stairs;
+    stairs2.type = TileType::StairsBlock;
 
     for (size_t i = 0; i < path.size(); ++i) {
         const auto& coords = path[i];
@@ -220,13 +221,13 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
         auto horizontalOffset = GetHorizontalOffset(coords, prev);
 
         if (delta.z == 3 && delta.x == 0) {
-            stairs2.type = TileType::StairsNorth;
+            stairs2.direction = TileDirection::North;
         } else if (delta.x == -3 && delta.z == 0) {
-            stairs2.type = TileType::StairsWest;
+            stairs2.direction = TileDirection::West;
         } else if (delta.z == -3 && delta.x == 0) {
-            stairs2.type = TileType::StairsSouth;
+            stairs2.direction = TileDirection::South;
         } else if (delta.x == 3 && delta.z == 0) {
-            stairs2.type = TileType::StairsEast;
+            stairs2.direction = TileDirection::East;
         } else {
             LOG_ASSERT(false);
         }
@@ -234,7 +235,7 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
         auto specialTile = prev + verticalOffset + horizontalOffset;
         auto normalTile = prev + horizontalOffset + horizontalOffset;
         if (delta.y == 1) {
-            stairs2.type = ReverseStairsDirection(stairs2.type);
+            stairs2.direction = ReverseTileDirection(stairs2.direction);
             std::swap(specialTile, normalTile);
         } else if (delta.y == -1) {
             // do nothing

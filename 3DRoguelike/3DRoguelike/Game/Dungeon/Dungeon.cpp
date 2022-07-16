@@ -66,7 +66,7 @@ void Dungeon::placeRooms() {
 }
 
 void Dungeon::placeCorridors() {
-    auto air = Tile{TileType::CorridorAir, TextureType::None, glm::vec3(1.0f)};
+    auto air = Tile{TileType::CorridorAir, TileDirection::None, TextureType::None, glm::vec3(1.0f)};
 
     // determine which rooms should be connected
 
@@ -106,10 +106,10 @@ void Dungeon::placeCorridors() {
         const auto& r2 = rooms[v2];
 
         auto wall = Tile{
-            TileType::Block, TextureType::Texture2,
+            TileType::Block, TileDirection::None, TextureType::Texture2,
             glm::vec3(0.4f, 0.3f, 0.8f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
         auto stairs = Tile{
-            TileType::StairsAir, TextureType::Texture2,
+            TileType::StairsAir, TileDirection::None, TextureType::Texture2,
             glm::vec3(0.4f, 0.3f, 0.8f) + 0.2f * glm::vec3(rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f), rng.RealUniform(-1.0f, 1.0f))};
 
         auto startTiles = r1->GetEdgeTiles();
@@ -139,13 +139,13 @@ void addTile(const glm::ivec3& coords, std::vector<PositionColor>& blocks, std::
     const auto& tile = tiles.GetInOrOutOfBounds(coords);
     if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
         blocks.push_back({glm::vec3(coords), tile.color, 1.0f});
-    } else if (tile.type == TileType::StairsNorth) {
+    } else if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::North) {
         stairs[0].push_back({glm::vec3(coords), tile.color, 1.0f});
-    } else if (tile.type == TileType::StairsWest) {
+    } else if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::West) {
         stairs[1].push_back({glm::vec3(coords), tile.color, 1.0f});
-    } else if (tile.type == TileType::StairsSouth) {
+    } else if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::South) {
         stairs[2].push_back({glm::vec3(coords), tile.color, 1.0f});
-    } else if (tile.type == TileType::StairsEast) {
+    } else if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::East) {
         stairs[3].push_back({glm::vec3(coords), tile.color, 1.0f});
     }
 }

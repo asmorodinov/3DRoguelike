@@ -8,12 +8,17 @@ enum struct TileType {
     Block,          // solid tile
     CorridorBlock,  // block that corridors are allowed to override with air
     CorridorAir,    // corridors are allowed to pass through it
-    StairsAir,      // stairs tile
-    StairsNorth,    // stairs tile that goes north (dz = 1 , dx = 0)
-    StairsSouth,    // stairs tile that goes south (dz = -1, dx = 0)
-    StairsWest,     // stairs tile that goes west  (dz = 0, dx = -1)
-    StairsEast,     // stairs tile that goes east  (dz = 0, dx = 1)
+    StairsAir,      // empty stairs tile
+    StairsBlock,    // stairs tile block
     Void            // empty tile, initially all tiles are void
+};
+
+enum struct TileDirection {
+    North,  // (dz = 1, dx = 0)
+    South,  // (dz = -1, dx = 0)
+    West,   // (dz = 0, dx = -1)
+    East,   // (dz = 0, dx = 1)
+    None    // not specified direction (e.g. tile is symmetric, direction does not matter)
 };
 
 bool CorridorCanPass(TileType type);
@@ -21,12 +26,13 @@ int CorridorCost(TileType type);
 bool CanPlaceStairs(TileType type);
 int StairsCost(TileType type);
 
-TileType ReverseStairsDirection(TileType type);
+TileDirection ReverseTileDirection(TileDirection direction);
 
 enum struct TextureType { None, Texture1, Texture2 };
 
 struct Tile {
     TileType type = TileType::Void;
+    TileDirection direction = TileDirection::None;
     TextureType texture = TextureType::None;
     glm::vec3 color = glm::vec3(1.0f);
 };
