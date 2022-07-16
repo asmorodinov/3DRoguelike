@@ -137,7 +137,7 @@ void Dungeon::reset() {
 
 void addTile(const glm::ivec3& coords, std::vector<PositionColor>& blocks, std::array<std::vector<PositionColor>, 4>& stairs, const TilesVec& tiles) {
     const auto& tile = tiles.GetInOrOutOfBounds(coords);
-    if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
+    if (IsSolidBlock(tile.type)) {
         blocks.push_back({glm::vec3(coords), tile.color, 1.0f});
     } else if (tile.type == TileType::StairsTopPart && tile.orientation == TileOrientation::North) {
         stairs[0].push_back({glm::vec3(coords), tile.color, 1.0f});

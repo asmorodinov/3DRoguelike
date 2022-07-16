@@ -11,6 +11,7 @@ enum struct TileType {
     StairsAir,         // empty stairs tile
     StairsTopPart,     // stairs block top part
     StairsBottomPart,  // stairs block bottom part
+    StairsBlock,       // special solid tile, needed to avoid certain unwanted configurations of adjacent staircases
     Void               // empty tile, initially all tiles are void
 };
 
@@ -29,6 +30,8 @@ int StairsCost(TileType type);
 
 TileOrientation ReverseTileOrientation(TileOrientation orientation);
 glm::ivec3 TileOrientationToIVec3(TileOrientation orientation);
+
+bool IsSolidBlock(TileType type);
 
 enum struct TextureType { None, Texture1, Texture2 };
 

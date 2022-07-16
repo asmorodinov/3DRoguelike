@@ -8,25 +8,12 @@
 
 #include "../Model/Model.h"
 
-// continous collision detection
-
 using Time = float;
-
-struct ContinousCollisionInfo {
-    Time entryTime = 0.0f;
-    glm::vec3 surfaceNormal = glm::vec3();
-};
-
-// std::nullopt means there was no collision
-using ContinousCollisionResult = std::optional<ContinousCollisionInfo>;
 
 struct Box3D {
     glm::vec3 p1;  // corner with minimum vertex coords
     glm::vec3 p2;  // corner with maximum vertex coords
 };
-
-// b1 is moving with velocity v1, b2 - static collider
-ContinousCollisionResult SweptAABB(const Box3D& b1, const glm::vec3& v1, const Box3D& b2);
 
 // discrete collision detection
 
