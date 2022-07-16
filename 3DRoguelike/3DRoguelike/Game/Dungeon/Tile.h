@@ -28,6 +28,7 @@ bool CanPlaceStairs(TileType type);
 int StairsCost(TileType type);
 
 TileOrientation ReverseTileOrientation(TileOrientation orientation);
+glm::ivec3 TileOrientationToIVec3(TileOrientation orientation);
 
 enum struct TextureType { None, Texture1, Texture2 };
 

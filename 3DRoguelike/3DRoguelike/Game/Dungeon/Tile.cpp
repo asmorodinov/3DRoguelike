@@ -50,3 +50,19 @@ TileOrientation ReverseTileOrientation(TileOrientation orientation) {
     LOG_ASSERT(false);
     return TileOrientation::None;
 }
+
+glm::ivec3 TileOrientationToIVec3(TileOrientation orientation) {
+    switch (orientation) {
+        case TileOrientation::North:
+            return {0, 0, 1};
+        case TileOrientation::West:
+            return {-1, 0, 0};
+        case TileOrientation::South:
+            return {0, 0, -1};
+        case TileOrientation::East:
+            return {1, 0, 0};
+    }
+
+    LOG_ASSERT(false);
+    return {};
+}

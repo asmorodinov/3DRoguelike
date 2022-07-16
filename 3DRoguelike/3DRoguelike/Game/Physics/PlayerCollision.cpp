@@ -76,14 +76,16 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
     auto max = glm::max(intPosition, newPosition);
     const auto& dimensions = world.GetDimensions();
 
-    for (int i = min.x - 2; i <= max.x + 2; ++i) {
-        for (int j = min.y - 2; j <= max.y + 2; ++j) {
-            for (int k = min.z - 2; k <= max.z + 2; ++k) {
+    for (int i = min.x - 1; i <= max.x + 1; ++i) {
+        for (int j = min.y - 1; j <= max.y + 1; ++j) {
+            for (int k = min.z - 1; k <= max.z + 1; ++k) {
                 auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopBlock) continue;
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopBlock &&
+                    tile.type != TileType::StairsBottomBlock)
+                    continue;
 
                 // collision with blocks
 
@@ -99,6 +101,10 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
                 // collision with stairs
 
                 auto center = glm::vec3(intCoords);
+
+                if (tile.type == TileType::StairsBottomBlock) {
+                    center -= TileOrientationToIVec3(tile.orientation);
+                }
 
                 auto model = GetSlopeModelData(0);
                 if (tile.orientation == TileOrientation::West) {
@@ -149,24 +155,33 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
     auto max = glm::max(intPosition, newPosition);
     const auto& dimensions = world.GetDimensions();
 
-    for (int i = min.x - 2; i <= max.x + 2; ++i) {
-        for (int j = min.y - 2; j <= max.y + 2; ++j) {
-            for (int k = min.z - 2; k <= max.z + 2; ++k) {
+    for (int i = min.x - 1; i <= max.x + 1; ++i) {
+        for (int j = min.y - 1; j <= max.y + 1; ++j) {
+            for (int k = min.z - 1; k <= max.z + 1; ++k) {
                 auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopBlock) continue;
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopBlock &&
+                    tile.type != TileType::StairsBottomBlock)
+                    continue;
 
                 auto center = glm::vec3(intCoords);
 
-                auto model = GetSlopeModelData(0);
-                if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::West) {
-                    model = GetSlopeModelData(1);
-                } else if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::South) {
-                    model = GetSlopeModelData(2);
-                } else if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::East) {
-                    model = GetSlopeModelData(3);
+                if (tile.type == TileType::StairsBottomBlock) {
+                    center -= TileOrientationToIVec3(tile.orientation);
+                }
+
+                auto model = ModelData{};
+                if (tile.type == TileType::StairsTopBlock || tile.type == TileType::StairsBottomBlock) {
+                    if (tile.orientation == TileOrientation::North)
+                        model = GetSlopeModelData(0);
+                    else if (tile.orientation == TileOrientation::West)
+                        model = GetSlopeModelData(1);
+                    else if (tile.orientation == TileOrientation::South)
+                        model = GetSlopeModelData(2);
+                    else if (tile.orientation == TileOrientation::East)
+                        model = GetSlopeModelData(3);
                 } else if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
                     model = GetCubeModelData();
                 }
