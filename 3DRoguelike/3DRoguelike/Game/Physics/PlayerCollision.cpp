@@ -83,8 +83,8 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopBlock &&
-                    tile.type != TileType::StairsBottomBlock)
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopPart &&
+                    tile.type != TileType::StairsBottomPart)
                     continue;
 
                 // collision with blocks
@@ -102,7 +102,7 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
 
                 auto center = glm::vec3(intCoords);
 
-                if (tile.type == TileType::StairsBottomBlock) {
+                if (tile.type == TileType::StairsBottomPart) {
                     center -= TileOrientationToIVec3(tile.orientation);
                 }
 
@@ -162,18 +162,18 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopBlock &&
-                    tile.type != TileType::StairsBottomBlock)
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopPart &&
+                    tile.type != TileType::StairsBottomPart)
                     continue;
 
                 auto center = glm::vec3(intCoords);
 
-                if (tile.type == TileType::StairsBottomBlock) {
+                if (tile.type == TileType::StairsBottomPart) {
                     center -= TileOrientationToIVec3(tile.orientation);
                 }
 
                 auto model = ModelData{};
-                if (tile.type == TileType::StairsTopBlock || tile.type == TileType::StairsBottomBlock) {
+                if (tile.type == TileType::StairsTopPart || tile.type == TileType::StairsBottomPart) {
                     if (tile.orientation == TileOrientation::North)
                         model = GetSlopeModelData(0);
                     else if (tile.orientation == TileOrientation::West)

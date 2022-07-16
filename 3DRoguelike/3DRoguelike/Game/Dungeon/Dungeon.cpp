@@ -139,13 +139,13 @@ void addTile(const glm::ivec3& coords, std::vector<PositionColor>& blocks, std::
     const auto& tile = tiles.GetInOrOutOfBounds(coords);
     if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
         blocks.push_back({glm::vec3(coords), tile.color, 1.0f});
-    } else if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::North) {
+    } else if (tile.type == TileType::StairsTopPart && tile.orientation == TileOrientation::North) {
         stairs[0].push_back({glm::vec3(coords), tile.color, 1.0f});
-    } else if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::West) {
+    } else if (tile.type == TileType::StairsTopPart && tile.orientation == TileOrientation::West) {
         stairs[1].push_back({glm::vec3(coords), tile.color, 1.0f});
-    } else if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::South) {
+    } else if (tile.type == TileType::StairsTopPart && tile.orientation == TileOrientation::South) {
         stairs[2].push_back({glm::vec3(coords), tile.color, 1.0f});
-    } else if (tile.type == TileType::StairsTopBlock && tile.orientation == TileOrientation::East) {
+    } else if (tile.type == TileType::StairsTopPart && tile.orientation == TileOrientation::East) {
         stairs[3].push_back({glm::vec3(coords), tile.color, 1.0f});
     }
 }
