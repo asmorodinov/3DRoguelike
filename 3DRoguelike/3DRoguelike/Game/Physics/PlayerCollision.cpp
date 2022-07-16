@@ -83,7 +83,7 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsBlock) continue;
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopBlock) continue;
 
                 // collision with blocks
 
@@ -156,16 +156,16 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
                 auto intCoords = glm::ivec3(i, j, k);
 
                 const auto& tile = world.GetInOrOutOfBounds(intCoords);
-                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsBlock) continue;
+                if (tile.type != TileType::Block && tile.type != TileType::CorridorBlock && tile.type != TileType::StairsTopBlock) continue;
 
                 auto center = glm::vec3(intCoords);
 
                 auto model = GetSlopeModelData(0);
-                if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::West) {
+                if (tile.type == TileType::StairsTopBlock && tile.direction == TileDirection::West) {
                     model = GetSlopeModelData(1);
-                } else if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::South) {
+                } else if (tile.type == TileType::StairsTopBlock && tile.direction == TileDirection::South) {
                     model = GetSlopeModelData(2);
-                } else if (tile.type == TileType::StairsBlock && tile.direction == TileDirection::East) {
+                } else if (tile.type == TileType::StairsTopBlock && tile.direction == TileDirection::East) {
                     model = GetSlopeModelData(3);
                 } else if (tile.type == TileType::Block || tile.type == TileType::CorridorBlock) {
                     model = GetCubeModelData();

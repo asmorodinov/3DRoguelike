@@ -201,7 +201,7 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
     auto stairsVec = std::vector<Coordinates>();
 
     auto stairs2 = stairs;
-    stairs2.type = TileType::StairsBlock;
+    stairs2.type = TileType::StairsTopBlock;
 
     for (size_t i = 0; i < path.size(); ++i) {
         const auto& coords = path[i];
