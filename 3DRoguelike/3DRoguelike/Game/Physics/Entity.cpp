@@ -1,7 +1,5 @@
 #include "Entity.h"
 
-#include <glm/gtx/quaternion.hpp>
-
 #include "../Utility/LogDuration.h"
 #include "../Physics/PlayerCollision.h"
 
@@ -23,7 +21,6 @@ void Entity::Jump(float jumpHeight_) {
         jumpHeight_ = jumpHeight;
     }
     velocity.y = glm::sqrt(-2 * GRAVITY_ACCELERATION.y * jumpHeight_);
-    jumping = true;
 }
 
 glm::vec3 Entity::GetFriction() const {
@@ -33,51 +30,57 @@ glm::vec3 Entity::GetFriction() const {
     return DRAG_FALL;
 }
 
-bool adjustVelocityToSlope(const glm::vec3& position, float radius, glm::vec3& velocity, const TilesVec& world) {
+glm::vec3 adjustVelocityToSlope(glm::vec3& position, float radius, const glm::vec3& velocity, const TilesVec& world, bool& hit) {
     static constexpr auto eps = 0.00000001f;
 
+    hit = false;
+
     // perform raycast from player feet position
+
+    auto down = glm::vec3(0.0f, -1.0f, 0.0f);
     static constexpr auto r = 0.1f;
-
-    const auto ray = Ray{position + glm::vec3(0.0f, -radius + r, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)};
+    const auto ray = Ray{position + radius * down, down};
     const auto deltas = std::vector{glm::vec3(0.0f), glm::vec3(-r, 0, 0), glm::vec3(r, 0, 0), glm::vec3(0, 0, -r), glm::vec3(0, 0, r)};
-    auto collision = CastMultipleRays(ray, deltas, world, 0.4f);
+    auto collision = CastMultipleRays(ray, deltas, world, 0.2f);
 
-    if (!collision.has_value()) return false;
+    if (!collision.has_value()) return velocity;
     const auto& value = collision.value();
 
-    auto grounded = glm::distance(ray.origin, value.intersectionPoint) <= 0.2f;
+    hit = true;
 
+    // not moving => no need to adjust
     auto length = glm::length(velocity);
-    if (length <= eps) return grounded;
+    if (length <= eps) return velocity;
 
     // moving upwards (jumping) => no need to adjust velocity
-    if (velocity.y > 0.0f) return grounded;
+    if (velocity.y > 0.0f) {
+        hit = false;  // do not want to detect ray hit when jumping
+        return velocity;
+    }
+    // surface is too flat
+    if (glm::abs(value.surfaceNormal.y) <= eps) return velocity;
 
-    auto vel = velocity;
-    vel.y = 0.0f;
-
-    auto slopeRotation = glm::rotation(glm::vec3(0.0f, 1.0f, 0.0f), value.surfaceNormal);
-    auto adjustedVelocity = slopeRotation * vel;
+    // adjust velocity
+    auto adjustedVelocity = velocity;
+    adjustedVelocity.y = -(velocity.x * value.surfaceNormal.x + velocity.z * value.surfaceNormal.z) / value.surfaceNormal.y;
 
     // moving up the slope, no need to adjust velocity
-    if (adjustedVelocity.y >= 0.0f) return grounded;
+    if (adjustedVelocity.y >= 0.0f) return velocity;
 
-    adjustedVelocity = glm::normalize(adjustedVelocity) * length;
-
-    velocity = adjustedVelocity;
-
-    return grounded;
+    return glm::normalize(adjustedVelocity) * length;
 }
 
 void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollision) {
     velocity += acceleration * GetFriction() * deltaTime;
+
     acceleration = glm::vec3();
     grounded = false;
 
     // adjust velocity
-    if (!jumping && !disableCollision) {
-        grounded = adjustVelocityToSlope(position, radius, velocity, world);
+    auto hit = false;
+    if (!disableCollision) {
+        velocity = adjustVelocityToSlope(position, radius, velocity, world, hit);
+        grounded |= hit;
     }
 
     // collision detection
@@ -85,12 +88,8 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
     // ResolveCollisionWithWorldContinous(GetCollider(), *this, world, deltaTime, disableCollision);
     ResolveCollisionWithWorldDiscrete(GetSphereCollider(), *this, world, deltaTime, disableCollision);
 
-    if (grounded && jumping) {
-        jumping = false;
-    }
-
     // apply gravity
-    auto gravity = (flying || grounded) ? FLYING_ACCELERATION : GRAVITY_ACCELERATION;
+    auto gravity = (flying || hit) ? FLYING_ACCELERATION : GRAVITY_ACCELERATION;
     velocity += gravity * deltaTime;
 
     // apply friction
@@ -140,8 +139,4 @@ bool Entity::IsFlying() const {
 
 bool Entity::IsGrounded() const {
     return grounded;
-}
-
-bool Entity::IsJumping() const {
-    return jumping;
 }

@@ -38,12 +38,10 @@ class Entity : private MovingObject {
     bool IsFlying() const;
 
     bool IsGrounded() const;
-    bool IsJumping() const;
 
  private:
     float jumpHeight = 1.25f;
     bool flying = false;
-    bool jumping = false;
 
     glm::vec3 acceleration = glm::vec3();
 
