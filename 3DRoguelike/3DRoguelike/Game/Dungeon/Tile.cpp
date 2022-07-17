@@ -9,11 +9,11 @@ bool CorridorCanPass(TileType type) {
 int CorridorCost(TileType type) {
     switch (type) {
         case TileType::Void:
-            return 5;
+            return 8;
         case TileType::CorridorAir:
             return 2;
         case TileType::CorridorBlock:
-            return 3;
+            return 4;
     }
 
     return 200;
@@ -27,10 +27,12 @@ bool CanPlaceStairs(TileType type) {
 int StairsCost(TileType type) {
     switch (type) {
         case TileType::Void:
-            return 50;
+            return 70;
         case TileType::CorridorBlock:
-            return 45;
+            return 50;
         case TileType::StairsBlock:
+            return 40;
+        case TileType::StairsBlock2:
             return 40;
     }
 
@@ -70,5 +72,5 @@ glm::ivec3 TileOrientationToIVec3(TileOrientation orientation) {
 }
 
 bool IsSolidBlock(TileType type) {
-    return type == TileType::Block || type == TileType::CorridorBlock || type == TileType::StairsBlock;
+    return type == TileType::Block || type == TileType::CorridorBlock || type == TileType::StairsBlock || type == TileType::StairsBlock2;
 }

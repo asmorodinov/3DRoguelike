@@ -12,6 +12,7 @@ enum struct TileType {
     StairsTopPart,     // stairs block top part
     StairsBottomPart,  // stairs block bottom part
     StairsBlock,       // special solid tile, needed to avoid certain unwanted configurations of adjacent staircases
+    StairsBlock2,      // another special stairs solid block
     Void               // empty tile, initially all tiles are void
 };
 

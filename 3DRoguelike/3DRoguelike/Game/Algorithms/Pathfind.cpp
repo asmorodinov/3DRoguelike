@@ -185,8 +185,13 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
     if (!CanPlaceStairs(topPart) && topPart != TileType::StairsBlock) {
         return pathCost;
     }
+    // only stairs bottom part can dig through stairs blocks 2
+    const auto& bottomPart = world.Get(stairsTiles[1]).type;
+    if (!CanPlaceStairs(bottomPart) && bottomPart != TileType::StairsBlock2) {
+        return pathCost;
+    }
 
-    for (size_t i = 1; i < stairsTiles.size(); ++i) {
+    for (size_t i = 2; i < stairsTiles.size(); ++i) {
         if (!CanPlaceStairs(world.Get(stairsTiles[i]).type)) {
             return pathCost;
         }
@@ -255,6 +260,10 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
     stairsWall.type = TileType::StairsBlock;
     stairsWall.color.r = 1.0f;
 
+    auto stairsWall2 = wall;
+    stairsWall2.type = TileType::StairsBlock2;
+    stairsWall2.color.g = 1.0f;
+
     const auto& dimensions = world.GetDimensions();
     for (const auto& coords : totalPath) {
         const auto& tile = world.Get(coords);
@@ -268,9 +277,11 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
             if (!adjacent.IsInBounds(dimensions) || world.Get(adjacent).type == TileType::Void) {
                 if (adjacent.y == coords.y) {
                     // it's ok for other corridors to pass through walls (side walls), so we set the tile to corridorBlock
-                    // upd: if we are horizontally adjacent to stairs top part then set tile to StairsBlock
+                    // upd: if we are horizontally adjacent to stairs top (bottom) part then set tile to StairsBlock(2)
                     if (tile.type == TileType::StairsTopPart) {
                         world.SetInOrOutOfBounds(intAdjacent, stairsWall);
+                    } else if (tile.type == TileType::StairsBottomPart) {
+                        world.SetInOrOutOfBounds(intAdjacent, stairsWall2);
                     } else {
                         world.SetInOrOutOfBounds(intAdjacent, corridorWall);
                     }
