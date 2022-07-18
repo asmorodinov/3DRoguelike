@@ -111,7 +111,7 @@ int main() {
     dungeon.Generate();
     player.SetFlying(true);
     player.SetPosition(dungeon.GetSpawnPoint().AsVec3());
-    camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.2f, 0.0f);
+    camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.15f, 0.0f);
 
     size_t frame = 0;
 
@@ -133,7 +133,7 @@ int main() {
         processInput(window);
 
         player.Update(dungeon.GetTiles(), deltaTime, disableCollision);
-        camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.2f, 0.0f);
+        camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.15f, 0.0f);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
