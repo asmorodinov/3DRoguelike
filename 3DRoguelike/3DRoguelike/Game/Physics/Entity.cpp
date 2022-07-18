@@ -30,7 +30,7 @@ glm::vec3 Entity::GetFriction() const {
     return DRAG_FALL;
 }
 
-glm::vec3 adjustVelocityToSlope(glm::vec3& position, float radius, const glm::vec3& velocity, const TilesVec& world, bool& hit) {
+glm::vec3 adjustVelocityToSlope(const glm::vec3& position, float radius, const glm::vec3& velocity, const TilesVec& world, bool& hit) {
     static constexpr auto eps = 0.00000001f;
 
     hit = false;
