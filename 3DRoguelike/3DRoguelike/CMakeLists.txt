@@ -13,6 +13,7 @@ target_link_libraries(3DRoguelike PRIVATE glad::glad)
 target_link_libraries(3DRoguelike PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
 target_link_libraries(3DRoguelike PRIVATE CGAL::CGAL)
 target_link_libraries(3DRoguelike PRIVATE freetype)
+target_link_libraries(3DRoguelike PRIVATE yaml-cpp)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET 3DRoguelike PROPERTY CXX_STANDARD 20)
