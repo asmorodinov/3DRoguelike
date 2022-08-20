@@ -37,6 +37,7 @@ struct Coordinates {
 
     glm::vec3 AsVec3() const;
     glm::ivec3 AsIVec3() const;
+    static Coordinates FromVec3(const glm::vec3& vec);
 
     bool IsInBounds(const Dimensions& dimensions) const;
 };

@@ -80,6 +80,11 @@ glm::ivec3 Coordinates::AsIVec3() const {
     return glm::ivec3(x, y, z);
 }
 
+Coordinates Coordinates::FromVec3(const glm::vec3& vec) {
+    auto ivec = glm::ivec3(glm::round(vec));
+    return Coordinates{size_t(ivec.x), size_t(ivec.y), size_t(ivec.z)};
+}
+
 bool Coordinates::IsInBounds(const Dimensions& dimensions) const {
     return x < dimensions.width && y < dimensions.height && z < dimensions.length;
 }

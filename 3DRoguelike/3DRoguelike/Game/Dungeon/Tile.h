@@ -34,6 +34,9 @@ glm::ivec3 TileOrientationToIVec3(TileOrientation orientation);
 
 bool IsSolidBlock(TileType type);
 
+// blocks that can be replaced with corridor wall when placing a corridor
+bool CanBeOverridenByCorridor(TileType type);
+
 enum struct TextureType { None, Texture1, Texture2 };
 
 struct Tile {

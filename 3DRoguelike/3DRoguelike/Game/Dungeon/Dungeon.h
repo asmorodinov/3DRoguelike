@@ -20,6 +20,8 @@ class Dungeon {
 
     Coordinates GetSpawnPoint() const;
 
+    size_t WhichRoomPointIsInside(const Coordinates& coords) const;
+
  private:
     void placeRooms();
     void placeCorridors();

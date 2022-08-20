@@ -159,22 +159,25 @@ int main() {
         auto fpsstr = std::to_string(static_cast<int>(glm::round(fps)));
 
         auto pos = player.GetPosition();
-        auto posx = std::to_string(static_cast<int>(glm::round(pos.x)));
-        auto posy = std::to_string(static_cast<int>(glm::round(pos.y)));
-        auto posz = std::to_string(static_cast<int>(glm::round(pos.z)));
+        auto ipos = glm::ivec3(glm::round(pos));
+        auto posx = std::to_string(ipos.x);
+        auto posy = std::to_string(ipos.y);
+        auto posz = std::to_string(ipos.z);
 
         auto vel = camera.Velocity;
-        auto velx = std::to_string(static_cast<int>(glm::round(vel.x)));
-        auto vely = std::to_string(static_cast<int>(glm::round(vel.y)));
-        auto velz = std::to_string(static_cast<int>(glm::round(vel.z)));
+        auto ivel = glm::ivec3(glm::round(pos));
+        auto velx = std::to_string(ivel.x);
+        auto vely = std::to_string(ivel.y);
+        auto velz = std::to_string(ivel.z);
 
         auto dc = std::to_string(disableCollision);
         auto fl = std::to_string(player.IsFlying());
         auto gr = std::to_string(player.IsGrounded());
+        auto room = std::to_string(dungeon.WhichRoomPointIsInside(Coordinates::FromVec3(pos)));
 
         glDisable(GL_DEPTH_TEST);
         textRenderer.RenderText("fps: " + fpsstr + " pos: " + posx + " " + posy + " " + posz + " vel: " + velx + " " + vely + " " + velz +
-                                    " dc: " + dc + " fl: " + fl + " gr: " + gr,
+                                    " dc: " + dc + " fl: " + fl + " gr: " + gr + " room: " + room,
                                 glm::vec2(25.0f, 25.0f), 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
         glEnable(GL_DEPTH_TEST);
 

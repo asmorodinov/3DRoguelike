@@ -74,3 +74,7 @@ glm::ivec3 TileOrientationToIVec3(TileOrientation orientation) {
 bool IsSolidBlock(TileType type) {
     return type == TileType::Block || type == TileType::CorridorBlock || type == TileType::StairsBlock || type == TileType::StairsBlock2;
 }
+
+bool CanBeOverridenByCorridor(TileType type) {
+    return type == TileType::CorridorBlock || type == TileType::StairsBlock || type == TileType::StairsBlock2 || type == TileType::Void;
+}

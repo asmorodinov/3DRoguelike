@@ -44,6 +44,11 @@ bool BoxesIntersect(const Box& box1, const Box& box2) {
     return !(maxX > minX || maxY > minY || maxZ > minZ);
 }
 
+bool PointInsideBox(const Coordinates& coords, const Box& box) {
+    return coords.x >= box.offset.x && coords.x < (box.offset.x + box.size.width) && coords.y >= box.offset.y &&
+           coords.y < (box.offset.y + box.size.height) && coords.z >= box.offset.z && coords.z < (box.offset.z + box.size.length);
+}
+
 bool RoomsIntersect(const Room& r1, const Room& r2) {
     auto [maxX, minX, maxY, minY, maxZ, minZ] = getMinMaxHelper(Box{r1->offset, r1->size}, Box{r2->offset, r2->size});
     if (maxX > minX || maxY > minY || maxZ > minZ) {

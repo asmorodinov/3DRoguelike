@@ -271,10 +271,8 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
         for (const auto& intAdjacent : coords.GetAllNeighbours()) {
             auto adjacent = Coordinates{size_t(intAdjacent.x), size_t(intAdjacent.y), size_t(intAdjacent.z)};
 
-            // can only override Void tiles with walls
-            // note: can also override FakeAir tiles, but they are not supposed to exist in the dungeon itself
-            // note: some blocks may end up out of world bounds, but that's ok
-            if (!adjacent.IsInBounds(dimensions) || world.Get(adjacent).type == TileType::Void) {
+            // note: can override Void, CorridorBlock, StairsBlock and StairsBlock2 tiles and tiles that are out of bounds
+            if (!adjacent.IsInBounds(dimensions) || CanBeOverridenByCorridor(world.Get(adjacent).type)) {
                 if (adjacent.y == coords.y) {
                     // it's ok for other corridors to pass through walls (side walls), so we set the tile to corridorBlock
                     // upd: if we are horizontally adjacent to stairs top (bottom) part then set tile to StairsBlock(2)

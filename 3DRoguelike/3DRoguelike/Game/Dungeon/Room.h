@@ -16,6 +16,8 @@ struct Box {
 bool BoxFitsIntoBox(const Box& box1, const Box& box2);
 bool BoxesIntersect(const Box& box1, const Box& box2);
 
+bool PointInsideBox(const Coordinates& coords, const Box& box);
+
 class IRoom {
  public:
     IRoom() = default;

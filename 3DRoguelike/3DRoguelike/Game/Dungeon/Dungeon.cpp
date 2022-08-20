@@ -190,3 +190,13 @@ const TilesVec& Dungeon::GetTiles() const {
 Coordinates Dungeon::GetSpawnPoint() const {
     return spawn;
 }
+
+size_t Dungeon::WhichRoomPointIsInside(const Coordinates& coords) const {
+    for (size_t i = 0; i < rooms.size(); ++i) {
+        if (PointInsideBox(coords, Box{rooms[i]->offset, rooms[i]->size})) {
+            return i;
+        }
+    }
+
+    return rooms.size();
+}
