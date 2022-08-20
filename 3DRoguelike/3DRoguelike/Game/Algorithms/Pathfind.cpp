@@ -274,12 +274,15 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
             // note: can override Void, CorridorBlock, StairsBlock and StairsBlock2 tiles and tiles that are out of bounds
             if (!adjacent.IsInBounds(dimensions) || CanBeOverridenByCorridor(world.Get(adjacent).type)) {
                 if (adjacent.y == coords.y) {
-                    // it's ok for other corridors to pass through walls (side walls), so we set the tile to corridorBlock
-                    // upd: if we are horizontally adjacent to stairs top (bottom) part then set tile to StairsBlock(2)
-                    if (tile.type == TileType::StairsTopPart) {
-                        world.SetInOrOutOfBounds(intAdjacent, stairsWall);
-                    } else if (tile.type == TileType::StairsBottomPart) {
-                        world.SetInOrOutOfBounds(intAdjacent, stairsWall2);
+                    // StairsBlock and StairsBlock2 can not replace other stairs blocks
+                    if (!adjacent.IsInBounds(dimensions) || !IsStairs(world.Get(adjacent).type)) {
+                        if (tile.type == TileType::StairsTopPart) {
+                            world.SetInOrOutOfBounds(intAdjacent, stairsWall);
+                        } else if (tile.type == TileType::StairsBottomPart) {
+                            world.SetInOrOutOfBounds(intAdjacent, stairsWall2);
+                        } else {
+                            world.SetInOrOutOfBounds(intAdjacent, corridorWall);
+                        }
                     } else {
                         world.SetInOrOutOfBounds(intAdjacent, corridorWall);
                     }

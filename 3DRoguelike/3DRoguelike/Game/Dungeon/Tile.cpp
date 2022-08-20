@@ -78,3 +78,8 @@ bool IsSolidBlock(TileType type) {
 bool CanBeOverridenByCorridor(TileType type) {
     return type == TileType::CorridorBlock || type == TileType::StairsBlock || type == TileType::StairsBlock2 || type == TileType::Void;
 }
+
+bool IsStairs(TileType type) {
+    return type == TileType::StairsAir || type == TileType::StairsBlock || type == TileType::StairsBlock2 || type == TileType::StairsBottomPart ||
+           type == TileType::StairsTopPart;
+}
