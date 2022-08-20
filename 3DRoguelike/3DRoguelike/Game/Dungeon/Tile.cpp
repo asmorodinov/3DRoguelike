@@ -9,14 +9,14 @@ bool CorridorCanPass(TileType type) {
 int CorridorCost(TileType type) {
     switch (type) {
         case TileType::Void:
-            return 8;
+            return 10;
         case TileType::CorridorAir:
-            return 2;
+            return 6;
         case TileType::CorridorBlock:
-            return 4;
+            return 8;
     }
 
-    return 200;
+    return 500;
 }
 
 bool CanPlaceStairs(TileType type) {
@@ -27,16 +27,16 @@ bool CanPlaceStairs(TileType type) {
 int StairsCost(TileType type) {
     switch (type) {
         case TileType::Void:
-            return 70;
+            return 100;
         case TileType::CorridorBlock:
-            return 50;
+            return 90;
         case TileType::StairsBlock:
-            return 40;
+            return 80;
         case TileType::StairsBlock2:
-            return 40;
+            return 80;
     }
 
-    return 1000;
+    return 10000;
 }
 
 TileOrientation ReverseTileOrientation(TileOrientation orientation) {
