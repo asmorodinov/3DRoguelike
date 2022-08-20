@@ -2,15 +2,13 @@
 
 #include <fstream>
 
+#include "../Utility/PathToResources.h"
 #include "../Assert.h"
 
 namespace OBJ {
 
 ModelData LoadFromOBJ(const std::string& fileName) {
-    auto prefix = std::string("../../../../3DRoguelike/");
-    auto prefix2 = std::string("Resources/Models/");
-
-    auto file = std::ifstream(prefix + prefix2 + fileName);
+    auto file = std::ifstream(pathToResources + "Models/"s + fileName);
     LOG_ASSERT(file);
 
     auto mesh = ModelData();

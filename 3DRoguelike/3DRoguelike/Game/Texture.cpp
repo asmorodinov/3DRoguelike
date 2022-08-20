@@ -8,6 +8,7 @@
 
 #include <iostream>
 
+#include "Utility/PathToResources.h"
 #include "Assert.h"
 
 Texture LoadTexture(const std::string& file) {
@@ -25,7 +26,7 @@ Texture LoadTexture(const std::string& file) {
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);  // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char* data = stbi_load(("../../../../3DRoguelike/Resources/Textures/" + file).c_str(), &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load((pathToResources + "Textures/"s + file).c_str(), &width, &height, &nrChannels, 0);
     if (data) {
         if (nrChannels == 3) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

@@ -1,5 +1,7 @@
 #include "Assets.h"
 
+#include "Utility/PathToResources.h"
+
 Assets& Assets::Get() {
     static Assets me;
     return me;
@@ -34,4 +36,22 @@ const ModelData& Assets::GetModelData(const std::string& name) {
     }
 
     return models[name];
+}
+
+const YAML::Node& Assets::GetYAMLFile(const std::string& name) {
+    auto& yamlFiles = Assets::Get().yamlFiles;
+
+    if (!yamlFiles.contains(name)) {
+        yamlFiles[name] = YAML::LoadFile(pathToResources + "Configuration/"s + name + ".yaml");
+    }
+
+    return yamlFiles[name];
+}
+
+const YAML::Node& Assets::GetConfig() {
+    return Assets::GetYAMLFile("config");
+}
+
+const bool Assets::HasConfigParameter(const std::string& name) {
+    return static_cast<bool>(Assets::GetConfig()[name]);
 }

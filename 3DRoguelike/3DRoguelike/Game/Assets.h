@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <yaml-cpp/yaml.h>
+
 #include <string>
 #include <unordered_map>
 
@@ -23,6 +25,15 @@ class Assets {
     static Shader& GetShader(const std::string& vertexShader, const std::string& fragmentShader);
     static const Texture& GetTexture(const std::string& name);
     static const ModelData& GetModelData(const std::string& name);
+    static const YAML::Node& GetYAMLFile(const std::string& name);
+    static const YAML::Node& GetConfig();
+
+    template <typename T>
+    static T GetConfigParameter(const std::string& name) {
+        return Assets::GetConfig()[name].as<T>();
+    }
+
+    static const bool HasConfigParameter(const std::string& name);
 
  public:
     glm::mat4 orthogonalProjection;
@@ -36,4 +47,5 @@ class Assets {
     std::unordered_map<std::string, Shader> shaders;
     std::unordered_map<std::string, Texture> textures;
     std::unordered_map<std::string, ModelData> models;
+    std::unordered_map<std::string, YAML::Node> yamlFiles;
 };

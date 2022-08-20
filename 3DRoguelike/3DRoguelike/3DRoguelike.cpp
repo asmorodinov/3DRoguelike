@@ -68,11 +68,8 @@ int main() {
 
     // glfw window creation
     // --------------------
-
-    auto monitor = glfwGetPrimaryMonitor();
-#ifndef NDEBUG
-    monitor = NULL;  // disable full screen in debug mode
-#endif
+    auto fullscreen = Assets::GetConfigParameter<bool>("full-screen");
+    auto monitor = fullscreen ? glfwGetPrimaryMonitor() : NULL;
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", monitor, NULL);
     if (window == NULL) {
@@ -105,8 +102,13 @@ int main() {
 
     auto dimensions = Dimensions{60, 30, 60};
     auto dungeon = Dungeon(dimensions);
-    seed = RNG(SeedType()).RandomSeed();
-    // seed = 2442605604;
+
+    if (Assets::HasConfigParameter("seed")) {
+        seed = Assets::GetConfigParameter<SeedType>("seed");
+    } else {
+        seed = RNG(SeedType()).RandomSeed();
+    }
+
     dungeon.SetSeed(seed);
     dungeon.Generate();
     player.SetFlying(true);

@@ -1,13 +1,13 @@
 #include "Shader.h"
 
+#include "Utility/PathToResources.h"
+
 Shader::Shader() : ID(-1) {
 }
 
 Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
-    auto prefix = std::string("../../../../3DRoguelike/");
-    auto prefix2 = std::string("Resources/Shaders/");
-    auto p1 = prefix + prefix2 + vertexPath;
-    auto p2 = prefix + prefix2 + fragmentPath;
+    auto p1 = pathToResources + "Shaders/"s + vertexPath;
+    auto p2 = pathToResources + "Shaders/"s + fragmentPath;
 
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;

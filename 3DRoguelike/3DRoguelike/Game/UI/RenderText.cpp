@@ -2,6 +2,7 @@
 
 #include "../Assert.h"
 #include "../Assets.h"
+#include "../Utility/PathToResources.h"
 
 TextRenderer::TextRenderer() : characters(), vao(0), vbo(0), shader(Assets::GetShader("text.vs", "text.fs")) {
 }
@@ -14,7 +15,7 @@ void TextRenderer::LoadFont(const std::string& file) {
     }
 
     FT_Face face;
-    if (FT_New_Face(ft, ("../../../../3DRoguelike/Resources/Fonts/" + file).c_str(), 0, &face)) {
+    if (FT_New_Face(ft, (pathToResources + "Fonts/"s + file).c_str(), 0, &face)) {
         LOG_ASSERT(false);
     }
 
