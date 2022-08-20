@@ -6,8 +6,7 @@
 #include "../Dungeon/WorldGrid.h"
 
 // discrete collision detection
-void ResolveCollisionWithWorldDiscrete(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime,
-                                       bool disableCollision);
+void ResolveSphereVsWorldCollision(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime, bool disableCollision);
 
 // ray cast method
 // needed to fix issue of player bouncing when moving down stairs:

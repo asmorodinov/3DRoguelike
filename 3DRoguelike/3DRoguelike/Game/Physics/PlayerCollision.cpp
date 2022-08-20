@@ -4,7 +4,7 @@
 
 // discrete collision detection
 
-void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime) {
+void resolveSphereVsWorldCollision(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime) {
     auto intPosition = glm::ivec3(glm::round(object.position));
     auto newPosition = glm::ivec3(glm::round(object.position + object.velocity * deltaTime));
     auto min = glm::min(intPosition, newPosition);
@@ -61,8 +61,8 @@ void resolvePlayerVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
     object.position += object.velocity * deltaTime;
 }
 
-void ResolveCollisionWithWorldDiscrete(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime,
-                                       bool disableCollision) {
+void ResolveSphereVsWorldCollision(const Sphere& sphereCollider, MovingObject& object, const TilesVec& world, float deltaTime,
+                                   bool disableCollision) {
     if (disableCollision) {
         object.position += object.velocity * deltaTime;
         return;
@@ -72,7 +72,7 @@ void ResolveCollisionWithWorldDiscrete(const Sphere& sphereCollider, MovingObjec
 
     int steps = 150;
     for (int i = 0; i < steps; ++i) {
-        resolvePlayerVsWorldCollision(sphereCollider, object, world, deltaTime / steps);
+        resolveSphereVsWorldCollision(sphereCollider, object, world, deltaTime / steps);
     }
 }
 

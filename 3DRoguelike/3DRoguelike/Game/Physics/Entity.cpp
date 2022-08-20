@@ -83,10 +83,8 @@ void Entity::Update(const TilesVec& world, float deltaTime, bool disableCollisio
         grounded |= hit;
     }
 
-    // collision detection
-
-    // ResolveCollisionWithWorldContinous(GetCollider(), *this, world, deltaTime, disableCollision);
-    ResolveCollisionWithWorldDiscrete(GetSphereCollider(), *this, world, deltaTime, disableCollision);
+    // collision detection & response
+    ResolveSphereVsWorldCollision(GetSphereCollider(), *this, world, deltaTime, disableCollision);
 
     // apply gravity
     auto gravity = (flying || hit) ? FLYING_ACCELERATION : GRAVITY_ACCELERATION;
