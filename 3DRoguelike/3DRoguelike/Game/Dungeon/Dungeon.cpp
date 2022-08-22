@@ -10,6 +10,8 @@
 #include "../Algorithms/Delaunay3D.h"
 #include "../Algorithms/MST.h"
 
+#include "../Assets.h"
+
 Dungeon::Dungeon(const Dimensions& dimensions_, SeedType seed_)
     : dimensions(dimensions_), seed(seed_), rng(seed), tiles(dimensions, Tile()), rooms(), renderer() {
 }
@@ -158,7 +160,12 @@ void Dungeon::Generate() {
     placeRooms();
     placeCorridors();
 
-    const auto& room = rooms[rng.IntUniform<size_t>(0, rooms.size() - 1)];
+    auto roomIndex = rng.IntUniform<size_t>(0, rooms.size() - 1);
+    if (Assets::HasConfigParameter("starting-room")) {
+        roomIndex = Assets::GetConfigParameter<size_t>("starting-room");
+    }
+
+    const auto& room = rooms[roomIndex];
     spawn = RoomCenterCoords(room);
 
     auto tilesData = std::vector<PositionColor>();

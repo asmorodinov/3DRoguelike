@@ -39,6 +39,8 @@ bool CanBeOverridenByCorridor(TileType type);
 
 bool IsStairs(TileType type);
 
+bool CanBeAboveOrBelowStairs(TileType type);
+
 enum struct TextureType { None, Texture1, Texture2 };
 
 struct Tile {

@@ -191,15 +191,21 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
         return pathCost;
     }
 
-    for (size_t i = 2; i < stairsTiles.size(); ++i) {
+    for (size_t i = 2; i < 4; ++i) {
         if (!CanPlaceStairs(world.Get(stairsTiles[i]).type)) {
             return pathCost;
         }
     }
 
+    for (size_t i = 4; i < 12; ++i) {
+        if (!CanBeAboveOrBelowStairs(world.Get(stairsTiles[i]).type)) {
+            return pathCost;
+        }
+    }
+
     pathCost.cost = calculateHeuristic(b, target);
-    for (const auto& tile : stairsTiles) {
-        pathCost.cost += StairsCost(world.Get(tile).type);
+    for (size_t i = 0; i < 4; ++i) {
+        pathCost.cost += StairsCost(world.Get(stairsTiles[i]).type);
     }
 
     pathCost.passable = true;
@@ -235,12 +241,12 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
         bottomBlock.orientation = stairsInfo.orientation;
 
         const auto& stairsTiles = stairsInfo.stairsTiles;
-        for (const auto& tile : stairsTiles) {
-            stairsVec.push_back(tile);
+        for (size_t i = 0; i < 4; ++i) {
+            stairsVec.push_back(stairsTiles[i]);
         }
         world.Set(stairsTiles[0], topBlock);
         world.Set(stairsTiles[1], bottomBlock);
-        for (size_t i = 2; i < stairsTiles.size(); ++i) {
+        for (size_t i = 2; i < 4; ++i) {
             world.Set(stairsTiles[i], stairsAir);
         }
     }

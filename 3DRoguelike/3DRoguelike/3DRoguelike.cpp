@@ -165,7 +165,7 @@ int main() {
         auto posz = std::to_string(ipos.z);
 
         auto vel = camera.Velocity;
-        auto ivel = glm::ivec3(glm::round(pos));
+        auto ivel = glm::ivec3(glm::round(vel));
         auto velx = std::to_string(ivel.x);
         auto vely = std::to_string(ivel.y);
         auto velz = std::to_string(ivel.z);

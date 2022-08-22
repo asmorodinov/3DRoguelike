@@ -59,15 +59,18 @@ std::vector<Coordinates> Coordinates::GetNeighboursWithStairs(const Dimensions& 
     if (z < l - 1) neighbours.push_back(Coordinates{x, y, z + 1});
 
     // diagonal movement
-    if (y >= 1 && x >= 3) neighbours.push_back(Coordinates{x - 3, y - 1, z});
-    if (y >= 1 && x < w - 3) neighbours.push_back(Coordinates{x + 3, y - 1, z});
-    if (y >= 1 && z >= 3) neighbours.push_back(Coordinates{x, y - 1, z - 3});
-    if (y >= 1 && z < l - 3) neighbours.push_back(Coordinates{x, y - 1, z + 3});
 
-    if (y < h - 1 && x >= 3) neighbours.push_back(Coordinates{x - 3, y + 1, z});
-    if (y < h - 1 && x < w - 3) neighbours.push_back(Coordinates{x + 3, y + 1, z});
-    if (y < h - 1 && z >= 3) neighbours.push_back(Coordinates{x, y + 1, z - 3});
-    if (y < h - 1 && z < l - 3) neighbours.push_back(Coordinates{x, y + 1, z + 3});
+    // y >= 2, y < h -2 to leave space for blocks above and below stairs tiles
+
+    if (y >= 2 && x >= 3) neighbours.push_back(Coordinates{x - 3, y - 1, z});
+    if (y >= 2 && x < w - 3) neighbours.push_back(Coordinates{x + 3, y - 1, z});
+    if (y >= 2 && z >= 3) neighbours.push_back(Coordinates{x, y - 1, z - 3});
+    if (y >= 2 && z < l - 3) neighbours.push_back(Coordinates{x, y - 1, z + 3});
+
+    if (y < h - 2 && x >= 3) neighbours.push_back(Coordinates{x - 3, y + 1, z});
+    if (y < h - 2 && x < w - 3) neighbours.push_back(Coordinates{x + 3, y + 1, z});
+    if (y < h - 2 && z >= 3) neighbours.push_back(Coordinates{x, y + 1, z - 3});
+    if (y < h - 2 && z < l - 3) neighbours.push_back(Coordinates{x, y + 1, z + 3});
 
     return neighbours;
 }
@@ -110,6 +113,8 @@ Coordinates GetHorizontalOffset(const Coordinates& c1, const Coordinates& c2) {
 }
 
 StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoords) {
+    auto up = Coordinates{size_t(0), size_t(1), size_t(0)};
+
     auto verticalOffset = GetVerticalOffset(toCoords, fromCoords);
     auto horizontalOffset = GetHorizontalOffset(toCoords, fromCoords);
     auto delta = toCoords - fromCoords;
@@ -129,7 +134,7 @@ StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoo
         LOG_ASSERT(false);
     }
 
-    auto coords = std::array<Coordinates, 4>{};
+    auto coords = std::array<Coordinates, 12>{};
 
     if (delta.y == -1) {
         coords[0] = fromCoords + verticalOffset + horizontalOffset;    // stairs top
@@ -146,6 +151,15 @@ StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoo
     } else {
         LOG_ASSERT(false);
     }
+
+    coords[4] = coords[0] - up;    // block below stairs
+    coords[5] = coords[1] - up;    // block below stairs
+    coords[6] = coords[0] + up;    // block above stairs
+    coords[7] = coords[1] + up;    // block above stairs
+    coords[8] = fromCoords - up;   // block below entry
+    coords[9] = toCoords - up;     // block below exit
+    coords[10] = fromCoords + up;  // block above entry
+    coords[11] = toCoords + up;    // block above exit
 
     return {verticalOffset, horizontalOffset, coords, orientation};
 }

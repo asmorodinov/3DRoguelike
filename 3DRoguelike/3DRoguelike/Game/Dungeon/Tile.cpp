@@ -83,3 +83,7 @@ bool IsStairs(TileType type) {
     return type == TileType::StairsAir || type == TileType::StairsBlock || type == TileType::StairsBlock2 || type == TileType::StairsBottomPart ||
            type == TileType::StairsTopPart;
 }
+
+bool CanBeAboveOrBelowStairs(TileType type) {
+    return CanBeOverridenByCorridor(type) || type == TileType::Block;
+}
