@@ -7,7 +7,7 @@
 
 #include <glm/gtx/std_based_type.hpp>
 
-void IRoom::Place(TilesVec& dungeon) {
+void IRoom::Place(TilesVec& dungeon) const {
     auto dimensions = dungeon.GetDimensions();
     LOG_ASSERT(BoxFitsIntoBox(Box{offset, size}, Box{{0, 0, 0}, dimensions}));
 
@@ -95,6 +95,10 @@ glm::ivec3 RoomCenterCoords(const Room& room) {
     return room->offset + AsIVec3(room->size) / 2;
 }
 
+const std::vector<glm::ivec3>& IRoomWithEdgeTiles::GetEdgeTiles() const {
+    return edgeTiles;
+}
+
 void RectRoom::Generate(RNG& rng, SeedType seed) {
     auto width = rng.IntUniform<size_t>(9, 18);
     auto height = rng.IntUniform<size_t>(6, 8);
@@ -142,8 +146,4 @@ void RectRoom::Generate(RNG& rng, SeedType seed) {
     }
 
     LOG_ASSERT(!edgeTiles.empty());
-}
-
-std::vector<glm::ivec3> RectRoom::GetEdgeTiles() {
-    return edgeTiles;
 }
