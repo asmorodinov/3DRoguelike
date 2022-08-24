@@ -8,11 +8,11 @@
 
 // A* with staircases placement support
 
-Pathfinder::Node::Node(const Coordinates& coords) : position(coords), previous(nullptr), previousSet(), cost(0.0f) {
+Pathfinder::Node::Node(const glm::ivec3& coords) : position(coords), previous(nullptr), previousSet(), cost(0.0f) {
 }
 
 size_t Pathfinder::NodePtrHashFunction::operator()(const NodePtr node) const {
-    return Coordinates::HashFunction()(node->position);
+    return std::hash<glm::ivec3>()(node->position);
 }
 bool Pathfinder::NodePtrEqFunction::operator()(const NodePtr lhs, const NodePtr rhs) const {
     return lhs->position == rhs->position && lhs->cost == rhs->cost;
@@ -32,20 +32,20 @@ Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()),
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.length; ++z) {
-                grid.Set(x, y, z, Node(Coordinates{x, y, z}));
+                grid.Set(x, y, z, Node(glm::ivec3{x, y, z}));
             }
         }
     }
 }
 
-std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& start, const std::vector<Coordinates>& finish,
-                                              const Coordinates& target, const TilesVec& world) {
+std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& start, const std::vector<glm::ivec3>& finish, const glm::ivec3& target,
+                                             const TilesVec& world) {
     ResetNodes();
     queue = Queue();
     closed.clear();
 
     const auto& dimensions = world.GetDimensions();
-    auto finishSet = CoordinatesSet(finish.begin(), finish.end());
+    auto finishSet = std::unordered_set<glm::ivec3>(finish.begin(), finish.end());
 
     for (const auto& coords : start) {
         auto& node = grid.Get(coords);
@@ -65,7 +65,7 @@ std::vector<Coordinates> Pathfinder::FindPath(const std::vector<Coordinates>& st
             return reconstructPath(nodePtr);
         }
 
-        for (const auto& neighbourCoords : nodeCoords.GetNeighboursWithStairs(dimensions)) {
+        for (const auto& neighbourCoords : TilesInBounds(GetNeighboursWithStairs(nodeCoords), dimensions, {0, 1, 0})) {
             auto& neighbour = grid.Get(neighbourCoords);
 
             if (closed.contains(&neighbour)) {
@@ -131,8 +131,8 @@ void Pathfinder::ResetNodes() {
     }
 }
 
-std::vector<Coordinates> Pathfinder::reconstructPath(NodePtr node) {
-    auto res = std::vector<Coordinates>();
+std::vector<glm::ivec3> Pathfinder::reconstructPath(NodePtr node) {
+    auto res = std::vector<glm::ivec3>();
 
     while (node != nullptr) {
         res.push_back(node->position);
@@ -144,12 +144,12 @@ std::vector<Coordinates> Pathfinder::reconstructPath(NodePtr node) {
     return res;
 }
 
-float Pathfinder::calculateHeuristic(const NodePtr b, const Coordinates& target) {
-    return glm::distance(b->position.AsVec3(), target.AsVec3());
+float Pathfinder::calculateHeuristic(const NodePtr b, const glm::ivec3& target) {
+    return glm::distance(glm::vec3(b->position), glm::vec3(target));
 }
 
-Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, const TilesVec& world, const CoordinatesSet& finishSet,
-                                              const Coordinates& target) {
+Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, const TilesVec& world,
+                                              const std::unordered_set<glm::ivec3>& finishSet, const glm::ivec3& target) {
     auto pathCost = PathCost{false, 0.0f, false};
 
     auto delta = b->position - a->position;
@@ -213,10 +213,10 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
     return pathCost;
 }
 
-void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairsAir) {
+void PlacePathWithStairs(const std::vector<glm::ivec3>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairsAir) {
     // place air and stairs tiles
 
-    auto stairsVec = std::vector<Coordinates>();
+    auto stairsVec = std::vector<glm::ivec3>();
 
     auto topBlock = stairsAir;
     topBlock.type = TileType::StairsTopPart;
@@ -274,27 +274,25 @@ void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, 
     for (const auto& coords : totalPath) {
         const auto& tile = world.Get(coords);
 
-        for (const auto& intAdjacent : coords.GetAllNeighbours()) {
-            auto adjacent = Coordinates{size_t(intAdjacent.x), size_t(intAdjacent.y), size_t(intAdjacent.z)};
-
+        for (const auto& adjacent : GetNeighbours(coords)) {
             // note: can override Void, CorridorBlock, StairsBlock and StairsBlock2 tiles and tiles that are out of bounds
-            if (!adjacent.IsInBounds(dimensions) || CanBeOverridenByCorridor(world.Get(adjacent).type)) {
+            if (!IsInBounds(adjacent, dimensions) || CanBeOverridenByCorridor(world.Get(adjacent).type)) {
                 if (adjacent.y == coords.y) {
                     // StairsBlock and StairsBlock2 can not replace other stairs blocks
-                    if (!adjacent.IsInBounds(dimensions) || !IsStairs(world.Get(adjacent).type)) {
+                    if (!IsInBounds(adjacent, dimensions) || !IsStairs(world.Get(adjacent).type)) {
                         if (tile.type == TileType::StairsTopPart) {
-                            world.SetInOrOutOfBounds(intAdjacent, stairsWall);
+                            world.SetInOrOutOfBounds(adjacent, stairsWall);
                         } else if (tile.type == TileType::StairsBottomPart) {
-                            world.SetInOrOutOfBounds(intAdjacent, stairsWall2);
+                            world.SetInOrOutOfBounds(adjacent, stairsWall2);
                         } else {
-                            world.SetInOrOutOfBounds(intAdjacent, corridorWall);
+                            world.SetInOrOutOfBounds(adjacent, corridorWall);
                         }
                     } else {
-                        world.SetInOrOutOfBounds(intAdjacent, corridorWall);
+                        world.SetInOrOutOfBounds(adjacent, corridorWall);
                     }
                 } else {
                     // other corridors should not be able to pass through floor or ceiling of the corridor
-                    world.SetInOrOutOfBounds(intAdjacent, wall);
+                    world.SetInOrOutOfBounds(adjacent, wall);
                 }
             }
         }

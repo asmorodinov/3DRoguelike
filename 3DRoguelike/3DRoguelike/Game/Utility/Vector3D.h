@@ -2,14 +2,13 @@
 
 #include <array>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
+
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
+#include <glm/gtx/std_based_type.hpp>
 
 #include "../Dungeon/Tile.h"
-
-// Dimensions and Coordinates structs
 
 struct Dimensions {
     size_t width = 0;
@@ -17,53 +16,47 @@ struct Dimensions {
     size_t length = 0;
 };
 
-struct Coordinates {
-    size_t x = 0;
-    size_t y = 0;
-    size_t z = 0;
+glm::ivec3 AsIVec3(const Dimensions& dimensions);
 
-    bool operator<(const Coordinates& other) const;
-    bool operator==(const Coordinates& other) const;
-    Coordinates operator+(const Coordinates& other) const;
-    Coordinates operator-(const Coordinates& other) const;
+std::array<glm::ivec3, 6> GetNeighbours(const glm::ivec3& coords);
+std::array<glm::ivec3, 12> GetNeighboursWithStairs(const glm::ivec3& coords);
+glm::ivec3 FromVec3(const glm::vec3& vec);
 
-    struct HashFunction {
-        size_t operator()(const Coordinates& coords) const;
-    };
+bool IsInBounds(const glm::ivec3& coords, const Dimensions& dimensions, const glm::size3& offset = glm::size3());
 
-    std::vector<glm::ivec3> GetAllNeighbours() const;
-    std::vector<Coordinates> GetNeighbours(const Dimensions& dimensions) const;
-    std::vector<Coordinates> GetNeighboursWithStairs(const Dimensions& dimensions) const;
-
-    glm::vec3 AsVec3() const;
-    glm::ivec3 AsIVec3() const;
-    static Coordinates FromVec3(const glm::vec3& vec);
-
-    bool IsInBounds(const Dimensions& dimensions) const;
-};
-
-using CoordinatesSet = std::unordered_set<Coordinates, Coordinates::HashFunction>;
+template <typename Container>
+std::vector<glm::ivec3> TilesInBounds(const Container& tiles, const Dimensions& dimensions, const glm::size3& offset = glm::size3()) {
+    auto res = std::vector<glm::ivec3>();
+    for (const auto& tile : tiles) {
+        if (IsInBounds(tile, dimensions, offset)) {
+            res.push_back(tile);
+        }
+    }
+    return res;
+}
 
 // calculating info about staircases
 
-Coordinates GetVerticalOffset(const Coordinates& c1, const Coordinates& c2);
-Coordinates GetHorizontalOffset(const Coordinates& c1, const Coordinates& c2);
+glm::ivec3 GetVerticalOffset(const glm::ivec3& c1, const glm::ivec3& c2);
+glm::ivec3 GetHorizontalOffset(const glm::ivec3& c1, const glm::ivec3& c2);
 
 struct StairsInfo {
-    Coordinates verticalOffset;
-    Coordinates horizontalOffset;
-    std::array<Coordinates, 10> stairsTiles;  // 0 - top of the stairs, 1 - bottom of the stairs, 2, 3 - empty tiles (air), 4, 5 - blocks above
-                                              // stairs, 6, 7 - blocks above stairs, 8, 9 - blocks below and above exit
+    glm::ivec3 verticalOffset;
+    glm::ivec3 horizontalOffset;
+    std::array<glm::ivec3, 10> stairsTiles;  // 0 - top of the stairs, 1 - bottom of the stairs, 2, 3 - empty tiles (air), 4, 5 - blocks above
+                                             // stairs, 6, 7 - blocks above stairs, 8, 9 - blocks below and above exit
     TileOrientation orientation;
 };
 
-StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoords);
+StairsInfo GetStairsInfo(const glm::ivec3& toCoords, const glm::ivec3& fromCoords);
 
 // utility functions
 
 size_t Volume(const Dimensions& dimensions);
 
-size_t CoordinatesToIndex(const Coordinates& coordinates, const Dimensions& dimensions);
+size_t CoordinatesToIndex(const glm::ivec3& coordinates, const Dimensions& dimensions);
+
+bool operator<(const glm::ivec3& a, const glm::ivec3& b);
 
 // Vector3D class
 
@@ -74,28 +67,28 @@ class Vector3D {
         : dimensions(dimensions_), data(Volume(dimensions), init), outOfBounds() {
     }
 
-    void Set(const Coordinates& coordinates, const T& elem) {
+    void Set(const glm::ivec3& coordinates, const T& elem) {
         data[CoordinatesToIndex(coordinates, dimensions)] = elem;
     }
     void Set(size_t x, size_t y, size_t z, const T& elem) {
-        Set(Coordinates{x, y, z}, elem);
+        Set(glm::ivec3{x, y, z}, elem);
     }
 
-    const T& Get(const Coordinates& coordinates) const {
+    const T& Get(const glm::ivec3& coordinates) const {
         return data[CoordinatesToIndex(coordinates, dimensions)];
     }
     const T& Get(size_t x, size_t y, size_t z) const {
-        return Get(Coordinates{x, y, z});
+        return Get(glm::ivec3{x, y, z});
     }
 
-    T& Get(const Coordinates& coordinates) {
+    T& Get(const glm::ivec3& coordinates) {
         return data[CoordinatesToIndex(coordinates, dimensions)];
     }
     T& Get(size_t x, size_t y, size_t z) {
-        return Get(Coordinates{x, y, z});
+        return Get(glm::ivec3{x, y, z});
     }
 
-    T GetValue(const Coordinates& coordinates) const {
+    T GetValue(const glm::ivec3& coordinates) const {
         return data[CoordinatesToIndex(coordinates, dimensions)];
     }
 
@@ -103,23 +96,19 @@ class Vector3D {
         return dimensions;
     }
 
-    void SetInOrOutOfBounds(const glm::ivec3& intcoords, const T& elem) {
-        auto coords = Coordinates{size_t(intcoords.x), size_t(intcoords.y), size_t(intcoords.z)};
-
-        if (coords.IsInBounds(dimensions)) {
+    void SetInOrOutOfBounds(const glm::ivec3& coords, const T& elem) {
+        if (IsInBounds(coords, dimensions)) {
             Set(coords, elem);
         } else {
-            outOfBounds[intcoords] = elem;
+            outOfBounds[coords] = elem;
         }
     }
-    T GetInOrOutOfBounds(const glm::ivec3& intcoords) const {
-        auto coords = Coordinates{size_t(intcoords.x), size_t(intcoords.y), size_t(intcoords.z)};
-
-        if (coords.IsInBounds(dimensions)) {
+    T GetInOrOutOfBounds(const glm::ivec3& coords) const {
+        if (IsInBounds(coords, dimensions)) {
             return GetValue(coords);
         } else {
-            if (outOfBounds.contains(intcoords)) {
-                return outOfBounds.at(intcoords);
+            if (outOfBounds.contains(coords)) {
+                return outOfBounds.at(coords);
             } else {
                 return T();
             }

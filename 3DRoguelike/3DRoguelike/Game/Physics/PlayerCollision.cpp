@@ -14,17 +14,16 @@ void resolveSphereVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
     for (int i = min.x - 1; i <= max.x + 1; ++i) {
         for (int j = min.y - 1; j <= max.y + 1; ++j) {
             for (int k = min.z - 1; k <= max.z + 1; ++k) {
-                auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
-                auto intCoords = glm::ivec3(i, j, k);
+                auto coords = glm::ivec3(i, j, k);
 
-                const auto& tile = world.GetInOrOutOfBounds(intCoords);
+                const auto& tile = world.GetInOrOutOfBounds(coords);
                 if (!IsSolidBlock(tile.type) && tile.type != TileType::StairsTopPart && tile.type != TileType::StairsBottomPart) continue;
 
                 // collision with blocks
 
                 if (IsSolidBlock(tile.type)) {
                     // check for collision
-                    auto info = SphereVsCube(Sphere{object.position, sphereCollider.radius}, Cube{glm::vec3(intCoords), 1.0f});
+                    auto info = SphereVsCube(Sphere{object.position, sphereCollider.radius}, Cube{glm::vec3(coords), 1.0f});
                     // collision response
                     ResolveCollision(info, object);
 
@@ -33,7 +32,7 @@ void resolveSphereVsWorldCollision(const Sphere& sphereCollider, MovingObject& o
 
                 // collision with stairs
 
-                auto center = glm::vec3(intCoords);
+                auto center = glm::vec3(coords);
 
                 if (tile.type == TileType::StairsBottomPart) {
                     center -= TileOrientationToIVec3(tile.orientation);
@@ -91,13 +90,12 @@ RayIntersectionResult RayCast(const Ray& ray, const TilesVec& world, Length maxL
     for (int i = min.x - 1; i <= max.x + 1; ++i) {
         for (int j = min.y - 1; j <= max.y + 1; ++j) {
             for (int k = min.z - 1; k <= max.z + 1; ++k) {
-                auto coords = Coordinates{size_t(i), size_t(j), size_t(k)};
-                auto intCoords = glm::ivec3(i, j, k);
+                auto coords = glm::ivec3(i, j, k);
 
-                const auto& tile = world.GetInOrOutOfBounds(intCoords);
+                const auto& tile = world.GetInOrOutOfBounds(coords);
                 if (!IsSolidBlock(tile.type) && tile.type != TileType::StairsTopPart && tile.type != TileType::StairsBottomPart) continue;
 
-                auto center = glm::vec3(intCoords);
+                auto center = glm::vec3(coords);
 
                 if (tile.type == TileType::StairsBottomPart) {
                     center -= TileOrientationToIVec3(tile.orientation);

@@ -2,118 +2,42 @@
 
 #include "../Assert.h"
 
-bool Coordinates::operator<(const Coordinates& other) const {
-    if (x != other.x) {
-        return x < other.x;
-    }
-    if (y != other.y) {
-        return y < other.y;
-    }
-    if (z != other.z) {
-        return z < other.z;
-    }
-    return false;
+glm::ivec3 AsIVec3(const Dimensions& dimensions) {
+    return {dimensions.width, dimensions.height, dimensions.length};
 }
 
-bool Coordinates::operator==(const Coordinates& other) const {
-    return x == other.x && y == other.y && z == other.z;
+std::array<glm::ivec3, 6> GetNeighbours(const glm::ivec3& coords) {
+    return {coords + glm::ivec3(-1, 0, 0), coords + glm::ivec3(1, 0, 0),  coords + glm::ivec3(0, -1, 0),
+            coords + glm::ivec3(0, 1, 0),  coords + glm::ivec3(0, 0, -1), coords + glm::ivec3(0, 0, 1)};
 }
 
-Coordinates Coordinates::operator+(const Coordinates& other) const {
-    return Coordinates{x + other.x, y + other.y, z + other.z};
-}
-Coordinates Coordinates::operator-(const Coordinates& other) const {
-    return Coordinates{x - other.x, y - other.y, z - other.z};
-}
-
-std::vector<glm::ivec3> Coordinates::GetAllNeighbours() const {
-    auto ix = static_cast<int>(x);
-    auto iy = static_cast<int>(y);
-    auto iz = static_cast<int>(z);
-    return std::vector<glm::ivec3>{glm::ivec3(ix - 1, iy, iz), glm::ivec3(ix + 1, iy, iz), glm::ivec3(ix, iy - 1, iz),
-                                   glm::ivec3(ix, iy + 1, iz), glm::ivec3(ix, iy, iz - 1), glm::ivec3(ix, iy, iz + 1)};
+std::array<glm::ivec3, 12> GetNeighboursWithStairs(const glm::ivec3& coords) {
+    return {coords + glm::ivec3(-1, 0, 0),  coords + glm::ivec3(1, 0, 0),  coords + glm::ivec3(0, 0, -1),  coords + glm::ivec3(0, 0, 1),
+            coords + glm::ivec3(-3, -1, 0), coords + glm::ivec3(3, -1, 0), coords + glm::ivec3(0, -1, -3), coords + glm::ivec3(0, -1, 3),
+            coords + glm::ivec3(-3, 1, 0),  coords + glm::ivec3(3, 1, 0),  coords + glm::ivec3(0, 1, -3),  coords + glm::ivec3(0, 1, 3)};
 }
 
-std::vector<Coordinates> Coordinates::GetNeighbours(const Dimensions& dimensions) const {
-    auto neighbours = std::vector<Coordinates>();
-    if (x > 0) neighbours.push_back(Coordinates{x - 1, y, z});
-    if (y > 0) neighbours.push_back(Coordinates{x, y - 1, z});
-    if (z > 0) neighbours.push_back(Coordinates{x, y, z - 1});
-    if (x < dimensions.width - 1) neighbours.push_back(Coordinates{x + 1, y, z});
-    if (y < dimensions.height - 1) neighbours.push_back(Coordinates{x, y + 1, z});
-    if (z < dimensions.length - 1) neighbours.push_back(Coordinates{x, y, z + 1});
-
-    return neighbours;
+glm::ivec3 FromVec3(const glm::vec3& vec) {
+    return glm::ivec3(glm::round(vec));
 }
 
-std::vector<Coordinates> Coordinates::GetNeighboursWithStairs(const Dimensions& dimensions) const {
-    auto neighbours = std::vector<Coordinates>();
-    auto w = dimensions.width;
-    auto h = dimensions.height;
-    auto l = dimensions.length;
-
-    // horizontal movement
-    if (x >= 1) neighbours.push_back(Coordinates{x - 1, y, z});
-    if (x < w - 1) neighbours.push_back(Coordinates{x + 1, y, z});
-    if (z >= 1) neighbours.push_back(Coordinates{x, y, z - 1});
-    if (z < l - 1) neighbours.push_back(Coordinates{x, y, z + 1});
-
-    // diagonal movement
-
-    // y >= 2, y < h -2 to leave space for blocks above and below stairs tiles
-
-    if (y >= 2 && x >= 3) neighbours.push_back(Coordinates{x - 3, y - 1, z});
-    if (y >= 2 && x < w - 3) neighbours.push_back(Coordinates{x + 3, y - 1, z});
-    if (y >= 2 && z >= 3) neighbours.push_back(Coordinates{x, y - 1, z - 3});
-    if (y >= 2 && z < l - 3) neighbours.push_back(Coordinates{x, y - 1, z + 3});
-
-    if (y < h - 2 && x >= 3) neighbours.push_back(Coordinates{x - 3, y + 1, z});
-    if (y < h - 2 && x < w - 3) neighbours.push_back(Coordinates{x + 3, y + 1, z});
-    if (y < h - 2 && z >= 3) neighbours.push_back(Coordinates{x, y + 1, z - 3});
-    if (y < h - 2 && z < l - 3) neighbours.push_back(Coordinates{x, y + 1, z + 3});
-
-    return neighbours;
+bool IsInBounds(const glm::ivec3& coords, const Dimensions& dimensions, const glm::size3& offset) {
+    return coords.x >= offset.x && coords.y >= offset.y && coords.z >= offset.z && coords.x < dimensions.width - offset.x &&
+           coords.y < dimensions.height - offset.y && coords.z < dimensions.length - offset.z;
 }
 
-glm::vec3 Coordinates::AsVec3() const {
-    return glm::vec3(x, y, z);
+glm::ivec3 GetVerticalOffset(const glm::ivec3& c1, const glm::ivec3& c2) {
+    return glm::ivec3{0, c1.y - c2.y, 0};
 }
 
-glm::ivec3 Coordinates::AsIVec3() const {
-    return glm::ivec3(x, y, z);
+glm::ivec3 GetHorizontalOffset(const glm::ivec3& c1, const glm::ivec3& c2) {
+    auto xDir = glm::clamp(c1.x - c2.x, -1, 1);
+    auto zDir = glm::clamp(c1.z - c2.z, -1, 1);
+    return glm::ivec3{xDir, 0, zDir};
 }
 
-Coordinates Coordinates::FromVec3(const glm::vec3& vec) {
-    auto ivec = glm::ivec3(glm::round(vec));
-    return Coordinates{size_t(ivec.x), size_t(ivec.y), size_t(ivec.z)};
-}
-
-bool Coordinates::IsInBounds(const Dimensions& dimensions) const {
-    return x < dimensions.width && y < dimensions.height && z < dimensions.length;
-}
-
-size_t Coordinates::HashFunction::operator()(const Coordinates& coords) const {
-    size_t xHash = std::hash<size_t>()(coords.x);
-    size_t yHash = std::hash<size_t>()(coords.y) << 1;
-    size_t zHash = std::hash<size_t>()(coords.z) << 2;
-    return xHash ^ yHash ^ zHash;
-}
-
-Coordinates GetVerticalOffset(const Coordinates& c1, const Coordinates& c2) {
-    auto dy = static_cast<int>(c1.y) - static_cast<int>(c2.y);
-    return Coordinates{0, size_t(dy), 0};
-}
-
-Coordinates GetHorizontalOffset(const Coordinates& c1, const Coordinates& c2) {
-    auto dx = static_cast<int>(c1.x) - static_cast<int>(c2.x);
-    auto dz = static_cast<int>(c1.z) - static_cast<int>(c2.z);
-    auto xDir = glm::clamp(dx, -1, 1);
-    auto zDir = glm::clamp(dz, -1, 1);
-    return Coordinates{size_t(xDir), 0, size_t(zDir)};
-}
-
-StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoords) {
-    auto up = Coordinates{size_t(0), size_t(1), size_t(0)};
+StairsInfo GetStairsInfo(const glm::ivec3& toCoords, const glm::ivec3& fromCoords) {
+    auto up = glm::ivec3{0, 1, 0};
 
     auto verticalOffset = GetVerticalOffset(toCoords, fromCoords);
     auto horizontalOffset = GetHorizontalOffset(toCoords, fromCoords);
@@ -134,7 +58,7 @@ StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoo
         LOG_ASSERT(false);
     }
 
-    auto coords = std::array<Coordinates, 10>{};
+    auto coords = std::array<glm::ivec3, 10>{};
 
     if (delta.y == -1) {
         coords[0] = fromCoords + verticalOffset + horizontalOffset;    // stairs top
@@ -162,10 +86,14 @@ StairsInfo GetStairsInfo(const Coordinates& toCoords, const Coordinates& fromCoo
     return {verticalOffset, horizontalOffset, coords, orientation};
 }
 
+bool operator<(const glm::ivec3& a, const glm::ivec3& b) {
+    return std::tie(a.x, a.y, a.z) < std::tie(b.x, b.y, b.z);
+}
+
 size_t Volume(const Dimensions& dimensions) {
     return dimensions.width * dimensions.height * dimensions.length;
 }
 
-size_t CoordinatesToIndex(const Coordinates& coordinates, const Dimensions& dimensions) {
+size_t CoordinatesToIndex(const glm::ivec3& coordinates, const Dimensions& dimensions) {
     return coordinates.x * dimensions.length * dimensions.height + coordinates.y * dimensions.length + coordinates.z;
 }

@@ -2,6 +2,8 @@
 
 #include <random>
 
+#include <glm/glm.hpp>
+
 using SeedType = unsigned int;
 
 class RNG {
@@ -24,6 +26,8 @@ class RNG {
     }
 
     bool RandomBool(float chance = 0.5f);
+
+    glm::ivec3 RandomIVec3(glm::ivec3 a, glm::ivec3 b);
 
     SeedType RandomSeed();
 

@@ -41,12 +41,10 @@ void Dungeon::placeRooms() {
 
         SetSeed(roomSeed);
         newRoom->Generate(rng, roomSeed);
-        newRoom->offset = Coordinates{rng.IntUniform<size_t>(0, dimensions.width - newRoom->size.width),
-                                      rng.IntUniform<size_t>(0, dimensions.height - newRoom->size.height),
-                                      rng.IntUniform<size_t>(0, dimensions.length - newRoom->size.length)};
+        newRoom->offset = rng.RandomIVec3(glm::ivec3(), AsIVec3(dimensions) - AsIVec3(newRoom->size));
         SetSeed(newSeed);
 
-        if (!BoxFitsIntoBox(Box{newRoom->offset, newRoom->size}, Box{Coordinates(), dimensions})) {
+        if (!BoxFitsIntoBox(Box{newRoom->offset, newRoom->size}, Box{glm::ivec3(), dimensions})) {
             continue;
         }
 
@@ -174,8 +172,8 @@ void Dungeon::Generate() {
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.length; ++z) {
-                auto coords = Coordinates{x, y, z};
-                addTile(coords.AsIVec3(), tilesData, stairsData, tiles);
+                auto coords = glm::ivec3{x, y, z};
+                addTile(coords, tilesData, stairsData, tiles);
             }
         }
     }
@@ -194,11 +192,11 @@ const TilesVec& Dungeon::GetTiles() const {
     return tiles;
 }
 
-Coordinates Dungeon::GetSpawnPoint() const {
+glm::ivec3 Dungeon::GetSpawnPoint() const {
     return spawn;
 }
 
-size_t Dungeon::WhichRoomPointIsInside(const Coordinates& coords) const {
+size_t Dungeon::WhichRoomPointIsInside(const glm::ivec3& coords) const {
     for (size_t i = 0; i < rooms.size(); ++i) {
         if (PointInsideBox(coords, Box{rooms[i]->offset, rooms[i]->size})) {
             return i;

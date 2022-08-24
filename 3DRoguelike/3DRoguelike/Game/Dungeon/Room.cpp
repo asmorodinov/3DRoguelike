@@ -2,10 +2,13 @@
 
 #include <algorithm>
 #include <array>
+#include <utility>
+
+#include <glm/gtx/std_based_type.hpp>
 
 void IRoom::Place(TilesVec& dungeon) {
     auto dimensions = dungeon.GetDimensions();
-    LOG_ASSERT(BoxFitsIntoBox(Box{offset, size}, Box{Coordinates{0, 0, 0}, dimensions}));
+    LOG_ASSERT(BoxFitsIntoBox(Box{offset, size}, Box{{0, 0, 0}, dimensions}));
 
     for (size_t i = 0; i < size.width; ++i) {
         for (size_t j = 0; j < size.height; ++j) {
@@ -28,36 +31,32 @@ bool BoxFitsIntoBox(const Box& box1, const Box& box2) {
            box1.offset.z + box1.size.length - 1 < box2.offset.z + box2.size.length;
 }
 
-std::array<size_t, 6> getMinMaxHelper(const Box& box1, const Box& box2) {
-    auto maxX = std::max(box1.offset.x, box2.offset.x);
-    auto minX = std::min(box1.offset.x + box1.size.width - 1, box2.offset.x + box2.size.width - 1);
-    auto maxY = std::max(box1.offset.y, box2.offset.y);
-    auto minY = std::min(box1.offset.y + box1.size.height - 1, box2.offset.y + box2.size.height - 1);
-    auto maxZ = std::max(box1.offset.z, box2.offset.z);
-    auto minZ = std::min(box1.offset.z + box1.size.length - 1, box2.offset.z + box2.size.length - 1);
+std::pair<glm::ivec3, glm::ivec3> getMinMaxHelper(const Box& box1, const Box& box2) {
+    auto min = glm::min(box1.offset + AsIVec3(box1.size) - 1, box2.offset + AsIVec3(box2.size) - 1);
+    auto max = glm::max(box1.offset, box2.offset);
 
-    return {maxX, minX, maxY, minY, maxZ, minZ};
+    return {min, max};
 }
 
 bool BoxesIntersect(const Box& box1, const Box& box2) {
-    auto [maxX, minX, maxY, minY, maxZ, minZ] = getMinMaxHelper(box1, box2);
-    return !(maxX > minX || maxY > minY || maxZ > minZ);
+    auto [min, max] = getMinMaxHelper(box1, box2);
+    return !(max.x > min.x || max.y > min.y || max.z > min.z);
 }
 
-bool PointInsideBox(const Coordinates& coords, const Box& box) {
+bool PointInsideBox(const glm::ivec3& coords, const Box& box) {
     return coords.x >= box.offset.x && coords.x < (box.offset.x + box.size.width) && coords.y >= box.offset.y &&
            coords.y < (box.offset.y + box.size.height) && coords.z >= box.offset.z && coords.z < (box.offset.z + box.size.length);
 }
 
 bool RoomsIntersect(const Room& r1, const Room& r2) {
-    auto [maxX, minX, maxY, minY, maxZ, minZ] = getMinMaxHelper(Box{r1->offset, r1->size}, Box{r2->offset, r2->size});
-    if (maxX > minX || maxY > minY || maxZ > minZ) {
+    auto [min, max] = getMinMaxHelper(Box{r1->offset, r1->size}, Box{r2->offset, r2->size});
+    if (max.x > min.x || max.y > min.y || max.z > min.z) {
         return false;
     }
 
-    for (size_t i = maxX; i <= minX; ++i) {
-        for (size_t j = maxY; j <= minY; ++j) {
-            for (size_t k = maxZ; k <= minZ; ++k) {
+    for (size_t i = max.x; i <= min.x; ++i) {
+        for (size_t j = max.y; j <= min.y; ++j) {
+            for (size_t k = max.z; k <= min.z; ++k) {
                 // FakeAir counts as intersection between rooms
                 if (r1->tiles.Get(i - r1->offset.x, j - r1->offset.y, k - r1->offset.z).type != TileType::Void ||
                     r2->tiles.Get(i - r2->offset.x, j - r2->offset.y, k - r2->offset.z).type != TileType::Void) {
@@ -71,10 +70,10 @@ bool RoomsIntersect(const Room& r1, const Room& r2) {
 }
 
 glm::vec3 RoomCenter(const Room& room) {
-    return room->offset.AsVec3() + 0.5f * glm::vec3(room->size.width, room->size.height, room->size.length);
+    return glm::vec3(room->offset) + 0.5f * glm::vec3(room->size.width, room->size.height, room->size.length);
 }
-Coordinates RoomCenterCoords(const Room& room) {
-    return room->offset + Coordinates{room->size.width / 2, room->size.height / 2, room->size.length / 2};
+glm::ivec3 RoomCenterCoords(const Room& room) {
+    return room->offset + AsIVec3(room->size) / 2;
 }
 
 void RectRoom::Generate(RNG& rng, SeedType seed) {
@@ -88,7 +87,7 @@ void RectRoom::Generate(RNG& rng, SeedType seed) {
     auto wall = Tile{TileType::Block, TileOrientation::None, TextureType::Texture1,
                      glm::vec3(rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f))};
 
-    auto offset = Coordinates{1, 1, 1};
+    auto offset = glm::size3{1, 1, 1};
 
     for (size_t i = offset.x + 1; i < width - 1 - offset.x; ++i) {
         for (size_t j = offset.y + 1; j < height - 1 - offset.y; ++j) {
@@ -117,16 +116,16 @@ void RectRoom::Generate(RNG& rng, SeedType seed) {
     // set edge tiles
     edgeTiles.clear();
     for (size_t i = offset.x + 1; i < width - 1 - offset.x; ++i) {
-        edgeTiles.push_back(Coordinates{i, offset.y + 1, offset.z});
-        edgeTiles.push_back(Coordinates{i, offset.y + 1, length - 1 - offset.z});
+        edgeTiles.push_back(glm::ivec3{i, offset.y + 1, offset.z});
+        edgeTiles.push_back(glm::ivec3{i, offset.y + 1, length - 1 - offset.z});
     }
     for (size_t k = offset.z + 1; k < length - 1 - offset.z; ++k) {
-        edgeTiles.push_back(Coordinates{offset.x, offset.y + 1, k});
-        edgeTiles.push_back(Coordinates{width - 1 - offset.x, offset.y + 1, k});
+        edgeTiles.push_back(glm::ivec3{offset.x, offset.y + 1, k});
+        edgeTiles.push_back(glm::ivec3{width - 1 - offset.x, offset.y + 1, k});
     }
     LOG_ASSERT(!edgeTiles.empty());
 }
 
-std::vector<Coordinates> RectRoom::GetEdgeTiles() {
+std::vector<glm::ivec3> RectRoom::GetEdgeTiles() {
     return edgeTiles;
 }

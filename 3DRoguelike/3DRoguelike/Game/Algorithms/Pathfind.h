@@ -15,12 +15,12 @@
 class Pathfinder {
  private:
     struct Node {
-        Coordinates position;
+        glm::ivec3 position;
         Node* previous;
-        CoordinatesSet previousSet;
+        std::unordered_set<glm::ivec3> previousSet;
         float cost;
 
-        Node(const Coordinates& coords = Coordinates());
+        Node(const glm::ivec3& coords = glm::ivec3());
     };
 
     using NodePtr = Node*;
@@ -46,17 +46,18 @@ class Pathfinder {
  public:
     Pathfinder(const Dimensions& dimensions);
 
-    std::vector<Coordinates> FindPath(const std::vector<Coordinates>& start, const std::vector<Coordinates>& finish, const Coordinates& target,
-                                      const TilesVec& world);
+    std::vector<glm::ivec3> FindPath(const std::vector<glm::ivec3>& start, const std::vector<glm::ivec3>& finish, const glm::ivec3& target,
+                                     const TilesVec& world);
 
  private:
     void ResetNodes();
 
-    std::vector<Coordinates> reconstructPath(NodePtr node);
+    std::vector<glm::ivec3> reconstructPath(NodePtr node);
 
-    float calculateHeuristic(const NodePtr b, const Coordinates& target);
+    float calculateHeuristic(const NodePtr b, const glm::ivec3& target);
 
-    PathCost costFunction(const NodePtr a, const NodePtr b, const TilesVec& world, const CoordinatesSet& finishSet, const Coordinates& target);
+    PathCost costFunction(const NodePtr a, const NodePtr b, const TilesVec& world, const std::unordered_set<glm::ivec3>& finishSet,
+                          const glm::ivec3& target);
 
  private:
     Vector3D<Node> grid;
@@ -64,4 +65,4 @@ class Pathfinder {
     std::unordered_set<NodePtr, NodePtrHashFunction, NodePtrEqFunction> closed;
 };
 
-void PlacePathWithStairs(const std::vector<Coordinates>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairs);
+void PlacePathWithStairs(const std::vector<glm::ivec3>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairs);

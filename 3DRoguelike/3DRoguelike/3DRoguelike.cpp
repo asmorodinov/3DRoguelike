@@ -112,7 +112,7 @@ int main() {
     dungeon.SetSeed(seed);
     dungeon.Generate();
     player.SetFlying(true);
-    player.SetPosition(dungeon.GetSpawnPoint().AsVec3());
+    player.SetPosition(glm::vec3(dungeon.GetSpawnPoint()));
     camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.1f, 0.0f);
 
     size_t frame = 0;
@@ -122,7 +122,7 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         ++frame;
-        float currentFrame = static_cast<float>(glfwGetTime());
+        auto currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -149,7 +149,7 @@ int main() {
             generate = false;
             dungeon.SetSeed(seed);
             dungeon.Generate();
-            player.SetPosition(dungeon.GetSpawnPoint().AsVec3());
+            player.SetPosition(glm::vec3(dungeon.GetSpawnPoint()));
             camera.Position = player.GetPosition();
         }
 
@@ -173,7 +173,7 @@ int main() {
         auto dc = std::to_string(disableCollision);
         auto fl = std::to_string(player.IsFlying());
         auto gr = std::to_string(player.IsGrounded());
-        auto room = std::to_string(dungeon.WhichRoomPointIsInside(Coordinates::FromVec3(pos)));
+        auto room = std::to_string(dungeon.WhichRoomPointIsInside(FromVec3(pos)));
 
         glDisable(GL_DEPTH_TEST);
         textRenderer.RenderText("fps: " + fpsstr + " pos: " + posx + " " + posy + " " + posz + " vel: " + velx + " " + vely + " " + velz +

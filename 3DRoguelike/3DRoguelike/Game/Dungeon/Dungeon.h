@@ -18,9 +18,9 @@ class Dungeon {
 
     const TilesVec& GetTiles() const;
 
-    Coordinates GetSpawnPoint() const;
+    glm::ivec3 GetSpawnPoint() const;
 
-    size_t WhichRoomPointIsInside(const Coordinates& coords) const;
+    size_t WhichRoomPointIsInside(const glm::ivec3& coords) const;
 
  private:
     void placeRooms();
@@ -35,5 +35,5 @@ class Dungeon {
     std::vector<Room> rooms;
     TileRenderer renderer;
 
-    Coordinates spawn;
+    glm::ivec3 spawn;
 };
