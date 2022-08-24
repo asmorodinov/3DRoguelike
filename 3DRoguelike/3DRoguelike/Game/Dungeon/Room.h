@@ -36,6 +36,7 @@ class IRoom {
 using Room = std::shared_ptr<IRoom>;
 
 bool RoomsIntersect(const Room& r1, const Room& r2);
+
 glm::vec3 RoomCenter(const Room& room);
 glm::ivec3 RoomCenterCoords(const Room& room);
 
