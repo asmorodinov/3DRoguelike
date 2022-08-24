@@ -197,7 +197,7 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
         }
     }
 
-    for (size_t i = 4; i < 12; ++i) {
+    for (size_t i = 4; i < 10; ++i) {
         if (!CanBeAboveOrBelowStairs(world.Get(stairsTiles[i]).type)) {
             return pathCost;
         }

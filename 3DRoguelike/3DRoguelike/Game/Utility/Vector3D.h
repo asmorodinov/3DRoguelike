@@ -52,8 +52,8 @@ Coordinates GetHorizontalOffset(const Coordinates& c1, const Coordinates& c2);
 struct StairsInfo {
     Coordinates verticalOffset;
     Coordinates horizontalOffset;
-    std::array<Coordinates, 12> stairsTiles;  // 0 - top of the stairs, 1 - bottom of the stairs, 2, 3 - empty tiles (air), 4, 5 - blocks above
-                                              // stairs, 6, 7 - blocks above stairs, 8, 9, 10, 11 - blocks below and above entry and exit
+    std::array<Coordinates, 10> stairsTiles;  // 0 - top of the stairs, 1 - bottom of the stairs, 2, 3 - empty tiles (air), 4, 5 - blocks above
+                                              // stairs, 6, 7 - blocks above stairs, 8, 9 - blocks below and above exit
     TileOrientation orientation;
 };
 
