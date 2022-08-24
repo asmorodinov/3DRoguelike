@@ -12,8 +12,10 @@
 
 #include "../Assets.h"
 
+static const auto offset = glm::ivec3(5, 5, 5);
+
 Dungeon::Dungeon(const Dimensions& dimensions_, SeedType seed_)
-    : dimensions(dimensions_), seed(seed_), rng(seed), tiles(dimensions, Tile()), rooms(), renderer() {
+    : dimensions(FromIVec3(AsIVec3(dimensions_) + 2 * offset)), seed(seed_), rng(seed), tiles(dimensions, Tile()), rooms(), renderer(), spawn() {
 }
 
 void Dungeon::SetSeed(SeedType seed_) {
@@ -41,7 +43,7 @@ void Dungeon::placeRooms() {
 
         SetSeed(roomSeed);
         newRoom->Generate(rng, roomSeed);
-        newRoom->offset = rng.RandomIVec3(glm::ivec3(), AsIVec3(dimensions) - AsIVec3(newRoom->size));
+        newRoom->offset = rng.RandomIVec3(offset, AsIVec3(dimensions) - AsIVec3(newRoom->size) - offset);
         SetSeed(newSeed);
 
         if (!BoxFitsIntoBox(Box{newRoom->offset, newRoom->size}, Box{glm::ivec3(), dimensions})) {

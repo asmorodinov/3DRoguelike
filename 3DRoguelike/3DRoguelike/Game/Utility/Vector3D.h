@@ -17,6 +17,7 @@ struct Dimensions {
 };
 
 glm::ivec3 AsIVec3(const Dimensions& dimensions);
+Dimensions FromIVec3(const glm::ivec3& vec);
 
 std::array<glm::ivec3, 6> GetNeighbours(const glm::ivec3& coords);
 std::array<glm::ivec3, 12> GetNeighboursWithStairs(const glm::ivec3& coords);

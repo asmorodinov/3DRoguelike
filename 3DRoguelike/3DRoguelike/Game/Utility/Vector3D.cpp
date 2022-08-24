@@ -6,6 +6,11 @@ glm::ivec3 AsIVec3(const Dimensions& dimensions) {
     return {dimensions.width, dimensions.height, dimensions.length};
 }
 
+Dimensions FromIVec3(const glm::ivec3& vec) {
+    auto uvec = glm::size3(vec);
+    return {uvec.x, uvec.y, uvec.z};
+}
+
 std::array<glm::ivec3, 6> GetNeighbours(const glm::ivec3& coords) {
     return {coords + glm::ivec3(-1, 0, 0), coords + glm::ivec3(1, 0, 0),  coords + glm::ivec3(0, -1, 0),
             coords + glm::ivec3(0, 1, 0),  coords + glm::ivec3(0, 0, -1), coords + glm::ivec3(0, 0, 1)};
