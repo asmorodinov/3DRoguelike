@@ -84,7 +84,7 @@ void Dungeon::placeCorridors() {
     auto weights = std::vector<Weight>();
     for (const auto& edge : edges) {
         auto diff = points[edge.v1] - points[edge.v2];
-        diff.y *= 3.0f;  // make moving upwards more expensive
+        diff.y *= 10.0f;  // make moving upwards more expensive
         weights.push_back(Weight(glm::length2(diff)));
     }
     auto mstEdges = MinimumSpanningTree(edges, points.size(), weights);

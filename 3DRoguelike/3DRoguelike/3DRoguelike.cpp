@@ -100,7 +100,7 @@ int main() {
 
     Assets::Get().orthogonalProjection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
 
-    auto dimensions = Dimensions{60, 30, 60};
+    auto dimensions = Dimensions{50, 20, 50};
     auto dungeon = Dungeon(dimensions);
 
     if (Assets::HasConfigParameter("seed")) {
@@ -113,7 +113,7 @@ int main() {
     dungeon.Generate();
     player.SetFlying(true);
     player.SetPosition(dungeon.GetSpawnPoint().AsVec3());
-    camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.15f, 0.0f);
+    camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.1f, 0.0f);
 
     size_t frame = 0;
 
@@ -135,7 +135,7 @@ int main() {
         processInput(window);
 
         player.Update(dungeon.GetTiles(), deltaTime, disableCollision);
-        camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.15f, 0.0f);
+        camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.1f, 0.0f);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -220,8 +220,10 @@ void processInput(GLFWwindow* window) {
     auto right = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     camera.ProcessKeyboard(forward, backward, left, right);
 
-    player.GetAcceleration().x = camera.Velocity.x;
-    player.GetAcceleration().z = camera.Velocity.z;
+    auto boost = player.IsFlying() ? 5.0f : 1.0f;
+
+    player.GetAcceleration().x = boost * camera.Velocity.x;
+    player.GetAcceleration().z = boost * camera.Velocity.z;
 
     auto jump = false;
     auto up = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
@@ -245,10 +247,10 @@ void processInput(GLFWwindow* window) {
     }
     if (player.IsFlying()) {
         if (up && !down) {
-            player.GetAcceleration().y = SPEED;
+            player.GetAcceleration().y = boost * SPEED;
         }
         if (down && !up) {
-            player.GetAcceleration().y = -SPEED;
+            player.GetAcceleration().y = -boost * SPEED;
         }
     }
 }

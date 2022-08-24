@@ -78,9 +78,9 @@ Coordinates RoomCenterCoords(const Room& room) {
 }
 
 void RectRoom::Generate(RNG& rng, SeedType seed) {
-    auto width = rng.IntUniform<size_t>(13, 22);
-    auto height = rng.IntUniform<size_t>(9, 12);
-    auto length = rng.IntUniform<size_t>(13, 22);
+    auto width = rng.IntUniform<size_t>(11, 20);
+    auto height = rng.IntUniform<size_t>(8, 10);
+    auto length = rng.IntUniform<size_t>(11, 20);
     size = Dimensions{width, height, length};
     tiles = TilesVec(size, Tile{TileType::FakeAir, TileOrientation::None, TextureType::None, glm::vec3(1.0f)});
 
