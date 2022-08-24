@@ -147,3 +147,82 @@ void RectRoom::Generate(RNG& rng, SeedType seed) {
 
     LOG_ASSERT(!edgeTiles.empty());
 }
+
+template <typename T>
+using Vector2D = std::vector<std::vector<T>>;
+
+Vector2D<TileType> generateOval(size_t width, size_t height) {
+    auto insideOval = [&](size_t x, size_t y, size_t w, size_t h) {
+        return std::pow(2.0f * (x + 0.5f) / w - 1.0f, 2) + std::pow(2.0f * (y + 0.5f) / h - 1.0f, 2) <= 1.0f;
+    };
+
+    auto res = Vector2D<TileType>(width, std::vector<TileType>(height, TileType::Void));
+
+    for (size_t i = 0; i < width; ++i) {
+        for (size_t j = 0; j < height; ++j) {
+            if (insideOval(i, j, width, height)) {
+                res[i][j] = TileType::Block;
+            }
+        }
+    }
+
+    auto copy = res;
+    for (size_t i = 1; i < width - 1; ++i) {
+        for (size_t j = 1; j < height - 1; ++j) {
+            if (copy[i][j] == TileType::Block && copy[i + 1][j] == TileType::Block && copy[i - 1][j] == TileType::Block &&
+                copy[i][j + 1] == TileType::Block && copy[i][j - 1] == TileType::Block) {
+                res[i][j] = TileType::Air;
+            }
+        }
+    }
+
+    for (size_t i = 1; i < width - 1; ++i) {
+        for (size_t j = 1; j < height - 1; ++j) {
+            if (res[i][j] == TileType::Block && res[i + 1][j] != TileType::Air && res[i - 1][j] != TileType::Air && res[i][j + 1] != TileType::Air &&
+                res[i][j - 1] != TileType::Air) {
+                res[i][j] = TileType::Void;
+            }
+        }
+    }
+
+    return res;
+}
+
+void OvalRoom::Generate(RNG& rng, SeedType seed) {
+    auto width = rng.IntUniform<size_t>(9, 18);
+    auto height = rng.IntUniform<size_t>(6, 8);
+    auto length = rng.IntUniform<size_t>(9, 18);
+    size = Dimensions{width, height, length};
+    tiles = TilesVec(size, Tile{TileType::Void, TileOrientation::None, TextureType::None, glm::vec3(1.0f)});
+
+    auto air = Tile{TileType::Air, TileOrientation::None, TextureType::None, glm::vec3(1.0f)};
+    auto wall = Tile{TileType::Block, TileOrientation::None, TextureType::Texture1,
+                     glm::vec3(rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f))};
+
+    auto oval = generateOval(width, length);
+
+    for (size_t i = 0; i < width; ++i) {
+        for (size_t k = 0; k < length; ++k) {
+            if (oval[i][k] == TileType::Void) {
+                continue;
+            }
+
+            tiles.Set(i, 0, k, wall);
+            tiles.Set(i, height - 1, k, wall);
+
+            if (oval[i][k] == TileType::Block) {
+                edgeTiles.push_back(glm::ivec3{i, 1, k});
+
+                for (size_t j = 1; j < height - 1; ++j) {
+                    tiles.Set(i, j, k, wall);
+                }
+            } else if (oval[i][k] == TileType::Air) {
+                for (size_t j = 1; j < height - 1; ++j) {
+                    tiles.Set(i, j, k, air);
+                }
+            } else {
+                LOG_ASSERT(false);
+            }
+        }
+    }
+}

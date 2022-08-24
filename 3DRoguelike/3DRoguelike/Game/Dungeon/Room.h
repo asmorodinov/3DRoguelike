@@ -68,3 +68,11 @@ class RectRoom : public IRoomWithEdgeTiles {
 
     void Generate(RNG& rng, SeedType seed) override;
 };
+
+class OvalRoom : public IRoomWithEdgeTiles {
+ public:
+    OvalRoom() = default;
+    ~OvalRoom() override = default;
+
+    void Generate(RNG& rng, SeedType seed) override;
+};

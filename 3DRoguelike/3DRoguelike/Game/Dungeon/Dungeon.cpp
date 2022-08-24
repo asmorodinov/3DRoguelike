@@ -29,7 +29,11 @@ SeedType Dungeon::GetSeed() const {
 
 // only one room type for now
 Room getRandomRoom(RNG& rng) {
-    return std::make_shared<RectRoom>();
+    if (rng.RandomBool(0.33f)) {
+        return std::make_shared<OvalRoom>();
+    } else {
+        return std::make_shared<RectRoom>();
+    }
 }
 
 void Dungeon::placeRooms() {
