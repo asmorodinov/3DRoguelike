@@ -100,6 +100,10 @@ glm::ivec3 RoomCenterCoords(const Room& room) {
     return room->offset + AsIVec3(room->size) / 2;
 }
 
+// room generation code
+
+// rect room
+
 void RectRoom::Generate(RNG& rng, SeedType seed) {
     auto width = rng.IntUniform<size_t>(9, 18);
     auto height = rng.IntUniform<size_t>(6, 8);
@@ -148,6 +152,8 @@ void RectRoom::Generate(RNG& rng, SeedType seed) {
 
     LOG_ASSERT(!edgeTiles.empty());
 }
+
+// oval room
 
 template <typename T>
 using Vector2D = std::vector<std::vector<T>>;
@@ -223,6 +229,99 @@ void OvalRoom::Generate(RNG& rng, SeedType seed) {
                 }
             } else {
                 LOG_ASSERT(false);
+            }
+        }
+    }
+}
+
+// ellipsoid room
+
+void EllipsoidRoom::Generate(RNG& rng, SeedType seed) {
+    auto width = rng.IntUniform<size_t>(12, 18);
+    auto height = rng.IntUniform<size_t>(7, 10);
+    auto length = rng.IntUniform<size_t>(12, 18);
+    size = Dimensions{width, height, length};
+
+    auto voidTile = Tile{TileType::Void, TileOrientation::None, TextureType::None, glm::vec3(1.0f)};
+    tiles = TilesVec(size, voidTile);
+
+    auto air = Tile{TileType::Air, TileOrientation::None, TextureType::None, glm::vec3(1.0f)};
+    auto wall = Tile{TileType::Block, TileOrientation::None, TextureType::Texture1,
+                     glm::vec3(rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f), rng.RealUniform(0.3f, 1.0f))};
+
+    auto insideEllipsoid = [&](int x, int y, int z, size_t w, size_t h, size_t l) {
+        return std::pow(2.0f * (x + 0.5f) / w - 1.0f, 2) + std::pow(2.0f * (y + 0.5f) / h - 1.0f, 2) + std::pow(2.0f * (z + 0.5f) / l - 1.0f, 2) <=
+               1.0f;
+    };
+
+    for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+            for (int k = 0; k < length; ++k) {
+                if (insideEllipsoid(i, j + height / 4, k, width, height + height / 4, length)) {
+                    tiles.Set(i, j, k, wall);
+                }
+            }
+        }
+    }
+
+    auto copy = tiles;
+    for (int i = 1; i < width - 1; ++i) {
+        for (int j = 1; j < height - 1; ++j) {
+            for (int k = 1; k < length - 1; ++k) {
+                auto coords = glm::ivec3(i, j, k);
+
+                if (copy.Get(coords).type != wall.type) {
+                    continue;
+                }
+
+                auto setToAir = true;
+                for (const auto& neighbour : GetNeighbours(coords)) {
+                    if (copy.Get(neighbour).type != wall.type) {
+                        setToAir = false;
+                        break;
+                    }
+                }
+
+                if (setToAir) {
+                    tiles.Set(coords, air);
+                }
+            }
+        }
+    }
+
+    for (int i = 1; i < width - 1; ++i) {
+        for (int j = 1; j < height - 1; ++j) {
+            for (int k = 1; k < length - 1; ++k) {
+                auto coords = glm::ivec3(i, j, k);
+
+                if (tiles.Get(coords).type != wall.type) {
+                    continue;
+                }
+
+                auto setToVoid = true;
+                for (const auto& neighbour : GetNeighbours(coords)) {
+                    if (tiles.Get(neighbour).type == air.type) {
+                        setToVoid = false;
+                        break;
+                    }
+                }
+
+                if (setToVoid) {
+                    tiles.Set(coords, voidTile);
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < width; ++i) {
+        for (int j = 1; j < height - 1; ++j) {
+            for (int k = 0; k < length; ++k) {
+                auto coords = glm::ivec3(i, j, k);
+
+                if (tiles.Get(coords).type == wall.type && tiles.Get(coords + glm::ivec3{0, -1, 0}).type == voidTile.type &&
+                    tiles.Get(coords + glm::ivec3{0, 1, 0}).type == wall.type) {
+                    edgeTiles.push_back(coords);
+                }
             }
         }
     }

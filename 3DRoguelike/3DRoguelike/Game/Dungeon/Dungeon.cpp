@@ -31,6 +31,8 @@ SeedType Dungeon::GetSeed() const {
 Room getRandomRoom(RNG& rng) {
     if (rng.RandomBool(0.33f)) {
         return std::make_shared<OvalRoom>();
+    } else if (rng.RandomBool(0.5f)) {
+        return std::make_shared<EllipsoidRoom>();
     } else {
         return std::make_shared<RectRoom>();
     }

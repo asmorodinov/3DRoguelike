@@ -70,3 +70,11 @@ class OvalRoom : public IRoom {
 
     void Generate(RNG& rng, SeedType seed) override;
 };
+
+class EllipsoidRoom : public IRoom {
+ public:
+    EllipsoidRoom() = default;
+    ~EllipsoidRoom() override = default;
+
+    void Generate(RNG& rng, SeedType seed) override;
+};
