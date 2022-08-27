@@ -28,13 +28,17 @@ class IRoom {
     virtual ~IRoom() = default;
 
     virtual void Generate(RNG& rng, SeedType seed) = 0;
-    virtual const std::vector<glm::ivec3>& GetEdgeTiles() const = 0;
-    virtual void Place(TilesVec& dungeon) const;
+
+    const std::vector<glm::ivec3>& GetEdgeTiles() const;
+    void Place(TilesVec& dungeon) const;
 
  public:
     glm::ivec3 offset;
     Dimensions size;
     TilesVec tiles;
+
+ protected:
+    std::vector<glm::ivec3> edgeTiles;
 };
 
 // Room helper functions
@@ -46,22 +50,9 @@ bool RoomsIntersect(const Room& r1, const Room& r2);
 glm::vec3 RoomCenter(const Room& room);
 glm::ivec3 RoomCenterCoords(const Room& room);
 
-// helper class
-
-class IRoomWithEdgeTiles : public IRoom {
- public:
-    IRoomWithEdgeTiles() = default;
-    ~IRoomWithEdgeTiles() override = default;
-
-    const std::vector<glm::ivec3>& GetEdgeTiles() const override;
-
- protected:
-    std::vector<glm::ivec3> edgeTiles;
-};
-
 // different rooms
 
-class RectRoom : public IRoomWithEdgeTiles {
+class RectRoom : public IRoom {
  public:
     RectRoom() = default;
     ~RectRoom() override = default;
@@ -69,7 +60,7 @@ class RectRoom : public IRoomWithEdgeTiles {
     void Generate(RNG& rng, SeedType seed) override;
 };
 
-class OvalRoom : public IRoomWithEdgeTiles {
+class OvalRoom : public IRoom {
  public:
     OvalRoom() = default;
     ~OvalRoom() override = default;

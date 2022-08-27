@@ -24,6 +24,10 @@ void IRoom::Place(TilesVec& dungeon) const {
     }
 }
 
+const std::vector<glm::ivec3>& IRoom::GetEdgeTiles() const {
+    return edgeTiles;
+}
+
 bool BoxFitsIntoBox(const Box& box1, const Box& box2) {
     return box1.offset.x >= box2.offset.x && box1.offset.y >= box2.offset.y && box1.offset.z >= box2.offset.z &&
            box1.offset.x + box1.size.width - 1 < box2.offset.x + box2.size.width &&
@@ -93,10 +97,6 @@ glm::vec3 RoomCenter(const Room& room) {
 }
 glm::ivec3 RoomCenterCoords(const Room& room) {
     return room->offset + AsIVec3(room->size) / 2;
-}
-
-const std::vector<glm::ivec3>& IRoomWithEdgeTiles::GetEdgeTiles() const {
-    return edgeTiles;
 }
 
 void RectRoom::Generate(RNG& rng, SeedType seed) {
