@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_set>
 
 #include <glm/glm.hpp>
 
@@ -31,6 +32,7 @@ class IRoom {
 
     const std::vector<glm::ivec3>& GetEdgeTiles() const;
     void Place(TilesVec& dungeon) const;
+    const std::unordered_set<glm::ivec3>& GetIntersectionTiles();
 
  public:
     glm::ivec3 offset;
@@ -39,6 +41,7 @@ class IRoom {
 
  protected:
     std::vector<glm::ivec3> edgeTiles;
+    std::unordered_set<glm::ivec3> intersectionTiles;
 };
 
 // Room helper functions

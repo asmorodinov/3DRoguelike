@@ -28,6 +28,28 @@ const std::vector<glm::ivec3>& IRoom::GetEdgeTiles() const {
     return edgeTiles;
 }
 
+const std::unordered_set<glm::ivec3>& IRoom::GetIntersectionTiles() {
+    if (intersectionTiles.empty()) {
+        for (int i = 0; i < size.width; ++i) {
+            for (int j = 0; j < size.height; ++j) {
+                for (int k = 0; k < size.length; ++k) {
+                    auto coords = glm::ivec3(i, j, k);
+                    if (tiles.Get(coords).type == TileType::Void) {
+                        continue;
+                    }
+
+                    intersectionTiles.insert(coords);
+                    for (const auto& neighbour : GetNeighbours(coords)) {
+                        intersectionTiles.insert(neighbour);
+                    }
+                }
+            }
+        }
+    }
+
+    return intersectionTiles;
+}
+
 bool BoxFitsIntoBox(const Box& box1, const Box& box2) {
     return box1.offset.x >= box2.offset.x && box1.offset.y >= box2.offset.y && box1.offset.z >= box2.offset.z &&
            box1.offset.x + box1.size.width - 1 < box2.offset.x + box2.size.width &&
@@ -52,35 +74,14 @@ bool PointInsideBox(const glm::ivec3& coords, const Box& box) {
            coords.y < (box.offset.y + box.size.height) && coords.z >= box.offset.z && coords.z < (box.offset.z + box.size.length);
 }
 
-std::unordered_set<glm::ivec3> getExtendedRoomTiles(const Room& r) {
-    auto tiles = std::unordered_set<glm::ivec3>();
-    for (int i = 0; i < r->size.width; ++i) {
-        for (int j = 0; j < r->size.height; ++j) {
-            for (int k = 0; k < r->size.length; ++k) {
-                auto coords = glm::ivec3(i, j, k);
-                if (r->tiles.Get(coords).type == TileType::Void) {
-                    continue;
-                }
-
-                tiles.insert(coords);
-                for (const auto& neighbour : GetNeighbours(coords)) {
-                    tiles.insert(neighbour);
-                }
-            }
-        }
-    }
-
-    return tiles;
-}
-
 bool RoomsIntersect(const Room& r1, const Room& r2) {
     auto [min, max] = getMinMaxHelper(Box{r1->offset - 1, FromIVec3(AsIVec3(r1->size) + 2)}, Box{r2->offset - 1, FromIVec3(AsIVec3(r2->size) + 2)});
     if (max.x > min.x || max.y > min.y || max.z > min.z) {
         return false;
     }
 
-    auto s1 = getExtendedRoomTiles(r1);
-    auto s2 = getExtendedRoomTiles(r2);
+    const auto& s1 = r1->GetIntersectionTiles();
+    const auto& s2 = r2->GetIntersectionTiles();
 
     // check if sets intersect
     for (const auto& tile : s1) {
