@@ -57,24 +57,15 @@ glm::ivec3 RoomCenterCoords(const Room& room);
 
 class RectRoom : public IRoom {
  public:
-    RectRoom() = default;
-    ~RectRoom() override = default;
-
     void Generate(RNG& rng, SeedType seed) override;
 };
 
 class OvalRoom : public IRoom {
  public:
-    OvalRoom() = default;
-    ~OvalRoom() override = default;
-
     void Generate(RNG& rng, SeedType seed) override;
 };
 
 class EllipsoidRoom : public IRoom {
  public:
-    EllipsoidRoom() = default;
-    ~EllipsoidRoom() override = default;
-
     void Generate(RNG& rng, SeedType seed) override;
 };
