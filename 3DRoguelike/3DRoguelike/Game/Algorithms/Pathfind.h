@@ -8,16 +8,20 @@
 #include <stack>
 #include <limits>
 
+#include "PersistentHashSet.h"
+
 #include "../Assert.h"
 #include "../Utility/Random.h"
 #include "../Dungeon/WorldGrid.h"
+
+using PrevSet = PersistentHashSet<glm::ivec3>;
 
 class Pathfinder {
  private:
     struct Node {
         glm::ivec3 position;
         Node* previous;
-        std::unordered_set<glm::ivec3> previousSet;
+        PrevSet previousSet;
         float cost;
 
         Node(const glm::ivec3& coords = glm::ivec3());

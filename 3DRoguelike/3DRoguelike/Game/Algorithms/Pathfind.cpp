@@ -71,7 +71,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
             if (closed.contains(&neighbour)) {
                 continue;
             }
-            if (nodePtr->previousSet.contains(neighbour.position)) {
+            if (Contains(nodePtr->previousSet, neighbour.position)) {
                 continue;
             }
 
@@ -84,7 +84,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 
                 auto contains = false;
                 for (const auto& tile : stairsInfo.stairsTiles) {
-                    if (nodePtr->previousSet.contains(tile)) {
+                    if (Contains(nodePtr->previousSet, tile)) {
                         contains = true;
                         break;
                     }
@@ -102,12 +102,12 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
                 queue.insert(&neighbour);
 
                 neighbour.previousSet = nodePtr->previousSet;
-                neighbour.previousSet.insert(nodeCoords);
+                Insert(neighbour.previousSet, nodeCoords);
 
                 if (pathCost.isStairs) {
                     auto stairsInfo = GetStairsInfo(neighbourCoords, nodeCoords);
                     for (const auto& tile : stairsInfo.stairsTiles) {
-                        neighbour.previousSet.insert(tile);
+                        Insert(neighbour.previousSet, tile);
                     }
                 }
             }
@@ -125,7 +125,7 @@ void Pathfinder::ResetNodes() {
                 auto& node = grid.Get(x, y, z);
                 node.previous = nullptr;
                 node.cost = std::numeric_limits<float>::infinity();
-                node.previousSet.clear();
+                Clear(node.previousSet);
             }
         }
     }
