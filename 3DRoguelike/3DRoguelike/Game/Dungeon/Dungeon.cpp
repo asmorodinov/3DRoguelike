@@ -40,6 +40,8 @@ Room getRandomRoom(RNG& rng) {
 }
 
 void Dungeon::placeRooms() {
+    LOG_DURATION("Dungeon::placeRooms")
+
     auto tries = 1000;
     auto roomCnt = 10;
 
@@ -75,6 +77,8 @@ void Dungeon::placeRooms() {
 }
 
 void Dungeon::placeCorridors() {
+    LOG_DURATION("Dungeon::placeCorridors")
+
     auto air = Tile{TileType::CorridorAir, TileOrientation::None, TextureType::None, glm::vec3(1.0f)};
 
     // determine which rooms should be connected
@@ -142,6 +146,8 @@ void Dungeon::placeCorridors() {
 }
 
 void Dungeon::reset() {
+    LOG_DURATION("Dungeon::reset")
+
     rooms.clear();
     tiles = TilesVec(dimensions, Tile());
 }
@@ -162,6 +168,8 @@ void addTile(const glm::ivec3& coords, std::vector<PositionColor>& blocks, std::
 }
 
 void Dungeon::Generate() {
+    LOG_DURATION("Dungeon::Generate")
+
     reset();
 
     std::cout << "Seed: " << seed << std::endl;
