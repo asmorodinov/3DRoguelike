@@ -133,8 +133,7 @@ void Dungeon::placeCorridors() {
         if (!path.empty()) {
             PlacePathWithStairs(path, tiles, wall, air, stairs);
         } else {
-            // LOG_ASSERT(false);
-            std::cout << "failed to place path" << std::endl;
+            LOG_ASSERT(false);
         }
     }
 }

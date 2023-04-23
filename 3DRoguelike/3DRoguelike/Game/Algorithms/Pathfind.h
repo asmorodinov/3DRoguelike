@@ -8,11 +8,11 @@
 #include <stack>
 #include <limits>
 
-#include "PersistentHashSet.h"
-
 #include "../Assert.h"
 #include "../Utility/Random.h"
 #include "../Dungeon/WorldGrid.h"
+
+#include "PersistentHashSet.h"
 
 using PrevSet = PersistentHashSet<glm::ivec3>;
 
