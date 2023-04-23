@@ -28,7 +28,7 @@
     - `SimplePersistentHashSet` is $2.56$ times faster than `std::unordered_set`.
     - `SimplePersistentHashSet` is $1.65$ times faster than `immer::set_transient`.
 - Notes
-  - [Library](https://github.com/philsquared/hash_trie) written Phil Nash was also tested, but is disqualified from benchmarks, because it seems to [contain](https://github.com/philsquared/hash_trie/issues/6) critical bugs (although it seems to perform approximately the same or slightly faster than `immer::set_transient`).
+  - [Library](https://github.com/philsquared/hash_trie) written by Phil Nash was also tested, but is disqualified from benchmarks, because it seems to [contain](https://github.com/philsquared/hash_trie/issues/6) critical bugs (although it seems to perform approximately the same or slightly faster than `immer::set_transient`).
   - Different hash sets are defined in [Game/Algorithms/PersistentHashSet.h](3DRoguelike/3DRoguelike/Game/Algorithms/PersistentHashSet.h).
   - Immer library - [github](https://github.com/arximboldi/immer).
   - Seed can be set in [Resources/Configuration/config.yaml](3DRoguelike/3DRoguelike/Resources/Configuration/config.yaml).
