@@ -4,8 +4,6 @@
 #include <unordered_set>
 #include <utility>
 
-#include "../Assert.h"
-
 // A* with staircases placement support
 
 Pathfinder::Node::Node(const glm::ivec3& coords) : position(coords), previous(nullptr), previousSet(), cost(0.0f) {
@@ -71,7 +69,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
             if (closed.contains(&neighbour)) {
                 continue;
             }
-            if (Contains(nodePtr->previousSet, neighbour.position)) {
+            if (nodePtr->previousSet.contains(neighbour.position)) {
                 continue;
             }
 
@@ -84,7 +82,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 
                 auto contains = false;
                 for (const auto& tile : stairsInfo.stairsTiles) {
-                    if (Contains(nodePtr->previousSet, tile)) {
+                    if (nodePtr->previousSet.contains(tile)) {
                         contains = true;
                         break;
                     }
@@ -102,12 +100,12 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
                 queue.insert(&neighbour);
 
                 neighbour.previousSet = nodePtr->previousSet;
-                Insert(neighbour.previousSet, nodeCoords);
+                neighbour.previousSet.insert(nodeCoords);
 
                 if (pathCost.isStairs) {
                     auto stairsInfo = GetStairsInfo(neighbourCoords, nodeCoords);
                     for (const auto& tile : stairsInfo.stairsTiles) {
-                        Insert(neighbour.previousSet, tile);
+                        neighbour.previousSet.insert(tile);
                     }
                 }
             }
@@ -125,7 +123,7 @@ void Pathfinder::ResetNodes() {
                 auto& node = grid.Get(x, y, z);
                 node.previous = nullptr;
                 node.cost = std::numeric_limits<float>::infinity();
-                Clear(node.previousSet);
+                node.previousSet.clear();
             }
         }
     }
