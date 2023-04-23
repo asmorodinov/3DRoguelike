@@ -11,6 +11,7 @@
 #include "../Algorithms/MST.h"
 
 #include "../Assets.h"
+#include "../Utility/LogDuration.h"
 
 static const auto offset = glm::ivec3(5, 5, 5);
 
@@ -102,6 +103,8 @@ void Dungeon::placeCorridors() {
             finalEdges.insert(edge);
         }
     }
+
+    LOG_DURATION("Dungeon::placeCorridors - finding paths")
 
     // connect rooms with corridors
     auto pathfinder = Pathfinder(dimensions);

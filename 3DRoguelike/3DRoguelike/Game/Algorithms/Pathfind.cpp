@@ -4,6 +4,8 @@
 #include <unordered_set>
 #include <utility>
 
+#include "../Utility/LogDuration.h"
+
 // A* with staircases placement support
 
 Pathfinder::Node::Node(const glm::ivec3& coords) : position(coords), previous(nullptr), previousSet(), cost(0.0f) {
@@ -38,6 +40,8 @@ Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()),
 
 std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& start, const std::vector<glm::ivec3>& finish, const glm::ivec3& target,
                                              const TilesVec& world) {
+    LOG_DURATION("Pathfinder::FindPath")
+
     ResetNodes();
     queue = Queue();
     closed.clear();
@@ -116,6 +120,8 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 }
 
 void Pathfinder::ResetNodes() {
+    LOG_DURATION("Pathfinder::ResetNodes")
+
     const auto& dimensions = grid.GetDimensions();
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
@@ -212,6 +218,8 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
 }
 
 void PlacePathWithStairs(const std::vector<glm::ivec3>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairsAir) {
+    LOG_DURATION("Pathfinder - PlacePathWithStairs")
+
     // place air and stairs tiles
 
     auto stairsVec = std::vector<glm::ivec3>();
