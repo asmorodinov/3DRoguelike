@@ -8,7 +8,7 @@
 
 // A* with staircases placement support
 
-Pathfinder::Node::Node(const glm::ivec3& coords) : position(coords), previous(nullptr), previousSet(), cost(0.0f) {
+Pathfinder::Node::Node(const glm::ivec3& coords) : position(coords) {
 }
 
 size_t Pathfinder::NodePtrHashFunction::operator()(const NodePtr node) const {
@@ -28,7 +28,7 @@ bool Pathfinder::NodePtrCmpFunction::operator()(const NodePtr lhs, const NodePtr
     return false;
 }
 
-Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()), queue(), closed() {
+Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()), queue() {
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.length; ++z) {
@@ -44,7 +44,6 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 
     ResetNodes();
     queue = Queue();
-    closed.clear();
 
     const auto& dimensions = world.GetDimensions();
     auto finishSet = std::unordered_set<glm::ivec3>(finish.begin(), finish.end());
@@ -59,7 +58,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
         auto nodePtr = *(queue.begin());
         queue.erase(nodePtr);
 
-        closed.insert(nodePtr);
+        nodePtr->closed = true;
 
         const auto& nodeCoords = nodePtr->position;
 
@@ -74,7 +73,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 
             auto& neighbour = grid.Get(neighbourCoords);
 
-            if (closed.contains(&neighbour)) {
+            if (neighbour.closed) {
                 continue;
             }
             if (nodePtr->previousSet.contains(neighbour.position)) {
@@ -134,6 +133,7 @@ void Pathfinder::ResetNodes() {
                 node.previous = nullptr;
                 node.cost = std::numeric_limits<float>::infinity();
                 node.previousSet.clear();
+                node.closed = false;
             }
         }
     }

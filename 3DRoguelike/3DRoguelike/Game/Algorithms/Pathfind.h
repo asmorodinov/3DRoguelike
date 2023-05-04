@@ -20,9 +20,10 @@ class Pathfinder {
  private:
     struct Node {
         glm::ivec3 position;
-        Node* previous;
+        Node* previous = nullptr;
         PrevSet previousSet;
-        float cost;
+        float cost = 0.0f;
+        bool closed = false;
 
         Node(const glm::ivec3& coords = glm::ivec3());
     };
@@ -66,7 +67,6 @@ class Pathfinder {
  private:
     Vector3D<Node> grid;
     Queue queue;
-    std::unordered_set<NodePtr, NodePtrHashFunction, NodePtrEqFunction> closed;
 };
 
 void PlacePathWithStairs(const std::vector<glm::ivec3>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairs);
