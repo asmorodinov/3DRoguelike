@@ -67,7 +67,11 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
             return reconstructPath(nodePtr);
         }
 
-        for (const auto& neighbourCoords : TilesInBounds(GetNeighboursWithStairs(nodeCoords), dimensions, {0, 1, 0})) {
+        for (const auto& neighbourCoords : GetNeighboursWithStairs(nodeCoords)) {
+            if (!IsInBounds(neighbourCoords, dimensions, {0, 1, 0})) {
+                continue;
+            }
+
             auto& neighbour = grid.Get(neighbourCoords);
 
             if (closed.contains(&neighbour)) {
