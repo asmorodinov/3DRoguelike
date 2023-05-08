@@ -20,4 +20,9 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET 3DRoguelike PROPERTY CXX_STANDARD 20)
 endif()
 
+if (MSVC)
+  set_target_properties(3DRoguelike PROPERTIES LINK_FLAGS "/PROFILE")
+  set_target_properties(3DRoguelike PROPERTIES LINK_FLAGS "/DEBUG:FULL")
+endif()
+
 # TODO: Add tests and install targets if needed.
