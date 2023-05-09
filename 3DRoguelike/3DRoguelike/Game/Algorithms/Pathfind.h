@@ -14,7 +14,7 @@
 
 #include "PersistentHashSet.h"
 
-using PrevSet = PersistentHashSet<glm::ivec3>;
+using PrevSet = PersistentHashSet<std::uint32_t>;
 
 class Pathfinder {
  private:

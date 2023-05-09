@@ -6,6 +6,12 @@
 
 #include "../Utility/LogDuration.h"
 
+std::uint32_t id(const glm::vec3& coords, const Dimensions& dimensions) {
+    auto res = static_cast<std::uint64_t>(CoordinatesToIndex(coords, dimensions));
+    res = res * 11400714819323198549ull;
+    return static_cast<std::uint32_t>(res);
+}
+
 // A* with staircases placement support
 
 Pathfinder::Node::Node(const glm::ivec3& coords) : position(coords) {
@@ -76,7 +82,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
             if (neighbour.closed) {
                 continue;
             }
-            if (nodePtr->previousSet.contains(neighbour.position)) {
+            if (nodePtr->previousSet.contains(id(neighbour.position, dimensions))) {
                 continue;
             }
 
@@ -89,7 +95,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 
                 auto contains = false;
                 for (const auto& tile : stairsInfo.stairsTiles) {
-                    if (nodePtr->previousSet.contains(tile)) {
+                    if (nodePtr->previousSet.contains(id(tile, dimensions))) {
                         contains = true;
                         break;
                     }
@@ -107,12 +113,12 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
                 queue.insert(&neighbour);
 
                 neighbour.previousSet = nodePtr->previousSet;
-                neighbour.previousSet.insert(nodeCoords);
+                neighbour.previousSet.insert(id(nodeCoords, dimensions));
 
                 if (pathCost.isStairs) {
                     auto stairsInfo = GetStairsInfo(neighbourCoords, nodeCoords);
                     for (const auto& tile : stairsInfo.stairsTiles) {
-                        neighbour.previousSet.insert(tile);
+                        neighbour.previousSet.insert(id(tile, dimensions));
                     }
                 }
             }
