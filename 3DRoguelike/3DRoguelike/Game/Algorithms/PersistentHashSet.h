@@ -12,6 +12,7 @@
 #include <immer/vector.hpp>
 
 #include "../Utility/HAMT.h"
+#include "../DataStructures/PatriciaSet.h"
 
 template <typename T>
 class ImmerHashSet {
@@ -152,7 +153,8 @@ class SimplePersistentHashSet {
 
 template <typename T>
 // using PersistentHashSet = std::unordered_set<T>;
-using PersistentHashSet = ImmerPersistentHashSet<T>;
+// using PersistentHashSet = ImmerPersistentHashSet<T>;
+using PersistentHashSet = PAT::IntSet<int>;
 // using PersistentHashSet = ImmerPersistentVector<T>;
 // using PersistentHashSet = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
 // using PersistentHashSet = AlwaysEmptyHashSet<T>;
