@@ -12,7 +12,7 @@ namespace PAT {
 
 template <std::unsigned_integral Key>
 Key maskbit(Key x, Key mask) {
-    return x & (mask - 1u);
+    return (x | (mask - 1u)) & (~mask);
 }
 
 template <std::unsigned_integral Key>
@@ -23,8 +23,12 @@ bool zero(Key x, Key mask) {
 // the longest common prefix, return the mask
 template <std::unsigned_integral Key>
 Key lcp(Key& p, Key p1, Key p2) {
-    Key diff = p1 ^ p2;
-    Key mask = diff & (~diff + 1u);
+    Key diff = (p1 ^ p2) >> 1;
+    Key mask = 1;
+    while (diff) {
+        diff >>= 1;
+        mask <<= 1;
+    }
     p = maskbit(p1, mask);
     return mask;
 }

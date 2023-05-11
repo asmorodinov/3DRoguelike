@@ -8,7 +8,7 @@
 
 std::uint32_t id(const glm::vec3& coords, const Dimensions& dimensions) {
     auto res = static_cast<std::uint64_t>(CoordinatesToIndex(coords, dimensions));
-    res = res * 11400714819323198549ull;
+    // res = res * 11400714819323198549ull;
     return static_cast<std::uint32_t>(res);
 }
 
