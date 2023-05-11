@@ -10,38 +10,34 @@
 
 namespace PAT {
 
-template <std::integral Key>
+template <std::unsigned_integral Key>
 Key maskbit(Key x, Key mask) {
-    return x & (~(mask - 1));
+    return x & (mask - 1u);
 }
 
-template <std::integral Key>
+template <std::unsigned_integral Key>
 bool zero(Key x, Key mask) {
-    return (x & (mask >> 1)) == 0;
+    return (x & mask) == 0;
 }
 
 // the longest common prefix, return the mask
-template <std::integral Key>
+template <std::unsigned_integral Key>
 Key lcp(Key& p, Key p1, Key p2) {
     Key diff = p1 ^ p2;
-    Key mask = 1;
-    while (diff) {
-        diff >>= 1;
-        mask <<= 1;
-    }
+    Key mask = diff & (~diff + 1u);
     p = maskbit(p1, mask);
     return mask;
 }
 
-template <std::integral Key>
+template <std::unsigned_integral Key>
 class IntPatricia;
-template <std::integral Key>
+template <std::unsigned_integral Key>
 using IntPatriciaPtr = std::shared_ptr<const IntPatricia<Key>>;
 
-template <std::integral Key>
+template <std::unsigned_integral Key>
 class IntPatricia {
  public:
-    IntPatricia(Key k = 0) : key(k), prefix(k), mask(1), left(), right() {
+    IntPatricia(Key k = 0) : key(k), prefix(k), mask(0), left(), right() {
     }
     IntPatricia(Key k, Key p, Key m, IntPatriciaPtr<Key> l, IntPatriciaPtr<Key> r) : key(k), prefix(p), mask(m), left(l), right(r) {
     }
@@ -93,7 +89,7 @@ class IntPatricia {
     IntPatriciaPtr<Key> right;
 };
 
-template <std::integral Key>
+template <std::unsigned_integral Key>
 IntPatriciaPtr<Key> branch(IntPatriciaPtr<Key> t1, IntPatriciaPtr<Key> t2) {
     Key prefix;
     const auto mask = lcp(prefix, t1->get_prefix(), t2->get_prefix());
@@ -104,7 +100,7 @@ IntPatriciaPtr<Key> branch(IntPatriciaPtr<Key> t1, IntPatriciaPtr<Key> t2) {
     }
 }
 
-template <std::integral Key>
+template <std::unsigned_integral Key>
 IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
     if (!t) {
         return std::make_shared<const IntPatricia<Key>>(key);
@@ -113,7 +109,7 @@ IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
     IntPatriciaPtr<Key> node = t;
     IntPatriciaPtr<Key> parent;
 
-    static std::array<IntPatriciaPtr<Key>, std::numeric_limits<Key>::digits + 1> arr;
+    static std::array<IntPatriciaPtr<Key>, std::numeric_limits<Key>::digits> arr;
     size_t path_length = 0;
 
     while (!node->is_leaf() && node->match(key)) {
@@ -145,7 +141,7 @@ IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
     return t->replace_child(arr[0], current);
 }
 
-template <std::integral Key>
+template <std::unsigned_integral Key>
 bool lookup(IntPatriciaPtr<Key> t, Key key) {
     if (!t) {
         return false;
@@ -166,7 +162,7 @@ bool lookup(IntPatriciaPtr<Key> t, Key key) {
     }
 }
 
-template <std::integral Key>
+template <std::unsigned_integral Key>
 class IntSet {
  public:
     IntSet() = default;
