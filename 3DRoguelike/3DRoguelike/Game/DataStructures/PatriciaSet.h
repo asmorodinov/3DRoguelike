@@ -34,6 +34,11 @@ class IntPatricia;
 template <std::unsigned_integral Key>
 using IntPatriciaPtr = std::shared_ptr<const IntPatricia<Key>>;
 
+template <std::unsigned_integral Key, typename Alloc, typename... Args>
+IntPatriciaPtr<Key> MakePatriciaPtr(Args&&... args) {
+    return std::allocate_shared<const IntPatricia<Key>>(Alloc(), args...);
+}
+
 template <std::unsigned_integral Key>
 class IntPatricia {
  public:
@@ -50,11 +55,12 @@ class IntPatricia {
         return (!is_leaf()) && (maskbit(x, mask) == prefix);
     }
 
+    template <typename Alloc>
     IntPatriciaPtr<Key> replace_child(IntPatriciaPtr<Key> x, IntPatriciaPtr<Key> y) const {
         if (left.get() == x.get()) {
-            return std::make_shared<const IntPatricia<Key>>(key, prefix, mask, y, right);
+            return MakePatriciaPtr<Key, Alloc>(key, prefix, mask, y, right);
         } else {
-            return std::make_shared<const IntPatricia<Key>>(key, prefix, mask, left, y);
+            return MakePatriciaPtr<Key, Alloc>(key, prefix, mask, left, y);
         }
     }
 
@@ -89,21 +95,21 @@ class IntPatricia {
     IntPatriciaPtr<Key> right;
 };
 
-template <std::unsigned_integral Key>
+template <std::unsigned_integral Key, typename Alloc>
 IntPatriciaPtr<Key> branch(IntPatriciaPtr<Key> t1, IntPatriciaPtr<Key> t2) {
     Key prefix;
     const auto mask = lcp(prefix, t1->get_prefix(), t2->get_prefix());
     if (zero(t1->get_prefix(), mask)) {
-        return std::make_shared<const IntPatricia<Key>>(0, prefix, mask, t1, t2);
+        return MakePatriciaPtr<Key, Alloc>(0, prefix, mask, t1, t2);
     } else {
-        return std::make_shared<const IntPatricia<Key>>(0, prefix, mask, t2, t1);
+        return MakePatriciaPtr<Key, Alloc>(0, prefix, mask, t2, t1);
     }
 }
 
-template <std::unsigned_integral Key>
+template <std::unsigned_integral Key, typename Alloc>
 IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
     if (!t) {
-        return std::make_shared<const IntPatricia<Key>>(key);
+        return MakePatriciaPtr<Key, Alloc>(key);
     }
 
     IntPatriciaPtr<Key> node = t;
@@ -128,7 +134,7 @@ IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
     }
 
     // key is not present, must copy path to leaf
-    IntPatriciaPtr<Key> p = branch(node, std::make_shared<const IntPatricia<Key>>(key));
+    IntPatriciaPtr<Key> p = branch<Key, Alloc>(node, MakePatriciaPtr<Key, Alloc>(key));
     if (!parent) {
         return p;
     }
@@ -136,9 +142,9 @@ IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
     // path copying
     auto current = p;
     for (size_t i = path_length - 1; i-- > 0;) {
-        current = arr[i]->replace_child(arr[i + 1], current);
+        current = arr[i]->replace_child<Alloc>(arr[i + 1], current);
     }
-    return t->replace_child(arr[0], current);
+    return t->replace_child<Alloc>(arr[0], current);
 }
 
 template <std::unsigned_integral Key>
@@ -162,21 +168,21 @@ bool lookup(IntPatriciaPtr<Key> t, Key key) {
     }
 }
 
-template <std::unsigned_integral Key>
+template <std::unsigned_integral Key, typename Alloc = std::allocator<IntPatricia<Key>>>
 class IntSet {
  public:
     IntSet() = default;
 
     bool contains(Key key) const {
-        return lookup(t, key);
+        return PAT::lookup<Key>(t, key);
     }
 
     void insert(Key key) {
-        t = PAT::insert(t, key);
+        t = PAT::insert<Key, Alloc>(t, key);
     }
 
     void clear() {
-        t = std::make_shared<const IntPatricia<Key>>();
+        t = MakePatriciaPtr<Key, Alloc>();
     }
 
  private:
