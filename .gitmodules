@@ -1,0 +1,3 @@
+[submodule "3DRoguelike/3DRoguelike/External/memory-allocators"]
+	path = 3DRoguelike/3DRoguelike/External/memory-allocators
+	url = https://github.com/mtrebi/memory-allocators.git
