@@ -4,7 +4,7 @@
 #include <glm/gtx/norm.hpp>
 
 #include <vector>
-#include <unordered_set>
+#include <set>
 
 #include "../Algorithms/Pathfind.h"
 #include "../Algorithms/Delaunay3D.h"
@@ -101,12 +101,17 @@ void Dungeon::placeCorridors() {
     auto mstEdges = MinimumSpanningTree(edges, points.size(), weights);
 
     // add some edges from triangulation to MST edges
-    auto finalEdges = std::unordered_set<Edge, Edge::HashFunction>(mstEdges.begin(), mstEdges.end());
+    auto finalEdges = std::set<Edge>(mstEdges.begin(), mstEdges.end());
     for (const auto& edge : edges) {
         if (rng.RandomBool(0.2f)) {
             finalEdges.insert(edge);
         }
     }
+
+    // shuffle edges randomly (but deterministically)
+    auto shuffledEdges = std::vector<Edge>(finalEdges.begin(), finalEdges.end());
+    std::sort(shuffledEdges.begin(), shuffledEdges.end());
+    rng.Shuffle(shuffledEdges.begin(), shuffledEdges.end());
 
     LOG_DURATION("Dungeon::placeCorridors - finding paths")
 
@@ -114,7 +119,11 @@ void Dungeon::placeCorridors() {
     auto pathfinder = Pathfinder(dimensions);
 
     std::cout << "Connecting rooms..." << std::endl;
-    for (const auto& [v1, v2] : finalEdges) {
+    for (auto [v1, v2] : shuffledEdges) {
+        if (rng.RandomBool()) {
+            std::swap(v1, v2);
+        }
+
         std::cout << v1 << " " << v2 << std::endl;
 
         const auto& r1 = rooms[v1];
