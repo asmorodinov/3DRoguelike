@@ -56,86 +56,139 @@ bool leaf_match(Key x, Key leaf_prefix, Key leaf_bitmap) {
 }
 
 template <std::unsigned_integral Key>
-class IntPatricia;
+class IntPatriciaNode;
+
 template <std::unsigned_integral Key>
-using IntPatriciaPtr = std::shared_ptr<const IntPatricia<Key>>;
+class IntPatriciaLeaf;
+
+template <std::unsigned_integral Key>
+class IntPatriciaBranch;
+
+template <std::unsigned_integral Key>
+using IntPatriciaPtr = std::shared_ptr<const IntPatriciaNode<Key>>;
 
 template <std::unsigned_integral Key, typename Alloc, typename... Args>
-IntPatriciaPtr<Key> MakePatriciaPtr(Args&&... args) {
-    return std::allocate_shared<const IntPatricia<Key>>(Alloc(), args...);
+IntPatriciaPtr<Key> MakePatriciaLeafPtr(Args&&... args) {
+    return std::allocate_shared<const IntPatriciaLeaf<Key>>(Alloc(), args...);
+}
+
+template <std::unsigned_integral Key, typename Alloc, typename... Args>
+IntPatriciaPtr<Key> MakePatriciaBranchPtr(Args&&... args) {
+    return std::allocate_shared<const IntPatriciaBranch<Key>>(Alloc(), args...);
 }
 
 template <std::unsigned_integral Key>
-class IntPatricia {
+class IntPatriciaNode {
  public:
-    IntPatricia(Key k = 0) : prefix(key_prefix(k)), mask(0), bitmap(key_bitmap(k)), left(), right() {
+    using Leaf = IntPatriciaLeaf<Key>;
+    using Branch = IntPatriciaBranch<Key>;
+
+    IntPatriciaNode(bool leaf) : isLeaf(leaf) {
     }
-    IntPatricia(Key p, Key m, Key b, IntPatriciaPtr<Key> l = {}, IntPatriciaPtr<Key> r = {}) : prefix(p), mask(m), bitmap(b), left(l), right(r) {
+    virtual ~IntPatriciaNode() = default;
+
+    bool IsLeaf() const {
+        return isLeaf;
+    }
+    bool IsBranch() const {
+        return !isLeaf;
     }
 
-    bool is_leaf() const {
-        return (!left) && (!right);
+    const Leaf* AsLeaf() const {
+        return IsLeaf() ? static_cast<const Leaf*>(this) : nullptr;
     }
-
-    bool match(Key x) const {
-        return (!is_leaf()) && (maskbit(x, mask) == prefix);
-    }
-
-    template <typename Alloc>
-    IntPatriciaPtr<Key> replace_child(IntPatriciaPtr<Key> x, IntPatriciaPtr<Key> y) const {
-        if (left.get() == x.get()) {
-            return MakePatriciaPtr<Key, Alloc>(prefix, mask, bitmap, y, right);
-        } else {
-            return MakePatriciaPtr<Key, Alloc>(prefix, mask, bitmap, left, y);
-        }
-    }
-
-    Key get_prefix() const {
-        return prefix;
-    }
-    Key get_mask() const {
-        return mask;
-    }
-    Key get_bitmap() const {
-        return bitmap;
-    }
-    IntPatriciaPtr<Key> get_left() const {
-        return left;
-    }
-    IntPatriciaPtr<Key> get_right() const {
-        return right;
+    const Branch* AsBranch() const {
+        return IsBranch() ? static_cast<const Branch*>(this) : nullptr;
     }
 
  private:
     // A Patricia tree is an immutable structure.
-    IntPatricia(const IntPatricia&) = delete;
-    IntPatricia(IntPatricia&&) = delete;
-    IntPatricia& operator=(const IntPatricia&) = delete;
-    IntPatricia& operator=(IntPatricia&&) = delete;
+    IntPatriciaNode(const IntPatriciaNode&) = delete;
+    IntPatriciaNode(IntPatriciaNode&&) = delete;
+    IntPatriciaNode& operator=(const IntPatriciaNode&) = delete;
+    IntPatriciaNode& operator=(IntPatriciaNode&&) = delete;
+
+ private:
+    bool isLeaf = false;
+};
+
+template <std::unsigned_integral Key>
+class IntPatriciaLeaf : public IntPatriciaNode<Key> {
+ public:
+    IntPatriciaLeaf(Key key = 0, Key bitmap = 0) : IntPatriciaNode<Key>(true), prefix(key_prefix(key)), bitmap(key_bitmap(key) | bitmap) {
+    }
+
+    Key GetPrefix() const {
+        return prefix;
+    }
+    Key GetBitmap() const {
+        return bitmap;
+    }
+
+    bool Match(Key key) const {
+        return (key_prefix(key) == prefix) && ((key_bitmap(key) & bitmap) != 0);
+    }
+
+ private:
+    Key prefix;
+    Key bitmap;
+};
+
+template <std::unsigned_integral Key>
+class IntPatriciaBranch : public IntPatriciaNode<Key> {
+ public:
+    IntPatriciaBranch(Key p = 0, Key m = 0, IntPatriciaPtr<Key> l = {}, IntPatriciaPtr<Key> r = {})
+        : IntPatriciaNode<Key>(false), prefix(p), mask(m), left(l), right(r) {
+    }
+
+    bool Match(Key key) const {
+        return maskbit(key, mask) == prefix;
+    }
+
+    template <typename Alloc>
+    IntPatriciaPtr<Key> ReplaceChild(IntPatriciaPtr<Key> x, IntPatriciaPtr<Key> y) const {
+        if (left.get() == x.get()) {
+            return MakePatriciaBranchPtr<Key, Alloc>(prefix, mask, y, right);
+        } else {
+            return MakePatriciaBranchPtr<Key, Alloc>(prefix, mask, left, y);
+        }
+    }
+
+    Key GetPrefix() const {
+        return prefix;
+    }
+    Key GetMask() const {
+        return mask;
+    }
+    IntPatriciaPtr<Key> GetLeft() const {
+        return left;
+    }
+    IntPatriciaPtr<Key> GetRight() const {
+        return right;
+    }
 
  private:
     Key prefix;
     Key mask;
-    Key bitmap;
     IntPatriciaPtr<Key> left;
     IntPatriciaPtr<Key> right;
 };
 
 template <std::unsigned_integral Key, typename Alloc>
-IntPatriciaPtr<Key> branch(IntPatriciaPtr<Key> t1, IntPatriciaPtr<Key> t2) {
+IntPatriciaPtr<Key> Branch(Key p1, IntPatriciaPtr<Key> t1, Key p2, IntPatriciaPtr<Key> t2) {
     Key prefix;
-    const auto mask = lcp(prefix, t1->get_prefix(), t2->get_prefix());
-    if (zero(t1->get_prefix(), mask)) {
-        return MakePatriciaPtr<Key, Alloc>(prefix, mask, 0, t1, t2);
+    const auto mask = lcp(prefix, p1, p2);
+    if (zero(p1, mask)) {
+        return MakePatriciaBranchPtr<Key, Alloc>(prefix, mask, t1, t2);
     } else {
-        return MakePatriciaPtr<Key, Alloc>(prefix, mask, 0, t2, t1);
+        return MakePatriciaBranchPtr<Key, Alloc>(prefix, mask, t2, t1);
     }
 }
 
 template <std::unsigned_integral Key, typename Alloc>
-IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
+IntPatriciaPtr<Key> Insert(IntPatriciaPtr<Key> t, Key key) {
     if (!t) {
-        return MakePatriciaPtr<Key, Alloc>(key);
+        return MakePatriciaLeafPtr<Key, Alloc>(key);
     }
 
     IntPatriciaPtr<Key> node = t;
@@ -144,29 +197,37 @@ IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
     static std::array<IntPatriciaPtr<Key>, std::numeric_limits<Key>::digits - 5> arr;
     size_t path_length = 0;
 
-    while (!node->is_leaf() && node->match(key)) {
-        parent = node;
-        if (zero(key, node->get_mask())) {
-            node = node->get_left();
-        } else {
-            node = node->get_right();
+    while (node->IsBranch()) {
+        const auto branch = node->AsBranch();
+        if (!branch->Match(key)) {
+            break;
         }
+
+        parent = node;
+
+        if (zero(key, branch->GetMask())) {
+            node = branch->GetLeft();
+        } else {
+            node = branch->GetRight();
+        }
+
         arr[path_length++] = node;
     }
 
     IntPatriciaPtr<Key> current;
 
-    if (node->is_leaf() && (key_prefix(key) == node->get_prefix())) {
-        if ((key_bitmap(key) & node->get_bitmap()) != 0) {
+    if (const auto leaf = node->AsLeaf(); leaf && (key_prefix(key) == leaf->GetPrefix())) {
+        if ((key_bitmap(key) & leaf->GetBitmap()) != 0) {
             // key already present
             return t;
         } else {
             // add key to existing leaf's bitmap
-            current = MakePatriciaPtr<Key, Alloc>(key_prefix(key), 0u, node->get_bitmap() | key_bitmap(key));
+            current = MakePatriciaLeafPtr<Key, Alloc>(key, leaf->GetBitmap());
         }
     } else {
         // create new branch
-        current = branch<Key, Alloc>(node, MakePatriciaPtr<Key, Alloc>(key));
+        current = Branch<Key, Alloc>(node->IsBranch() ? node->AsBranch()->GetPrefix() : node->AsLeaf()->GetPrefix(), node, key_prefix(key),
+                                     MakePatriciaLeafPtr<Key, Alloc>(key));
     }
 
     if (!parent) {
@@ -175,47 +236,53 @@ IntPatriciaPtr<Key> insert(IntPatriciaPtr<Key> t, Key key) {
 
     // path copying
     for (size_t i = path_length - 1; i-- > 0;) {
-        current = arr[i]->replace_child<Alloc>(arr[i + 1], current);
+        current = arr[i]->AsBranch()->ReplaceChild<Alloc>(arr[i + 1], current);
     }
-    return t->replace_child<Alloc>(arr[0], current);
+    return t->AsBranch()->ReplaceChild<Alloc>(arr[0], current);
 }
 
 template <std::unsigned_integral Key>
-bool lookup(IntPatriciaPtr<Key> t, Key key) {
+bool Lookup(IntPatriciaPtr<Key> t, Key key) {
     if (!t) {
         return false;
     }
 
-    while ((!t->is_leaf()) && t->match(key)) {
-        if (zero(key, t->get_mask())) {
-            t = t->get_left();
+    while (t->IsBranch()) {
+        const auto branch = t->AsBranch();
+
+        if (!branch->Match(key)) {
+            return false;
+        }
+
+        if (zero(key, branch->GetMask())) {
+            t = branch->GetLeft();
         } else {
-            t = t->get_right();
+            t = branch->GetRight();
         }
     }
 
-    if (t->is_leaf() && leaf_match(key, t->get_prefix(), t->get_bitmap())) {
+    if (auto leaf = t->AsLeaf(); leaf->Match(key)) {
         return true;
     } else {
         return false;
     }
 }
 
-template <std::unsigned_integral Key, typename Alloc = std::allocator<IntPatricia<Key>>>
+template <std::unsigned_integral Key, typename Alloc = std::allocator<IntPatriciaNode<Key>>>
 class IntSet {
  public:
     IntSet() = default;
 
     bool contains(Key key) const {
-        return PAT::lookup<Key>(t, key);
+        return Lookup<Key>(t, key);
     }
 
     void insert(Key key) {
-        t = PAT::insert<Key, Alloc>(t, key);
+        t = Insert<Key, Alloc>(t, key);
     }
 
     void clear() {
-        t = MakePatriciaPtr<Key, Alloc>();
+        t = {};
     }
 
  private:
