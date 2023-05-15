@@ -12,11 +12,9 @@
 #include <immer/vector.hpp>
 
 #include "../Utility/HAMT.h"
-#include "../DataStructures/PatriciaSet.h"
 
-#include "../Allocators/HeapAllocator.h"
-#include "../Allocators/FreeListAllocator.h"
-#include "../Allocators/PoolAllocator.h"
+#include "../../External/PersistentSet/PersistentSet/PatriciaSet.h"
+#include "../../External/PersistentSet/Allocators/TwoPoolsAllocator.h"
 
 template <typename T>
 class ImmerHashSet {
@@ -158,7 +156,7 @@ class SimplePersistentHashSet {
 template <typename T>
 // using PersistentHashSet = std::unordered_set<T>;
 // using PersistentHashSet = ImmerPersistentHashSet<T>;
-using PersistentHashSet = PAT::IntSet<T, StdPoolAllocator<PAT::IntPatriciaNode<T>>>;
+using PersistentHashSet = patricia::IntSet<T, std::uint64_t, StdTwoPoolsAllocator<void, 1 << 23, 72, 48>>;
 // using PersistentHashSet = ImmerPersistentVector<T>;
 // using PersistentHashSet = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
 // using PersistentHashSet = AlwaysEmptyHashSet<T>;
