@@ -46,7 +46,7 @@ Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()),
 
 std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& start, const std::vector<glm::ivec3>& finish, const glm::ivec3& target,
                                              const TilesVec& world) {
-    LOG_DURATION("Pathfinder::FindPath")
+    LOG_DURATION("Pathfinder::FindPath");
 
     ResetNodes();
     queue = Queue();
@@ -129,7 +129,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 }
 
 void Pathfinder::ResetNodes() {
-    LOG_DURATION("Pathfinder::ResetNodes")
+    LOG_DURATION("Pathfinder::ResetNodes");
 
     const auto& dimensions = grid.GetDimensions();
     for (size_t x = 0; x < dimensions.width; ++x) {
@@ -228,7 +228,7 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
 }
 
 void PlacePathWithStairs(const std::vector<glm::ivec3>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairsAir) {
-    LOG_DURATION("Pathfinder - PlacePathWithStairs")
+    LOG_DURATION("Pathfinder - PlacePathWithStairs");
 
     // place air and stairs tiles
 
