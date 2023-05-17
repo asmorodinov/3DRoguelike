@@ -1,8 +1,13 @@
 #pragma once
 
+#define MEASURE_STATISTICS
+// #define MEASURE_SET_STATISTICS
+
 #include "LogDuration.h"
 
 namespace util {
+
+// Statistics struct
 
 struct Statistics {
     int copyCount;
@@ -18,6 +23,36 @@ struct Statistics {
 Statistics& GetStatistics();
 void PrintReport();
 void Reset();
+
+// Measure duration
+
+// Measures duration of a scope, and stores result in a passed variable (increments it).
+// Also tracks the number of times it was created (and desctroyed).
+class MeasureDuration {
+ public:
+    explicit MeasureDuration(long long& time, int& count) : time(time), count(count), start(std::chrono::steady_clock::now()) {
+    }
+
+    ~MeasureDuration() {
+        auto finish = std::chrono::steady_clock::now();
+        time += LogDuration::diff(start, finish);
+        ++count;
+    }
+
+ private:
+    long long& time;
+    int& count;
+    std::chrono::steady_clock::time_point start;
+};
+
+#ifdef MEASURE_STATISTICS
+#define MEASURE_DURATION(time, count) \
+    MeasureDuration UNIQ_ID(__LINE__) { time, count }
+#else
+#define MEASURE_DURATION(time, count)
+#endif
+
+// Meassure Set Statistics
 
 // helper class for printing statistics about set performance
 template <typename T, typename Set>

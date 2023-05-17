@@ -1,4 +1,4 @@
-#include "MeasureSetStatistics.h"
+#include "MeasureStatistics.h"
 
 #include <iostream>
 
@@ -14,7 +14,7 @@ void PrintReport() {
 
     static constexpr float secondsToMicroseconds = 1e6f;
 
-#ifdef MEASURE_STATISTICS
+#ifdef MEASURE_SET_STATISTICS
     std::cout << "----------\n";
     std::cout << "Copy count: " << s.copyCount << "\n";
     std::cout << "Insert count: " << s.insertCount << "\n";

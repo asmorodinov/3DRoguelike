@@ -23,7 +23,7 @@
 
 #include <boost/unordered/unordered_flat_set.hpp>
 
-#include "../Utility/MeasureSetStatistics.h"
+#include "../Utility/MeasureStatistics.h"
 
 template <typename T>
 class ImmerHashSet {
@@ -212,7 +212,7 @@ using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
 // using PersistentHashSetImpl = SimplePersistentHashSet<T>;
 // using PersistentHashSetImpl = ImmerHashSet<T>;
 
-#ifdef MEASURE_STATISTICS
+#ifdef MEASURE_SET_STATISTICS
 template <typename T>
 using PersistentHashSet = util::MeasureStatisticsSet<T, PersistentHashSetImpl<T>>;
 #else

@@ -28,25 +28,6 @@ class LogDuration {
     std::chrono::steady_clock::time_point start;
 };
 
-// Measures duration of a scope, and stores result in a passed variable (increments it).
-// Also tracks the number of times it was created (and desctroyed).
-class MeasureDuration {
- public:
-    explicit MeasureDuration(long long& time, int& count) : time(time), count(count), start(std::chrono::steady_clock::now()) {
-    }
-
-    ~MeasureDuration() {
-        auto finish = std::chrono::steady_clock::now();
-        time += LogDuration::diff(start, finish);
-        ++count;
-    }
-
- private:
-    long long& time;
-    int& count;
-    std::chrono::steady_clock::time_point start;
-};
-
 #ifndef UNIQ_ID
 #define UNIQ_ID_IMPL(lineno) _a_local_var_##lineno
 #define UNIQ_ID(lineno) UNIQ_ID_IMPL(lineno)
@@ -58,12 +39,4 @@ class MeasureDuration {
     LogDuration UNIQ_ID(__LINE__) { message }
 #else
 #define LOG_DURATION(message)
-#endif
-
-// #define MEASURE_STATISTICS
-#ifdef MEASURE_STATISTICS
-#define MEASURE_DURATION(time, count) \
-    MeasureDuration UNIQ_ID(__LINE__) { time, count }
-#else
-#define MEASURE_DURATION(time, count)
 #endif

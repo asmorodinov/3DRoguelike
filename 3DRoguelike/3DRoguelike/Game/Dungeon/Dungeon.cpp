@@ -14,7 +14,7 @@
 #include "../Assets.h"
 #include "../Utility/LogDuration.h"
 #include "../Utility/CompareFiles.h"
-#include "../Utility/MeasureSetStatistics.h"
+#include "../Utility/MeasureStatistics.h"
 
 static const auto offset = glm::ivec3(5, 5, 5);
 
