@@ -65,5 +65,5 @@ class MeasureDuration {
 #define MEASURE_DURATION(time, count) \
     MeasureDuration UNIQ_ID(__LINE__) { time, count }
 #else
-#define MEASURE_DURATION(var)
+#define MEASURE_DURATION(time, count)
 #endif
