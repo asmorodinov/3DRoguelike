@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "Tile.h"
 #include "WorldGrid.h"
 #include "TileRenderer.h"
@@ -21,6 +23,8 @@ class Dungeon {
     glm::ivec3 GetSpawnPoint() const;
 
     size_t WhichRoomPointIsInside(const glm::ivec3& coords) const;
+
+    void Serialize(std::string filename) const;
 
  private:
     void placeRooms();

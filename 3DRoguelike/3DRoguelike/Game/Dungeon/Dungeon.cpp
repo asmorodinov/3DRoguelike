@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <set>
+#include <fstream>
 
 #include "../Algorithms/Pathfind.h"
 #include "../Algorithms/Delaunay3D.h"
@@ -12,6 +13,7 @@
 
 #include "../Assets.h"
 #include "../Utility/LogDuration.h"
+#include "../Utility/CompareFiles.h"
 
 static const auto offset = glm::ivec3(5, 5, 5);
 
@@ -209,6 +211,15 @@ void Dungeon::Generate() {
         addTile(coords, tilesData, stairsData, tiles);
     }
 
+    auto filename = std::to_string(seed) + ".txt";
+    auto canon_filename = "canon_" + filename;
+    Serialize(filename);
+
+    if (!util::FilesAreEqual(canon_filename, filename)) {
+        std::cout << "Canon test failed!\n";
+        LOG_ASSERT(false);
+    }
+
     renderer.InitInstancedRendering(tilesData, stairsData);
 }
 
@@ -232,4 +243,26 @@ size_t Dungeon::WhichRoomPointIsInside(const glm::ivec3& coords) const {
     }
 
     return rooms.size();
+}
+
+void Dungeon::Serialize(std::string filename) const {
+    auto file = std::ofstream(filename);
+
+    std::vector<std::string> lines;
+
+    size_t i = 0;
+    for (const auto& tile : tiles) {
+        lines.push_back(std::to_string(i++) + " " + std::to_string(static_cast<int>(tile.type)) + "\n");
+    }
+
+    for (const auto& [coords, tile] : tiles.GetOutOfBoundsMap()) {
+        lines.push_back(std::to_string(coords.x) + " " + std::to_string(coords.y) + " " + std::to_string(coords.z) + " " +
+                        std::to_string(static_cast<int>(tile.type)) + "\n");
+    }
+
+    std::sort(lines.begin(), lines.end());
+
+    for (const auto& line : lines) {
+        file << line;
+    }
 }
