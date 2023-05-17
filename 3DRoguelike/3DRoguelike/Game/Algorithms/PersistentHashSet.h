@@ -22,6 +22,8 @@
 
 #include <boost/unordered/unordered_flat_set.hpp>
 
+#include "../Utility/MeasureSetStatistics.h"
+
 template <typename T>
 class ImmerHashSet {
  public:
@@ -160,15 +162,23 @@ class SimplePersistentHashSet {
 };
 
 template <typename T>
-// using PersistentHashSet = std::unordered_set<T>;
-using PersistentHashSet = ImmerPersistentHashSet<T>;
-// using PersistentHashSet = boost::unordered_flat_set<T>;
-// using PersistentHashSet = patricia::IntSet<T, std::uint64_t, StdTwoPoolsAllocator<void, 1 << 23, 72, 48>>;
-// using PersistentHashSet = sk::patricia_set<T>;
-// using PersistentHashSet = ikos::core::PatriciaTreeSet<ikos::core::Index>;
-// using PersistentHashSet = sparta::PatriciaTreeSet<T>;
-// using PersistentHashSet = ImmerPersistentVector<T>;
-// using PersistentHashSet = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
-// using PersistentHashSet = AlwaysEmptyHashSet<T>;
-// using PersistentHashSet = SimplePersistentHashSet<T>;
-// using PersistentHashSet = ImmerHashSet<T>;
+// using PersistentHashSetImpl = std::unordered_set<T>;
+using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
+// using PersistentHashSetImpl = boost::unordered_flat_set<T>;
+// using PersistentHashSetImpl = patricia::IntSet<T, std::uint64_t, StdTwoPoolsAllocator<void, 1 << 23, 72, 48>>;
+// using PersistentHashSetImpl = sk::patricia_set<T>;
+// using PersistentHashSetImpl = ikos::core::PatriciaTreeSet<ikos::core::Index>;
+// using PersistentHashSetImpl = sparta::PatriciaTreeSet<T>;
+// using PersistentHashSetImpl = ImmerPersistentVector<T>;
+// using PersistentHashSetImpl = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
+// using PersistentHashSetImpl = AlwaysEmptyHashSet<T>;
+// using PersistentHashSetImpl = SimplePersistentHashSet<T>;
+// using PersistentHashSetImpl = ImmerHashSet<T>;
+
+#ifdef MEASURE_STATISTICS
+template <typename T>
+using PersistentHashSet = util::MeasureStatisticsSet<T, PersistentHashSetImpl<T>>;
+#else
+template <typename T>
+using PersistentHashSet = PersistentHashSetImpl<T>;
+#endif

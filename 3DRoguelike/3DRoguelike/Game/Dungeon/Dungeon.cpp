@@ -14,6 +14,7 @@
 #include "../Assets.h"
 #include "../Utility/LogDuration.h"
 #include "../Utility/CompareFiles.h"
+#include "../Utility/MeasureSetStatistics.h"
 
 static const auto offset = glm::ivec3(5, 5, 5);
 
@@ -186,6 +187,10 @@ void Dungeon::Generate() {
 
     placeRooms();
     placeCorridors();
+
+    // print set statistics report
+    util::PrintReport();
+    util::Reset();
 
     auto roomIndex = rng.IntUniform<size_t>(0, rooms.size() - 1);
     if (Assets::HasConfigParameter("starting-room")) {
