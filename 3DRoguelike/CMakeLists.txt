@@ -15,6 +15,7 @@ find_package(CGAL CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(Immer CONFIG REQUIRED)
+find_package(Boost 1.82 REQUIRED COMPONENTS)
 
 # Include sub-projects.
 add_subdirectory ("3DRoguelike")

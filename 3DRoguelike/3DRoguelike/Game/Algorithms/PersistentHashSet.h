@@ -11,10 +11,16 @@
 #include <immer/set_transient.hpp>
 #include <immer/vector.hpp>
 
+#include "../../External/SPARTA/include/PatriciaTreeSet.h"
+#include "../../External/ikos/core/include/ikos/core/adt/patricia_tree/set.hpp"
+#include "../../External/patricia/include/sk/patricia.hxx"
+
 #include "../Utility/HAMT.h"
 
 #include "../../External/PersistentSet/PersistentSet/PatriciaSet.h"
 #include "../../External/PersistentSet/Allocators/TwoPoolsAllocator.h"
+
+#include <boost/unordered/unordered_flat_set.hpp>
 
 template <typename T>
 class ImmerHashSet {
@@ -155,8 +161,12 @@ class SimplePersistentHashSet {
 
 template <typename T>
 // using PersistentHashSet = std::unordered_set<T>;
-// using PersistentHashSet = ImmerPersistentHashSet<T>;
-using PersistentHashSet = patricia::IntSet<T, std::uint64_t, StdTwoPoolsAllocator<void, 1 << 23, 72, 48>>;
+using PersistentHashSet = ImmerPersistentHashSet<T>;
+// using PersistentHashSet = boost::unordered_flat_set<T>;
+// using PersistentHashSet = patricia::IntSet<T, std::uint64_t, StdTwoPoolsAllocator<void, 1 << 23, 72, 48>>;
+// using PersistentHashSet = sk::patricia_set<T>;
+// using PersistentHashSet = ikos::core::PatriciaTreeSet<ikos::core::Index>;
+// using PersistentHashSet = sparta::PatriciaTreeSet<T>;
 // using PersistentHashSet = ImmerPersistentVector<T>;
 // using PersistentHashSet = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
 // using PersistentHashSet = AlwaysEmptyHashSet<T>;
