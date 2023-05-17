@@ -12,15 +12,20 @@ Statistics& GetStatistics() {
 void PrintReport() {
     const Statistics& s = GetStatistics();
 
+    static constexpr float secondsToMicroseconds = 1e6f;
+
 #ifdef MEASURE_STATISTICS
+    std::cout << "----------\n";
     std::cout << "Copy count: " << s.copyCount << "\n";
     std::cout << "Insert count: " << s.insertCount << "\n";
     std::cout << "Contains count: " << s.containsCount << "\n";
     std::cout << "Clear count: " << s.clearCount << "\n";
-    std::cout << "Copy time: " << s.copyTime << "us \n";
-    std::cout << "Insert time: " << s.insertTime << "us \n";
-    std::cout << "Contains time: " << s.containsTime << "us \n";
-    std::cout << "Clear time: " << s.clearTime << "us \n";
+    std::cout << "----------\n";
+    std::cout << "Copy time: " << static_cast<float>(s.copyTime) / secondsToMicroseconds << "s \n";
+    std::cout << "Insert time: " << static_cast<float>(s.insertTime) / secondsToMicroseconds << "s \n";
+    std::cout << "Contains time: " << static_cast<float>(s.containsTime) / secondsToMicroseconds << "s \n";
+    std::cout << "Clear time: " << static_cast<float>(s.clearTime) / secondsToMicroseconds << "s \n";
+    std::cout << "----------\n";
 #endif
 }
 

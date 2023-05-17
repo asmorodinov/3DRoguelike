@@ -19,6 +19,7 @@
 
 #include "../../External/PersistentSet/PersistentSet/PatriciaSet.h"
 #include "../../External/PersistentSet/Allocators/TwoPoolsAllocator.h"
+#include "../../External/PersistentSet/Allocators/PoolAllocator.h"
 
 #include <boost/unordered/unordered_flat_set.hpp>
 
@@ -161,9 +162,45 @@ class SimplePersistentHashSet {
     Version version = 0;
 };
 
+template <typename T, typename Alloc = std::allocator<void>>
+class PersistentLinkedList {
+ private:
+    struct Node {
+        T val;
+        std::shared_ptr<const Node> next;
+    };
+
+    using NodePtr = std::shared_ptr<const Node>;
+
+ public:
+    PersistentLinkedList() = default;
+
+    bool contains(const T& value) const {
+        for (auto current = head; current; current = current->next) {
+            if (current->val == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void insert(const T& value) {
+        head = std::allocate_shared<const Node>(Alloc(), Node{value, head});
+    }
+
+    void clear() {
+        head = {};
+    }
+
+ private:
+    NodePtr head;
+};
+
 template <typename T>
 // using PersistentHashSetImpl = std::unordered_set<T>;
 using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
+// using PersistentHashSetImpl = PersistentLinkedList<T>;
+// using PersistentHashSetImpl = PersistentLinkedList<T, StdPoolAllocator<void, 1 << 23, 40>>;
 // using PersistentHashSetImpl = boost::unordered_flat_set<T>;
 // using PersistentHashSetImpl = patricia::IntSet<T, std::uint64_t, StdTwoPoolsAllocator<void, 1 << 23, 72, 48>>;
 // using PersistentHashSetImpl = sk::patricia_set<T>;
