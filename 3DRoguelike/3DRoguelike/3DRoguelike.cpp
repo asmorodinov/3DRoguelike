@@ -159,6 +159,10 @@ int main() {
             dungeon.Generate();
             player.SetPosition(glm::vec3(dungeon.GetSpawnPoint()));
             camera.Position = player.GetPosition();
+
+            // print statistics report
+            util::PrintReport();
+            util::Reset();
         }
 
         dungeon.Render();
