@@ -48,6 +48,7 @@ float fpsLastFrame = 0.0f;
 bool generate = false;
 auto rightPressed = false;
 auto leftPressed = false;
+auto upPressed = false;
 
 auto F1Pressed = false;
 auto spacePressed = false;
@@ -217,6 +218,14 @@ void processInput(GLFWwindow* window) {
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE) {
         leftPressed = false;
+    }
+
+    if (!upPressed && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        generate = true;
+        upPressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE) {
+        upPressed = false;
     }
 
     disableCollision = glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS;

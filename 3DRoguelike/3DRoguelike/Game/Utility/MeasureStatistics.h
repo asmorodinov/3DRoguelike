@@ -5,9 +5,9 @@
 #include <algorithm>
 
 #define MEASURE_STATISTICS
-#define MEASURE_SET_STATISTICS
+// #define MEASURE_SET_STATISTICS
 #define MEASURE_DUNGEON_STATISTICS
-#define MEASURE_PATHFIND_STATISTICS
+// #define MEASURE_PATHFIND_STATISTICS
 
 #include "LogDuration.h"
 
