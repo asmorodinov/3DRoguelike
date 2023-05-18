@@ -44,6 +44,7 @@ Room getRandomRoom(RNG& rng) {
 
 void Dungeon::placeRooms() {
     LOG_DURATION("Dungeon::placeRooms");
+    MEASURE_STAT(generateRooms);
 
     auto tries = 1000;
     auto roomCnt = 10;
@@ -81,6 +82,7 @@ void Dungeon::placeRooms() {
 
 void Dungeon::placeCorridors() {
     LOG_DURATION("Dungeon::placeCorridors");
+    MEASURE_STAT(generateCorridors);
 
     auto air = Tile{TileType::CorridorAir, TileOrientation::None, TextureType::None, glm::vec3(1.0f)};
 
@@ -181,16 +183,14 @@ void addTile(const glm::ivec3& coords, std::vector<PositionColor>& blocks, std::
 
 void Dungeon::Generate() {
     LOG_DURATION("Dungeon::Generate");
+    MEASURE_STAT(generateDungeon);
+
     reset();
 
     std::cout << "Seed: " << seed << std::endl;
 
     placeRooms();
     placeCorridors();
-
-    // print set statistics report
-    util::PrintReport();
-    util::Reset();
 
     auto roomIndex = rng.IntUniform<size_t>(0, rooms.size() - 1);
     if (Assets::HasConfigParameter("starting-room")) {

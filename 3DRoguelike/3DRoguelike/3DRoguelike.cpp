@@ -15,6 +15,8 @@
 #include "Game/Dungeon/Dungeon.h"
 #include "Game/Physics/Entity.h"
 
+#include "Game/Utility/MeasureStatistics.h"
+
 #include <iostream>
 #include <string>
 
@@ -111,6 +113,11 @@ int main() {
 
     dungeon.SetSeed(seed);
     dungeon.Generate();
+
+    // print statistics report
+    util::PrintReport();
+    util::Reset();
+
     player.SetFlying(true);
     player.SetPosition(glm::vec3(dungeon.GetSpawnPoint()));
     camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.1f, 0.0f);

@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "../Utility/LogDuration.h"
+#include "../Utility/MeasureStatistics.h"
 
 std::uint32_t id(const glm::vec3& coords, const Dimensions& dimensions) {
     auto res = static_cast<std::uint64_t>(CoordinatesToIndex(coords, dimensions));
@@ -47,6 +48,7 @@ Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()),
 std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& start, const std::vector<glm::ivec3>& finish, const glm::ivec3& target,
                                              const TilesVec& world) {
     LOG_DURATION("Pathfinder::FindPath");
+    MEASURE_STAT(findPath);
 
     ResetNodes();
     queue = Queue();
