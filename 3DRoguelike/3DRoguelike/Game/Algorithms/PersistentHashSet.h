@@ -197,17 +197,57 @@ class PersistentLinkedList {
 };
 
 template <typename T>
+class SimpleChecker {
+ public:
+    SimpleChecker() = default;
+
+    bool contains(const T& value) const {
+        auto& s = util::GetStatistics();
+
+        ++s.all;
+
+        auto resGood = good.contains(value);
+        auto resBad = bad.contains(value);
+
+        if (resGood == resBad) {
+            ++s.correct;
+        } else if (resGood && !resBad) {
+            ++s.falseNegative;
+        } else {
+            ++s.falsePositive;
+        }
+
+        return resGood;
+    }
+
+    void insert(const T& value) {
+        good.insert(value);
+        bad.insert(value);
+    }
+
+    void clear() {
+        good.clear();
+        bad.clear();
+    }
+
+ private:
+    ImmerPersistentHashSet<T> good;
+    SimplePersistentHashSet<T> bad;
+};
+
+template <typename T>
 // using PersistentHashSetImpl = std::unordered_set<T>;
-using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
-// using PersistentHashSetImpl = PersistentLinkedList<T>;
-// using PersistentHashSetImpl = PersistentLinkedList<T, StdPoolAllocator<void, 1 << 23, 40>>;
-// using PersistentHashSetImpl = boost::unordered_flat_set<T>;
-// using PersistentHashSetImpl = patricia::IntSet<T, std::uint64_t, StdTwoPoolsAllocator<void, 1 << 23, 72, 48>>;
-// using PersistentHashSetImpl = sk::patricia_set<T>;
-// using PersistentHashSetImpl = ikos::core::PatriciaTreeSet<ikos::core::Index>;
-// using PersistentHashSetImpl = sparta::PatriciaTreeSet<T>;
-// using PersistentHashSetImpl = ImmerPersistentVector<T>;
-// using PersistentHashSetImpl = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
+// using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
+using PersistentHashSetImpl = SimpleChecker<T>;
+//  using PersistentHashSetImpl = PersistentLinkedList<T>;
+//  using PersistentHashSetImpl = PersistentLinkedList<T, StdPoolAllocator<void, 1 << 23, 40>>;
+//  using PersistentHashSetImpl = boost::unordered_flat_set<T>;
+//  using PersistentHashSetImpl = patricia::IntSet<T, std::uint64_t, StdTwoPoolsAllocator<void, 1 << 23, 72, 48>>;
+//  using PersistentHashSetImpl = sk::patricia_set<T>;
+//  using PersistentHashSetImpl = ikos::core::PatriciaTreeSet<ikos::core::Index>;
+//  using PersistentHashSetImpl = sparta::PatriciaTreeSet<T>;
+//  using PersistentHashSetImpl = ImmerPersistentVector<T>;
+//  using PersistentHashSetImpl = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
 // using PersistentHashSetImpl = AlwaysEmptyHashSet<T>;
 // using PersistentHashSetImpl = SimplePersistentHashSet<T>;
 // using PersistentHashSetImpl = ImmerHashSet<T>;
