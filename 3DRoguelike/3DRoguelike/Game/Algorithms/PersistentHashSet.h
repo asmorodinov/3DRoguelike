@@ -146,7 +146,7 @@ class SimplePersistentHashSet {
             data = std::make_shared<Map>();
         }
 
-        data->insert({value, version++});
+        (*data)[value] = version++;
     }
 
     void clear() {
