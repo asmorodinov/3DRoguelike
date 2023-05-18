@@ -103,7 +103,9 @@ int main() {
 
     Assets::Get().orthogonalProjection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
 
+    // auto dimensions = Dimensions{100, 40, 100};
     auto dimensions = Dimensions{50, 20, 50};
+
     auto dungeon = Dungeon(dimensions);
 
     if (Assets::HasConfigParameter("seed")) {

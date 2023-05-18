@@ -9,7 +9,7 @@ using namespace util;
 
 std::string format(Time time) {
     std::stringstream ss;
-    ss << std::fixed << std::setprecision(6) << static_cast<float>(time) / 1e6f << "s";
+    ss << std::fixed << std::setprecision(6) << static_cast<float>(time) / 1e6f;
     return ss.str();
 }
 
@@ -70,6 +70,9 @@ void PrintReport() {
     PRINT_TIME(findPath);
     std::cout << "----------\n";
 #endif
+
+    std::cout << "all: " << s.all << " correct: " << s.correct << " false-positive: " << s.falsePositive << " false-negative: " << s.falseNegative
+              << "\n";
 }
 
 void Reset() {

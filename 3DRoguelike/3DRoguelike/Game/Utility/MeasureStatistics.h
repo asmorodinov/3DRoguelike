@@ -7,7 +7,7 @@
 #define MEASURE_STATISTICS
 // #define MEASURE_SET_STATISTICS
 #define MEASURE_DUNGEON_STATISTICS
-// #define MEASURE_PATHFIND_STATISTICS
+#define MEASURE_PATHFIND_STATISTICS
 
 #include "LogDuration.h"
 
@@ -44,6 +44,12 @@ struct Statistics {
     REGISTER_STAT(generateCorridors);
     // pathfind statistics
     REGISTER_STAT(findPath);
+
+    // simple set stats
+    int correct = 0;
+    int falsePositive = 0;
+    int falseNegative = 0;
+    int all = 0;
 };
 
 Statistics& GetStatistics();
