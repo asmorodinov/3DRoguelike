@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <random>
 
 #include <glm/glm.hpp>
@@ -23,6 +24,11 @@ class RNG {
     template <typename T>
     T RealUniform(T a, T b) {
         return std::uniform_real_distribution<T>(a, b)(rng);
+    }
+
+    template <typename Iter>
+    void Shuffle(Iter begin, Iter end) {
+        std::shuffle(begin, end, rng);
     }
 
     bool RandomBool(float chance = 0.5f);

@@ -15,6 +15,8 @@
 #include "Game/Dungeon/Dungeon.h"
 #include "Game/Physics/Entity.h"
 
+#include "Game/Utility/MeasureStatistics.h"
+
 #include <iostream>
 #include <string>
 
@@ -111,6 +113,11 @@ int main() {
 
     dungeon.SetSeed(seed);
     dungeon.Generate();
+
+    // print statistics report
+    util::PrintReport();
+    util::Reset();
+
     player.SetFlying(true);
     player.SetPosition(glm::vec3(dungeon.GetSpawnPoint()));
     camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.1f, 0.0f);
@@ -137,7 +144,7 @@ int main() {
         player.Update(dungeon.GetTiles(), deltaTime, disableCollision);
         camera.Position = player.GetPosition() + glm::vec3(0.0f, 0.1f, 0.0f);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);

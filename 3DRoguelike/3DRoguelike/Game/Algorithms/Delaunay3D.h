@@ -9,6 +9,7 @@ struct Edge {
     size_t v2;
 
     bool operator==(const Edge& other) const;
+    bool operator<(const Edge& other) const;
     struct HashFunction {
         size_t operator()(const Edge& edge) const;
     };

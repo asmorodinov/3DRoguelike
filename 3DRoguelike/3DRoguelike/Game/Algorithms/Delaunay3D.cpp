@@ -1,6 +1,8 @@
 #include "Delaunay3D.h"
 
+#include <algorithm>
 #include <utility>
+#include <tuple>
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Delaunay_triangulation_3.h>
@@ -8,8 +10,6 @@
 #include <CGAL/Triangulation_vertex_base_with_info_3.h>
 
 #include "../Assert.h"
-
-#include <iostream>
 
 using K = CGAL::Exact_predicates_inexact_constructions_kernel;
 using Vb = CGAL::Triangulation_vertex_base_with_info_3<size_t, K>;
@@ -39,14 +39,19 @@ std::vector<Edge> Delaunay3D(const std::vector<glm::vec3>& pointsVec) {
         const auto v1 = e.first->vertex(e.second)->info();
         const auto v2 = e.first->vertex(e.third)->info();
 
-        edges.push_back({v1, v2});
+        edges.push_back({std::min(v1, v2), std::max(v1, v2)});
     }
+
+    std::sort(edges.begin(), edges.end());
 
     return edges;
 }
 
 bool Edge::operator==(const Edge& other) const {
     return v1 == other.v1 && v2 == other.v2;
+}
+bool Edge::operator<(const Edge& other) const {
+    return std::tie(v1, v2) < std::tie(other.v1, other.v2);
 }
 
 size_t Edge::HashFunction::operator()(const Edge& edge) const {

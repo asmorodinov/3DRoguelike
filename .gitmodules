@@ -1,0 +1,12 @@
+[submodule "3DRoguelike/3DRoguelike/External/PersistentSet"]
+	path = 3DRoguelike/3DRoguelike/External/PersistentSet
+	url = https://github.com/asmorodinov/PersistentSet.git
+[submodule "3DRoguelike/3DRoguelike/External/SPARTA"]
+	path = 3DRoguelike/3DRoguelike/External/SPARTA
+	url = https://github.com/facebook/SPARTA.git
+[submodule "3DRoguelike/3DRoguelike/External/ikos"]
+	path = 3DRoguelike/3DRoguelike/External/ikos
+	url = https://github.com/NASA-SW-VnV/ikos.git
+[submodule "3DRoguelike/3DRoguelike/External/patricia"]
+	path = 3DRoguelike/3DRoguelike/External/patricia
+	url = https://github.com/sikol/patricia.git

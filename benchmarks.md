@@ -1,0 +1,35 @@
+# Benchmarks
+
+## Pathfind algorithm with different persistent hash sets
+- $10$ rooms were generated in a map with dimensions $50\times 20 \times 50$, and $16$ corridors were placed that connected these rooms.
+- All durations below are given in microseconds.
+- Seed with slighly more corridors and higher pathfind times than average was chosen.
+- $Seed=12346$
+  - `std::unordered_set`
+    - samples: $9907017, 9311088, 9055726, 8995204, 8778404$
+    - $\mu=9,209,488$
+    - $\sigma=387,882$
+    - Margin of error (95% confidence level): 
+      - $9,209,488 \pm 339,994 (\pm 3.69\%)$
+  - `immer::set_transient`
+    - samples: $5446972, 6606020, 5293802, 5972190, 6449878$
+    - $\mu=5,953,772$
+    - $\sigma=522,359$
+    - Margin of error: 
+      - $5,953,772 \pm 457,868 (\pm 7.69\%)$
+  - `SimplePersistentHashSet`
+    - samples: $3505377, 4073950, 3271719, 3372933, 3765312$
+    - $\mu=3,597,858$
+    - $\sigma=289,902$
+    - Margin of error: 
+      - $3,597,858 \pm 254,110 (\pm 7.06\%)$
+  - Overall results (only comparing $\mu$ values):
+    - `immer::set_transient` is $1.55$ times faster than `std::unordered_set`.
+    - `SimplePersistentHashSet` is $2.56$ times faster than `std::unordered_set`.
+    - `SimplePersistentHashSet` is $1.65$ times faster than `immer::set_transient`.
+- Notes
+  - [Library](https://github.com/philsquared/hash_trie) written by Phil Nash was also tested, but is disqualified from benchmarks, because it seems to [contain](https://github.com/philsquared/hash_trie/issues/6) critical bugs (although it seems to perform approximately the same or slightly faster than `immer::set_transient`).
+  - Different hash sets are defined in [Game/Algorithms/PersistentHashSet.h](3DRoguelike/3DRoguelike/Game/Algorithms/PersistentHashSet.h).
+  - Immer library - [github](https://github.com/arximboldi/immer).
+  - Seed can be set in [Resources/Configuration/config.yaml](3DRoguelike/3DRoguelike/Resources/Configuration/config.yaml).
+- TODO: other seeds should also be benchmarked, as well as maps of different dimensions.

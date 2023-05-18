@@ -119,6 +119,14 @@ class Vector3D {
         return outOfBounds;
     }
 
+    auto begin() const {
+        return data.begin();
+    }
+
+    auto end() const {
+        return data.end();
+    }
+
  private:
     Dimensions dimensions;
     std::vector<T> data;

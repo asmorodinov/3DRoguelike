@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 
+// Measures duration of a scope and prints it to console
 class LogDuration {
  public:
     explicit LogDuration(const std::string& msg = "") : message(msg + ": "), start(std::chrono::steady_clock::now()) {
@@ -13,10 +14,13 @@ class LogDuration {
 
     ~LogDuration() {
         auto finish = std::chrono::steady_clock::now();
-        auto dur = finish - start;
         std::ostringstream os;
-        os << message << std::chrono::duration_cast<std::chrono::microseconds>(dur).count() << " us" << std::endl;
+        os << message << diff(start, finish) << " us" << std::endl;
         std::cerr << os.str();
+    }
+
+    static long long diff(std::chrono::steady_clock::time_point start, std::chrono::steady_clock::time_point finish) {
+        return std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
     }
 
  private:
@@ -31,7 +35,8 @@ class LogDuration {
 
 #define LOG
 #ifdef LOG
-#define LOG_DURATION(message) LogDuration UNIQ_ID(__LINE__){message};
+#define LOG_DURATION(message) \
+    LogDuration UNIQ_ID(__LINE__) { message }
 #else
 #define LOG_DURATION(message)
 #endif

@@ -4,11 +4,18 @@
 #include <unordered_set>
 #include <utility>
 
-#include "../Assert.h"
+#include "../Utility/LogDuration.h"
+#include "../Utility/MeasureStatistics.h"
+
+std::uint32_t id(const glm::vec3& coords, const Dimensions& dimensions) {
+    auto res = static_cast<std::uint64_t>(CoordinatesToIndex(coords, dimensions));
+    // res = res * 11400714819323198549ull;
+    return static_cast<std::uint32_t>(res);
+}
 
 // A* with staircases placement support
 
-Pathfinder::Node::Node(const glm::ivec3& coords) : position(coords), previous(nullptr), previousSet(), cost(0.0f) {
+Pathfinder::Node::Node(const glm::ivec3& coords) : position(coords) {
 }
 
 size_t Pathfinder::NodePtrHashFunction::operator()(const NodePtr node) const {
@@ -28,7 +35,7 @@ bool Pathfinder::NodePtrCmpFunction::operator()(const NodePtr lhs, const NodePtr
     return false;
 }
 
-Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()), queue(), closed() {
+Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()), queue() {
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
             for (size_t z = 0; z < dimensions.length; ++z) {
@@ -40,9 +47,11 @@ Pathfinder::Pathfinder(const Dimensions& dimensions) : grid(dimensions, Node()),
 
 std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& start, const std::vector<glm::ivec3>& finish, const glm::ivec3& target,
                                              const TilesVec& world) {
+    LOG_DURATION("Pathfinder::FindPath");
+    MEASURE_STAT(findPath);
+
     ResetNodes();
     queue = Queue();
-    closed.clear();
 
     const auto& dimensions = world.GetDimensions();
     auto finishSet = std::unordered_set<glm::ivec3>(finish.begin(), finish.end());
@@ -57,7 +66,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
         auto nodePtr = *(queue.begin());
         queue.erase(nodePtr);
 
-        closed.insert(nodePtr);
+        nodePtr->closed = true;
 
         const auto& nodeCoords = nodePtr->position;
 
@@ -65,13 +74,17 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
             return reconstructPath(nodePtr);
         }
 
-        for (const auto& neighbourCoords : TilesInBounds(GetNeighboursWithStairs(nodeCoords), dimensions, {0, 1, 0})) {
-            auto& neighbour = grid.Get(neighbourCoords);
-
-            if (closed.contains(&neighbour)) {
+        for (const auto& neighbourCoords : GetNeighboursWithStairs(nodeCoords)) {
+            if (!IsInBounds(neighbourCoords, dimensions, {0, 1, 0})) {
                 continue;
             }
-            if (nodePtr->previousSet.contains(neighbour.position)) {
+
+            auto& neighbour = grid.Get(neighbourCoords);
+
+            if (neighbour.closed) {
+                continue;
+            }
+            if (nodePtr->previousSet.contains(id(neighbour.position, dimensions))) {
                 continue;
             }
 
@@ -84,7 +97,7 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 
                 auto contains = false;
                 for (const auto& tile : stairsInfo.stairsTiles) {
-                    if (nodePtr->previousSet.contains(tile)) {
+                    if (nodePtr->previousSet.contains(id(tile, dimensions))) {
                         contains = true;
                         break;
                     }
@@ -102,12 +115,12 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
                 queue.insert(&neighbour);
 
                 neighbour.previousSet = nodePtr->previousSet;
-                neighbour.previousSet.insert(nodeCoords);
+                neighbour.previousSet.insert(id(nodeCoords, dimensions));
 
                 if (pathCost.isStairs) {
                     auto stairsInfo = GetStairsInfo(neighbourCoords, nodeCoords);
                     for (const auto& tile : stairsInfo.stairsTiles) {
-                        neighbour.previousSet.insert(tile);
+                        neighbour.previousSet.insert(id(tile, dimensions));
                     }
                 }
             }
@@ -118,6 +131,8 @@ std::vector<glm::ivec3> Pathfinder::FindPath(const std::vector<glm::ivec3>& star
 }
 
 void Pathfinder::ResetNodes() {
+    LOG_DURATION("Pathfinder::ResetNodes");
+
     const auto& dimensions = grid.GetDimensions();
     for (size_t x = 0; x < dimensions.width; ++x) {
         for (size_t y = 0; y < dimensions.height; ++y) {
@@ -126,6 +141,7 @@ void Pathfinder::ResetNodes() {
                 node.previous = nullptr;
                 node.cost = std::numeric_limits<float>::infinity();
                 node.previousSet.clear();
+                node.closed = false;
             }
         }
     }
@@ -214,6 +230,8 @@ Pathfinder::PathCost Pathfinder::costFunction(const NodePtr a, const NodePtr b, 
 }
 
 void PlacePathWithStairs(const std::vector<glm::ivec3>& path, TilesVec& world, const Tile& wall, const Tile& air, const Tile& stairsAir) {
+    LOG_DURATION("Pathfinder - PlacePathWithStairs");
+
     // place air and stairs tiles
 
     auto stairsVec = std::vector<glm::ivec3>();

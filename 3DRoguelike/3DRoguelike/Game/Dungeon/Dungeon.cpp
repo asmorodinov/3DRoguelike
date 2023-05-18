@@ -4,13 +4,17 @@
 #include <glm/gtx/norm.hpp>
 
 #include <vector>
-#include <unordered_set>
+#include <set>
+#include <fstream>
 
 #include "../Algorithms/Pathfind.h"
 #include "../Algorithms/Delaunay3D.h"
 #include "../Algorithms/MST.h"
 
 #include "../Assets.h"
+#include "../Utility/LogDuration.h"
+#include "../Utility/CompareFiles.h"
+#include "../Utility/MeasureStatistics.h"
 
 static const auto offset = glm::ivec3(5, 5, 5);
 
@@ -39,6 +43,9 @@ Room getRandomRoom(RNG& rng) {
 }
 
 void Dungeon::placeRooms() {
+    LOG_DURATION("Dungeon::placeRooms");
+    MEASURE_STAT(generateRooms);
+
     auto tries = 1000;
     auto roomCnt = 10;
 
@@ -74,6 +81,9 @@ void Dungeon::placeRooms() {
 }
 
 void Dungeon::placeCorridors() {
+    LOG_DURATION("Dungeon::placeCorridors");
+    MEASURE_STAT(generateCorridors);
+
     auto air = Tile{TileType::CorridorAir, TileOrientation::None, TextureType::None, glm::vec3(1.0f)};
 
     // determine which rooms should be connected
@@ -96,18 +106,29 @@ void Dungeon::placeCorridors() {
     auto mstEdges = MinimumSpanningTree(edges, points.size(), weights);
 
     // add some edges from triangulation to MST edges
-    auto finalEdges = std::unordered_set<Edge, Edge::HashFunction>(mstEdges.begin(), mstEdges.end());
+    auto finalEdges = std::set<Edge>(mstEdges.begin(), mstEdges.end());
     for (const auto& edge : edges) {
         if (rng.RandomBool(0.2f)) {
             finalEdges.insert(edge);
         }
     }
 
+    // shuffle edges randomly (but deterministically)
+    auto shuffledEdges = std::vector<Edge>(finalEdges.begin(), finalEdges.end());
+    std::sort(shuffledEdges.begin(), shuffledEdges.end());
+    rng.Shuffle(shuffledEdges.begin(), shuffledEdges.end());
+
+    LOG_DURATION("Dungeon::placeCorridors - finding paths");
+
     // connect rooms with corridors
     auto pathfinder = Pathfinder(dimensions);
 
     std::cout << "Connecting rooms..." << std::endl;
-    for (const auto& [v1, v2] : finalEdges) {
+    for (auto [v1, v2] : shuffledEdges) {
+        if (rng.RandomBool()) {
+            std::swap(v1, v2);
+        }
+
         std::cout << v1 << " " << v2 << std::endl;
 
         const auto& r1 = rooms[v1];
@@ -139,6 +160,8 @@ void Dungeon::placeCorridors() {
 }
 
 void Dungeon::reset() {
+    LOG_DURATION("Dungeon::reset");
+
     rooms.clear();
     tiles = TilesVec(dimensions, Tile());
 }
@@ -159,6 +182,9 @@ void addTile(const glm::ivec3& coords, std::vector<PositionColor>& blocks, std::
 }
 
 void Dungeon::Generate() {
+    LOG_DURATION("Dungeon::Generate");
+    MEASURE_STAT(generateDungeon);
+
     reset();
 
     std::cout << "Seed: " << seed << std::endl;
@@ -189,6 +215,15 @@ void Dungeon::Generate() {
         addTile(coords, tilesData, stairsData, tiles);
     }
 
+    auto filename = std::to_string(seed) + ".txt";
+    auto canon_filename = "canon_" + filename;
+    Serialize(filename);
+
+    if (!util::FilesAreEqual(canon_filename, filename)) {
+        std::cout << "Canon test failed!\n";
+        LOG_ASSERT(false);
+    }
+
     renderer.InitInstancedRendering(tilesData, stairsData);
 }
 
@@ -212,4 +247,26 @@ size_t Dungeon::WhichRoomPointIsInside(const glm::ivec3& coords) const {
     }
 
     return rooms.size();
+}
+
+void Dungeon::Serialize(std::string filename) const {
+    auto file = std::ofstream(filename);
+
+    std::vector<std::string> lines;
+
+    size_t i = 0;
+    for (const auto& tile : tiles) {
+        lines.push_back(std::to_string(i++) + " " + std::to_string(static_cast<int>(tile.type)) + "\n");
+    }
+
+    for (const auto& [coords, tile] : tiles.GetOutOfBoundsMap()) {
+        lines.push_back(std::to_string(coords.x) + " " + std::to_string(coords.y) + " " + std::to_string(coords.z) + " " +
+                        std::to_string(static_cast<int>(tile.type)) + "\n");
+    }
+
+    std::sort(lines.begin(), lines.end());
+
+    for (const auto& line : lines) {
+        file << line;
+    }
 }
