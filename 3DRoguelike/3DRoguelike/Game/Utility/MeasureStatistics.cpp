@@ -71,8 +71,10 @@ void PrintReport() {
     std::cout << "----------\n";
 #endif
 
+#ifdef MEASURE_SIMPLE_SET_CORRECTNESS_STATISTICS
     std::cout << "all: " << s.all << " correct: " << s.correct << " false-positive: " << s.falsePositive << " false-negative: " << s.falseNegative
               << "\n";
+#endif
 }
 
 void Reset() {
@@ -85,6 +87,11 @@ void Reset() {
     CLEAR_STAT(generateRooms);
     CLEAR_STAT(generateCorridors);
     CLEAR_STAT(findPath);
+
+    s.correct = 0;
+    s.falsePositive = 0;
+    s.falseNegative = 0;
+    s.all = 0;
 }
 
 }  // namespace util

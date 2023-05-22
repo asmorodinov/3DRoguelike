@@ -237,8 +237,8 @@ class SimpleChecker {
 
 template <typename T>
 // using PersistentHashSetImpl = std::unordered_set<T>;
-// using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
-using PersistentHashSetImpl = SimpleChecker<T>;
+using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
+// using PersistentHashSetImpl = SimpleChecker<T>;
 //  using PersistentHashSetImpl = PersistentLinkedList<T>;
 //  using PersistentHashSetImpl = PersistentLinkedList<T, StdPoolAllocator<void, 1 << 23, 40>>;
 //  using PersistentHashSetImpl = boost::unordered_flat_set<T>;
@@ -252,10 +252,15 @@ using PersistentHashSetImpl = SimpleChecker<T>;
 // using PersistentHashSetImpl = SimplePersistentHashSet<T>;
 // using PersistentHashSetImpl = ImmerHashSet<T>;
 
+#ifdef MEASURE_SIMPLE_SET_CORRECTNESS_STATISTICS
+template <typename T>
+using PersistentHashSet = SimpleChecker<T>;
+#else
 #ifdef MEASURE_SET_STATISTICS
 template <typename T>
 using PersistentHashSet = util::MeasureStatisticsSet<T, PersistentHashSetImpl<T>>;
 #else
 template <typename T>
 using PersistentHashSet = PersistentHashSetImpl<T>;
+#endif
 #endif
