@@ -2,7 +2,7 @@
 
 ## How to build
 
-### Disclamer
+### Disclaimer
 - Originally, application was developed using Visual Studio 2022 (with CMake project) on Windows 10. 
 - vcpkg was used as a package manager
 - Other OS (Linux, Mac) were not tested, but in theory, code should be cross-platform.
@@ -38,5 +38,5 @@ OpenGL is used to render the scene, with the help of GLFW and GLAD C++ libraries
 
 ## Assets used
 - Font - [mago1](https://eng.fontke.com/font/166545108/detail/) Medium 001.000 (used for personal trial only).
-- Textures - [dungeon-crawl-32x32-tiles](https://opengameart.org/sites/default/files/ProjectUtumno_full_0.png).
+- Textures - [dungeon-crawl-32x32-tiles](https://opengameart.org/content/dungeon-crawl-32x32-tiles).
 - Shaders - [text.vs](https://learnopengl.com/code_viewer_gh.php?code=src/7.in_practice/2.text_rendering/text.vs), [text.fs](https://learnopengl.com/code_viewer_gh.php?code=src/7.in_practice/2.text_rendering/text.fs).
