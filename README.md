@@ -40,3 +40,45 @@ OpenGL is used to render the scene, with the help of GLFW and GLAD C++ libraries
 - Font - [mago1](https://eng.fontke.com/font/166545108/detail/) Medium 001.000 (used for personal trial only).
 - Textures - [dungeon-crawl-32x32-tiles](https://opengameart.org/content/dungeon-crawl-32x32-tiles).
 - Shaders - [text.vs](https://learnopengl.com/code_viewer_gh.php?code=src/7.in_practice/2.text_rendering/text.vs), [text.fs](https://learnopengl.com/code_viewer_gh.php?code=src/7.in_practice/2.text_rendering/text.fs).
+
+
+## Screenshots
+
+### Normal level, size = 50x20x50, 10 rooms, 17 corridors, seed = 1236
+
+#### Outside
+![level](screenshots/level.png)
+![level](screenshots/level2.png)
+#### Inside
+![inside](screenshots/inside.png)
+
+### Rooms
+
+#### Rectangular room
+##### Outside
+![rectangular room](screenshots/rectangleroom.png)
+##### Inside
+![rectangular room](screenshots/rectangleroom2.png)
+
+#### Oval (ellipsoid) room
+##### Outside
+![oval room](screenshots/ovalroom.png)
+##### Inside
+![oval room](screenshots/ovalroom2.png)
+
+#### Cylinder room
+##### Outside
+![cylinder room](screenshots/cylinderroom.png)
+##### Inside
+![cylinder room](screenshots/cylinderroom2.png)
+
+### Corridors
+![corridor](screenshots/corridor.png)
+![stairs](screenshots/stairs2.png)
+![stairs](screenshots/stairs.png)
+![stairs](screenshots/stairs3.png)
+
+### Big level, size = 100x40x100, 10 rooms, 10 corridors, seed = 1236
+![big level](screenshots/biglevel.png)
+![big level](screenshots/biglevel2.png)
+![big level](screenshots/biglevel3.png)
