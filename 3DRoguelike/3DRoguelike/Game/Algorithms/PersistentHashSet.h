@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <utility>
 #include <cstdint>
+#include <limits>
+#include <concepts>
 
 #define IMMER_NO_THREAD_SAFETY 1
 #include <immer/set.hpp>
@@ -68,10 +70,11 @@ class ImmerPersistentHashSet {
     Set set;
 };
 
-template <typename T>
+template <std::unsigned_integral T, std::unsigned_integral Bitmap = std::uint64_t>
 class ImmerPersistentVector {
  public:
-    ImmerPersistentVector() = default;
+    ImmerPersistentVector() : vector(EmptyVector()) {
+    }
 
     bool contains(const T& value) const {
         return GetBit(vector.at(value / bits), value % bits);
@@ -83,22 +86,28 @@ class ImmerPersistentVector {
     }
 
     void clear() {
-        vector = Vector(size, 0);
+        vector = EmptyVector();
     }
 
  private:
-    static inline bool GetBit(std::uint32_t value, int bit) {
-        return value & (1 << bit);
+    using Vector = immer::vector<Bitmap>;
+
+    static const Vector& EmptyVector() {
+        static const Vector vec = Vector(size, 0);
+        return vec;
     }
-    static inline std::uint32_t SetBit(std::uint32_t value, int bit) {
-        return value | (1 << bit);
+
+    static inline bool GetBit(Bitmap value, int bit) {
+        return value & (Bitmap(1) << bit);
+    }
+    static inline Bitmap SetBit(Bitmap value, int bit) {
+        return value | (Bitmap(1) << bit);
     }
 
  private:
-    using Vector = immer::vector<std::uint32_t>;
-    Vector vector = Vector(size, 0);
+    Vector vector;
 
-    static constexpr size_t bits = 32;
+    static constexpr size_t bits = std::numeric_limits<Bitmap>::digits;
     static constexpr size_t size = (60 * 30 * 60 + bits - 1) / bits;
     static constexpr size_t elems = size * bits;
 };
@@ -237,7 +246,7 @@ class SimpleChecker {
 
 template <typename T>
 // using PersistentHashSetImpl = std::unordered_set<T>;
-using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
+// using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
 // using PersistentHashSetImpl = SimpleChecker<T>;
 //  using PersistentHashSetImpl = PersistentLinkedList<T>;
 //  using PersistentHashSetImpl = PersistentLinkedList<T, StdPoolAllocator<void, 1 << 23, 40>>;
@@ -246,7 +255,7 @@ using PersistentHashSetImpl = ImmerPersistentHashSet<T>;
 //  using PersistentHashSetImpl = sk::patricia_set<T>;
 //  using PersistentHashSetImpl = ikos::core::PatriciaTreeSet<ikos::core::Index>;
 //  using PersistentHashSetImpl = sparta::PatriciaTreeSet<T>;
-//  using PersistentHashSetImpl = ImmerPersistentVector<T>;
+using PersistentHashSetImpl = ImmerPersistentVector<T>;
 //  using PersistentHashSetImpl = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
 // using PersistentHashSetImpl = AlwaysEmptyHashSet<T>;
 // using PersistentHashSetImpl = SimplePersistentHashSet<T>;
