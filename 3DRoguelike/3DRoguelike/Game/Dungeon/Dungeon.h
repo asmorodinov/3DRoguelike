@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "Tile.h"
 #include "WorldGrid.h"
@@ -26,6 +27,8 @@ class Dungeon {
 
     void Serialize(std::string filename) const;
 
+    void InitInstancedRendering();
+
  private:
     void placeRooms();
     void placeCorridors();
@@ -37,7 +40,7 @@ class Dungeon {
     RNG rng;
     TilesVec tiles;
     std::vector<Room> rooms;
-    TileRenderer renderer;
+    std::unique_ptr<TileRenderer> renderer;
 
     glm::ivec3 spawn;
 };

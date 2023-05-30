@@ -200,21 +200,6 @@ void Dungeon::Generate() {
     const auto& room = rooms[roomIndex];
     spawn = RoomCenterCoords(room);
 
-    auto tilesData = std::vector<PositionColor>();
-    auto stairsData = std::array<std::vector<PositionColor>, 4>({{}, {}, {}, {}});
-
-    for (size_t x = 0; x < dimensions.width; ++x) {
-        for (size_t y = 0; y < dimensions.height; ++y) {
-            for (size_t z = 0; z < dimensions.length; ++z) {
-                auto coords = glm::ivec3{x, y, z};
-                addTile(coords, tilesData, stairsData, tiles);
-            }
-        }
-    }
-    for (const auto& [coords, tile] : tiles.GetOutOfBoundsMap()) {
-        addTile(coords, tilesData, stairsData, tiles);
-    }
-
     auto filename = std::to_string(seed) + ".txt";
     auto canon_filename = "canon_" + filename;
     Serialize(filename);
@@ -223,12 +208,10 @@ void Dungeon::Generate() {
         std::cout << "Canon test failed!\n";
         // LOG_ASSERT(false);
     }
-
-    renderer.InitInstancedRendering(tilesData, stairsData);
 }
 
 void Dungeon::Render() {
-    renderer.RenderTilesInstanced();
+    renderer->RenderTilesInstanced();
 }
 
 const TilesVec& Dungeon::GetTiles() const {
@@ -269,4 +252,26 @@ void Dungeon::Serialize(std::string filename) const {
     for (const auto& line : lines) {
         file << line;
     }
+}
+
+void Dungeon::InitInstancedRendering() {
+    auto tilesData = std::vector<PositionColor>();
+    auto stairsData = std::array<std::vector<PositionColor>, 4>({{}, {}, {}, {}});
+
+    for (size_t x = 0; x < dimensions.width; ++x) {
+        for (size_t y = 0; y < dimensions.height; ++y) {
+            for (size_t z = 0; z < dimensions.length; ++z) {
+                auto coords = glm::ivec3{x, y, z};
+                addTile(coords, tilesData, stairsData, tiles);
+            }
+        }
+    }
+    for (const auto& [coords, tile] : tiles.GetOutOfBoundsMap()) {
+        addTile(coords, tilesData, stairsData, tiles);
+    }
+
+    if (!renderer) {
+        renderer = std::make_unique<TileRenderer>();
+    }
+    renderer->InitInstancedRendering(tilesData, stairsData);
 }

@@ -58,6 +58,26 @@ SeedType seed = 0;
 auto disableCollision = false;
 
 int main() {
+    // Generate dungeon
+
+    // auto dimensions = Dimensions{100, 40, 100};
+    auto dimensions = Dimensions{50, 20, 50};
+
+    auto dungeon = Dungeon(dimensions);
+
+    if (Assets::HasConfigParameter("seed")) {
+        seed = Assets::GetConfigParameter<SeedType>("seed");
+    } else {
+        seed = RNG(SeedType()).RandomSeed();
+    }
+
+    dungeon.SetSeed(seed);
+    dungeon.Generate();
+
+    // print statistics report
+    util::PrintReport();
+    util::Reset();
+
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -103,23 +123,7 @@ int main() {
 
     Assets::Get().orthogonalProjection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
 
-    // auto dimensions = Dimensions{100, 40, 100};
-    auto dimensions = Dimensions{50, 20, 50};
-
-    auto dungeon = Dungeon(dimensions);
-
-    if (Assets::HasConfigParameter("seed")) {
-        seed = Assets::GetConfigParameter<SeedType>("seed");
-    } else {
-        seed = RNG(SeedType()).RandomSeed();
-    }
-
-    dungeon.SetSeed(seed);
-    dungeon.Generate();
-
-    // print statistics report
-    util::PrintReport();
-    util::Reset();
+    dungeon.InitInstancedRendering();
 
     player.SetFlying(true);
     player.SetPosition(glm::vec3(dungeon.GetSpawnPoint()));
@@ -159,6 +163,7 @@ int main() {
             generate = false;
             dungeon.SetSeed(seed);
             dungeon.Generate();
+            dungeon.InitInstancedRendering();
             player.SetPosition(glm::vec3(dungeon.GetSpawnPoint()));
             camera.Position = player.GetPosition();
 
