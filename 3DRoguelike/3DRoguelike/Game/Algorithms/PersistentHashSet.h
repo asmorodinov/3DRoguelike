@@ -129,9 +129,9 @@ class AlwaysEmptyHashSet {
 };
 
 template <typename T>
-class SimplePersistentHashSet {
+class NaivePersistentHashSet {
  public:
-    SimplePersistentHashSet() = default;
+    NaivePersistentHashSet() = default;
 
     bool contains(const T& value) const {
         if (!data) {
@@ -241,7 +241,7 @@ class SimpleChecker {
 
  private:
     ImmerPersistentHashSet<T> good;
-    SimplePersistentHashSet<T> bad;
+    NaivePersistentHashSet<T> bad;
 };
 
 template <typename T>
@@ -258,7 +258,7 @@ template <typename T>
 using PersistentHashSetImpl = ImmerPersistentVector<T>;
 //  using PersistentHashSetImpl = HAMT::Set<std::uint32_t, std::uint8_t, std::uint64_t, 5, 6>;
 // using PersistentHashSetImpl = AlwaysEmptyHashSet<T>;
-// using PersistentHashSetImpl = SimplePersistentHashSet<T>;
+// using PersistentHashSetImpl = NaivePersistentHashSet<T>;
 // using PersistentHashSetImpl = ImmerHashSet<T>;
 
 #ifdef MEASURE_SIMPLE_SET_CORRECTNESS_STATISTICS
