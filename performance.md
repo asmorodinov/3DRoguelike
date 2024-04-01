@@ -10,7 +10,7 @@ Seed was set to 1236 in both cases.
 
 For each level, time to generate all corridors were measured (in seconds). Room generation was not tested, because it does not depend on persistent hash set data structure.
 
-Different persistent hash set implementations were tested (they can be selected in the [PersistentHashSet.h](3DRoguelike/3DRoguelike/Game\Algorithms\PersistentHashSet.h) header file).
+Different persistent hash set implementations were tested (they can be selected in the [PersistentHashSet.h](3DRoguelike/3DRoguelike/Game/Algorithms/PersistentHashSet.h) header file).
 
 ## Used hardware
 
